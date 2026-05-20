@@ -971,22 +971,7 @@ let viewingPhoto = null;
 
 // ── API HELPERS ───────────────────────────────────────────────
 async function apiGet(action) {
-  const url = API + '?action=' + action + '&callback=cb_' + action;
-  return new Promise((resolve, reject) => {
-    const cbName = 'cb_' + action + '_' + Date.now();
-    const script = document.createElement('script');
-    // JSONP approach for GET — avoids CORS preflight
-    const uniqueCb = 'jsonp_' + Date.now() + '_' + Math.random().toString(36).slice(2);
-    window[uniqueCb] = function(data) {
-      delete window[uniqueCb];
-      document.body.removeChild(script);
-      if (data.success) resolve(data.data);
-      else reject(new Error(data.error || 'API error'));
-    };
-    script.src = API + '?action=' + action + '&callback=' + uniqueCb;
-    script.onerror = () => { delete window[uniqueCb]; reject(new Error('Network error')); };
-    document.body.appendChild(script);
-  });
+  return apiPost({ action });
 }
 
 async function apiPost(body) {
