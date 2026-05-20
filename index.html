@@ -1577,7 +1577,7 @@ function renderPeopleTable(people) {
   document.getElementById('peopleTable').innerHTML=h;
 }
 
-let currentPerson=null;
+
 function openPersonModal(person) {
   currentPerson=person||null; const isEdit=!!person;
   document.getElementById('personModalTitle').textContent=isEdit?'Edit Person':'Add Person';
