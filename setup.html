@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="MC Tasks">
+<meta name="theme-color" content="#0f172a">
+<link rel="apple-touch-icon" href="icon.png">
+<title>Install MC Tasks</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #0f172a; color: #e2e8f0;
+  min-height: 100vh; min-height: 100dvh;
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 40px 20px 60px;
+  overflow-x: hidden;
+}
+
+.card {
+  background: #1e293b; border: 1px solid #334155;
+  border-radius: 24px; padding: 36px 28px;
+  width: 100%; max-width: 400px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+}
+
+/* App icon */
+.app-icon-wrap {
+  width: 96px; height: 96px; border-radius: 22px;
+  overflow: hidden; margin: 0 auto 20px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+.app-icon-wrap svg { width: 100%; height: 100%; }
+.app-name { font-size: 26px; font-weight: 800; text-align: center; margin-bottom: 4px; }
+.app-sub  { font-size: 15px; color: #64748b; text-align: center; margin-bottom: 32px; }
+
+/* ── ALREADY INSTALLED ── */
+.panel-installed {
+  display: none; text-align: center;
+}
+.panel-installed .big-emoji { font-size: 56px; margin-bottom: 16px; }
+.panel-installed h2 { font-size: 22px; font-weight: 800; color: #86efac; margin-bottom: 8px; }
+.panel-installed p  { font-size: 15px; color: #4ade80; line-height: 1.6; margin-bottom: 24px; }
+.btn-open {
+  display: block; width: 100%; padding: 16px;
+  background: #10b981; color: white; border: none;
+  border-radius: 14px; font-size: 18px; font-weight: 700;
+  cursor: pointer; text-decoration: none; text-align: center;
+}
+.btn-open:active { background: #059669; }
+
+/* ── CHROME WARNING ── */
+.panel-chrome { display: none; }
+.chrome-header { text-align: center; margin-bottom: 24px; }
+.chrome-header .emoji { font-size: 40px; margin-bottom: 12px; }
+.chrome-header h2 { font-size: 20px; font-weight: 800; color: #fbbf24; margin-bottom: 8px; }
+.chrome-header p  { font-size: 15px; color: #d97706; line-height: 1.6; }
+
+.btn-copy {
+  width: 100%; padding: 16px; border-radius: 14px;
+  background: #f59e0b; color: #0f172a; border: none;
+  font-size: 17px; font-weight: 800; cursor: pointer;
+  margin-bottom: 24px; transition: background 0.15s;
+}
+.btn-copy:active { background: #d97706; }
+
+.steps { display: flex; flex-direction: column; gap: 0; }
+.step {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 14px 0; border-bottom: 1px solid #263347;
+}
+.step:last-child { border-bottom: none; }
+.step-num {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: #92400e; color: #fbbf24;
+  font-size: 14px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 1px;
+}
+.step-text { font-size: 15px; color: #d6d3d1; line-height: 1.5; }
+.step-text strong { color: #fbbf24; }
+
+/* ── SAFARI INSTRUCTIONS ── */
+.panel-safari { display: none; }
+.safari-header { text-align: center; margin-bottom: 8px; }
+.safari-header h2 { font-size: 20px; font-weight: 800; color: #e2e8f0; margin-bottom: 6px; }
+.safari-header p  { font-size: 14px; color: #64748b; line-height: 1.5; margin-bottom: 24px; }
+
+.safari-steps { display: flex; flex-direction: column; gap: 0; margin-bottom: 28px; }
+.safari-step {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 16px 0; border-bottom: 1px solid #263347;
+}
+.safari-step:last-child { border-bottom: none; padding-bottom: 0; }
+.safari-step-num {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: #1d4ed8; color: white;
+  font-size: 15px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 2px;
+}
+.safari-step-body { flex: 1; }
+.safari-step-title { font-size: 16px; font-weight: 700; color: #e2e8f0; margin-bottom: 4px; }
+.safari-step-desc  { font-size: 14px; color: #94a3b8; line-height: 1.5; }
+
+/* Share button illustration */
+.share-illus {
+  background: #0f172a; border-radius: 10px; border: 1px solid #263347;
+  padding: 14px; margin-top: 10px; text-align: center;
+}
+
+/* Animated bounce */
+@keyframes bounce {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(-5px); }
+}
+.bounce { animation: bounce 1.2s ease-in-out infinite; display: inline-block; }
+
+.divider {
+  display: flex; align-items: center; gap: 10px;
+  margin: 20px 0; color: #475569; font-size: 13px;
+}
+.divider::before, .divider::after {
+  content: ''; flex: 1; height: 1px; background: #334155;
+}
+
+.btn-open-now {
+  display: block; width: 100%; padding: 14px;
+  background: transparent; color: #3b82f6;
+  border: 1.5px solid #3b82f6; border-radius: 14px;
+  font-size: 16px; font-weight: 700; cursor: pointer;
+  text-align: center; text-decoration: none;
+  transition: all 0.15s;
+}
+.btn-open-now:hover { background: #3b82f6; color: white; }
+
+.footer-note {
+  font-size: 12px; color: #475569; text-align: center;
+  margin-top: 20px; line-height: 1.6;
+}
+
+/* Toast */
+.toast {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%);
+  background: #052e16; border: 1px solid #166534; color: #86efac;
+  border-radius: 10px; padding: 12px 20px; font-size: 15px;
+  z-index: 999; display: none; white-space: nowrap;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+.toast.show { display: block; animation: fadeUp 0.2s ease; }
+@keyframes fadeUp { from { opacity:0; transform:translateX(-50%) translateY(8px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
+</style>
+</head>
+<body>
+<div class="card">
+
+  <!-- App Icon -->
+  <div class="app-icon-wrap">
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <rect width="100" height="100" fill="#0f172a"/>
+      <rect x="8" y="22" width="84" height="46" rx="7" fill="#3b82f6"/>
+      <rect x="14" y="30" width="20" height="16" rx="3" fill="#dbeafe"/>
+      <rect x="40" y="30" width="20" height="16" rx="3" fill="#dbeafe"/>
+      <rect x="66" y="30" width="16" height="16" rx="3" fill="#dbeafe"/>
+      <rect x="14" y="30" width="20" height="5" rx="2" fill="#eff6ff" opacity=".7"/>
+      <rect x="40" y="30" width="20" height="5" rx="2" fill="#eff6ff" opacity=".7"/>
+      <rect x="66" y="30" width="16" height="5" rx="2" fill="#eff6ff" opacity=".7"/>
+      <rect x="14" y="50" width="58" height="10" rx="2" fill="#bfdbfe"/>
+      <rect x="74" y="34" width="14" height="22" rx="3" fill="#1d4ed8"/>
+      <rect x="78" y="34" width="4" height="22" rx="2" fill="#1e40af"/>
+      <rect x="79" y="43" width="2" height="5" rx="1" fill="#93c5fd"/>
+      <rect x="8" y="64" width="84" height="6" fill="#1e40af"/>
+      <rect x="12" y="68" width="76" height="4" rx="2" fill="#1e3a8a"/>
+      <circle cx="24" cy="76" r="9" fill="#0f172a"/>
+      <circle cx="24" cy="76" r="5" fill="#1e293b"/>
+      <circle cx="24" cy="76" r="2.5" fill="#3b82f6"/>
+      <circle cx="76" cy="76" r="9" fill="#0f172a"/>
+      <circle cx="76" cy="76" r="5" fill="#1e293b"/>
+      <circle cx="76" cy="76" r="2.5" fill="#3b82f6"/>
+      <rect x="8" y="28" width="4" height="8" rx="2" fill="#fbbf24"/>
+      <rect x="8" y="28" width="4" height="3" rx="1" fill="#fef3c7"/>
+      <rect x="88" y="30" width="3" height="6" rx="1.5" fill="#ef4444"/>
+      <text x="50" y="94" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="11" font-weight="800" fill="#e2e8f0" letter-spacing="2">TASKS</text>
+    </svg>
+  </div>
+
+  <div class="app-name">Midnight Coach Tasks</div>
+  <div class="app-sub">Shop Task Manager</div>
+
+  <!-- PANEL: Already installed -->
+  <div class="panel-installed" id="panelInstalled">
+    <div class="big-emoji">✅</div>
+    <h2>Already Installed!</h2>
+    <p>MC Tasks is already on your home screen. You're all set.</p>
+    <a class="btn-open" href="https://itsamedavid.github.io/mc-tasks/">Open the App</a>
+  </div>
+
+  <!-- PANEL: Chrome on iOS -->
+  <div class="panel-chrome" id="panelChrome">
+    <div class="chrome-header">
+      <div class="emoji">🌐</div>
+      <h2>Switch to Safari First</h2>
+      <p>To add this app to your iPhone home screen, you need to use Safari — not Chrome.</p>
+    </div>
+    <button class="btn-copy" id="copyBtn" onclick="copySetupLink()">
+      📋 Copy Setup Link
+    </button>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-text">Tap <strong>Copy Setup Link</strong> above</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-text">Open the <strong>Safari</strong> app on your iPhone</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-text">Tap the address bar at the top, paste the link, and tap Go</div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-text">Follow the instructions that appear to add to your home screen</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL: Safari instructions -->
+  <div class="panel-safari" id="panelSafari">
+    <div class="safari-header">
+      <h2>Add to Your Home Screen</h2>
+      <p>Follow these 3 steps right now — you're already in Safari so you're ready to go.</p>
+    </div>
+
+    <div class="safari-steps">
+
+      <div class="safari-step">
+        <div class="safari-step-num">1</div>
+        <div class="safari-step-body">
+          <div class="safari-step-title">Tap the Share button</div>
+          <div class="safari-step-desc">
+            Look for the <strong style="color:#e2e8f0">share icon</strong> — it's a box with an arrow pointing up.
+            On newer iPhones it's at the <strong style="color:#e2e8f0">top right</strong> next to the address bar.
+            On older iPhones it's at the <strong style="color:#e2e8f0">bottom center</strong> of the screen.
+            Some versions hide it inside the <strong style="color:#e2e8f0">... menu</strong> at the bottom right.
+          </div>
+          <div class="share-illus">
+            <svg width="220" height="52" viewBox="0 0 220 52">
+              <!-- Address bar mockup -->
+              <rect x="0" y="0" width="220" height="52" rx="0" fill="#1e293b"/>
+              <rect x="8" y="10" width="150" height="32" rx="16" fill="#263347"/>
+              <text x="83" y="31" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="12" fill="#64748b">itsamedavid.github.io</text>
+              <!-- Share button highlighted top right -->
+              <rect x="168" y="8" width="44" height="36" rx="10" fill="#1d4ed8" opacity=".3"/>
+              <text x="190" y="31" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="22" fill="#3b82f6">⬆</text>
+              <!-- Bouncing arrow -->
+              <g class="bounce">
+                <text x="190" y="10" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="10" fill="#3b82f6" font-weight="700">tap</text>
+              </g>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="safari-step">
+        <div class="safari-step-num">2</div>
+        <div class="safari-step-body">
+          <div class="safari-step-title">Tap "Add to Home Screen"</div>
+          <div class="safari-step-desc">Scroll down in the share sheet until you see this option.</div>
+          <div class="share-illus">
+            <svg width="220" height="52" viewBox="0 0 220 52">
+              <rect x="10" y="8" width="200" height="36" rx="10" fill="#263347"/>
+              <text x="36" y="32" font-family="-apple-system,sans-serif" font-size="20" fill="#e2e8f0">＋</text>
+              <text x="58" y="32" font-family="-apple-system,sans-serif" font-size="14" font-weight="600" fill="#e2e8f0">Add to Home Screen</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="safari-step">
+        <div class="safari-step-num">3</div>
+        <div class="safari-step-body">
+          <div class="safari-step-title">Tap "Add" to confirm</div>
+          <div class="safari-step-desc">
+            Change the name to <strong style="color:#e2e8f0">MC Tasks</strong> if you like,
+            then tap <strong style="color:#3b82f6">Add</strong> in the top right corner.
+          </div>
+          <div class="share-illus">
+            <svg width="220" height="52" viewBox="0 0 220 52">
+              <rect x="0" y="0" width="220" height="52" rx="10" fill="#263347"/>
+              <text x="14" y="32" font-family="-apple-system,sans-serif" font-size="14" fill="#3b82f6" font-weight="600">Cancel</text>
+              <text x="110" y="32" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="13" font-weight="700" fill="#e2e8f0">Add to Home Screen</text>
+              <rect x="174" y="14" width="36" height="24" rx="7" fill="#3b82f6"/>
+              <text x="192" y="31" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="14" font-weight="800" fill="white">Add</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /safari-steps -->
+
+    <div class="divider">or skip installing</div>
+    <a class="btn-open-now" href="https://itsamedavid.github.io/mc-tasks/">Open the App Now</a>
+    <p class="footer-note">For the best experience, always open from the home screen icon rather than a browser link.</p>
+
+  </div><!-- /panel-safari -->
+
+</div><!-- /card -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+var APP_URL   = 'https://itsamedavid.github.io/mc-tasks/';
+var SETUP_URL = 'https://itsamedavid.github.io/mc-tasks/setup.html';
+
+function detect() {
+  var ua = navigator.userAgent;
+
+  // Already installed as PWA / home screen app
+  if (window.navigator.standalone === true) {
+    show('panelInstalled');
+    return;
+  }
+
+  var isIOS    = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+  var isChrome = /CriOS/.test(ua);   // Chrome on iOS
+  var isFirefox= /FxiOS/.test(ua);   // Firefox on iOS
+
+  if (!isIOS) {
+    // Desktop or Android — show safari panel as generic install guide
+    show('panelSafari');
+    return;
+  }
+
+  if (isChrome || isFirefox) {
+    show('panelChrome');
+    return;
+  }
+
+  // Safari on iOS — show full instructions
+  show('panelSafari');
+}
+
+function show(id) {
+  document.getElementById(id).style.display = 'block';
+}
+
+function copySetupLink() {
+  var url = SETUP_URL;
+  var btn = document.getElementById('copyBtn');
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(function() {
+      btn.textContent = '✓ Copied! Now open Safari and paste.';
+      btn.style.background = '#10b981';
+      showToast('Link copied! Open Safari and paste it.');
+    }).catch(function() { fallbackCopy(url, btn); });
+  } else {
+    fallbackCopy(url, btn);
+  }
+}
+
+function fallbackCopy(url, btn) {
+  var ta = document.createElement('textarea');
+  ta.value = url;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.focus(); ta.select();
+  try {
+    document.execCommand('copy');
+    btn.textContent = '✓ Copied! Now open Safari and paste.';
+    btn.style.background = '#10b981';
+    showToast('Link copied! Open Safari and paste it.');
+  } catch(e) {
+    btn.textContent = 'Could not copy — type this URL in Safari:';
+    showToast('Please manually open Safari and go to: ' + url);
+  }
+  document.body.removeChild(ta);
+}
+
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 4000);
+}
+
+detect();
+</script>
+</body>
+</html>
