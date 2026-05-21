@@ -1329,16 +1329,15 @@ function buildCard(task,type) {
     });
     h+='</div>';
   }
-  // Quick action bar (status dropdown + Done button)
+  // Quick action bar — use data-rowindex to avoid escaping hell
   if (task.status !== 'Done' && task.status !== 'Cancelled') {
-    const ts2 = JSON.stringify(task).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
     h+='<div class="card-actions">';
-    h+='<select class="card-status-select" onclick="event.stopPropagation()" onchange=\'quickCardStatus('+ts2+',this.value)\'>';
-    formData.statuses.forEach(s => {
-      h+='<option value="'+s+'"'+(task.status===s?' selected':'')+'>'+s+'</option>';
+    h+='<select class="card-status-select" data-row="'+task._rowIndex+'" onclick="event.stopPropagation()" onchange="cardStatusChange(this)">';
+    formData.statuses.forEach(function(s) {
+      h+='<option value="'+esc(s)+'"'+(task.status===s?' selected':'')+'>'+esc(s)+'</option>';
     });
     h+='</select>';
-    h+='<button class="card-done-btn" onclick=\'event.stopPropagation();quickCardStatus('+ts2+',\"Done\")\'>&check; Done</button>';
+    h+='<button class="card-done-btn" data-row="'+task._rowIndex+'" onclick="event.stopPropagation();cardDone(this)">✓ Done</button>';
     h+='</div>';
   }
   return h+'</div>';
@@ -1616,7 +1615,6 @@ function renderPeopleTable(people) {
   document.getElementById('peopleTable').innerHTML=h;
 }
 
-let currentPerson=null;
 function openPersonModal(person) {
   currentPerson=person||null; const isEdit=!!person;
   document.getElementById('personModalTitle').textContent=isEdit?'Edit Person':'Add Person';
@@ -1705,12 +1703,23 @@ function toast(msg,type) {
 }
 
 // ── QUICK CARD ACTIONS ────────────────────────────────────────
-async function quickCardStatus(task, newStatus) {
-  if (task.status === newStatus) return;
+// Card quick action helpers — look up task by rowIndex to avoid inline escaping
+function cardStatusChange(select) {
+  const rowIndex = parseInt(select.dataset.row);
+  const newStatus = select.value;
+  const task = allTasks.find(t => t._rowIndex === rowIndex);
+  if (!task || task.status === newStatus) return;
+  quickCardStatus(rowIndex, newStatus);
+}
+function cardDone(btn) {
+  const rowIndex = parseInt(btn.dataset.row);
+  quickCardStatus(rowIndex, 'Done');
+}
+async function quickCardStatus(rowIndex, newStatus) {
   try {
     const r = await apiPost({
       action: 'updateTask',
-      rowIndex: task._rowIndex,
+      rowIndex: rowIndex,
       data: { status: newStatus },
       userName: currentUser.name
     });
