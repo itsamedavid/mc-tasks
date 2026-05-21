@@ -581,6 +581,33 @@ textarea.field { min-height: 90px; resize: vertical; }
   .header-title { font-size: 20px; }
   .pin-key { height: 66px; }
 }
+
+.card-actions {
+  display: flex; align-items: center; gap: 8px;
+  margin-top: 10px; padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+.card-status-select {
+  flex: 1; padding: 6px 10px; border-radius: 20px;
+  font-size: 12px; font-weight: 600;
+  border: 1.5px solid var(--border); background: var(--bg3);
+  color: var(--text2); cursor: pointer;
+  appearance: none; -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 8px center;
+  padding-right: 28px; min-height: 30px;
+}
+.card-status-select:focus { outline: none; border-color: var(--accent); }
+.card-done-btn {
+  padding: 6px 14px; border-radius: 20px;
+  font-size: 12px; font-weight: 700;
+  border: 1.5px solid var(--success); background: transparent;
+  color: var(--success); cursor: pointer; transition: all 0.15s;
+  white-space: nowrap; flex-shrink: 0;
+}
+.card-done-btn:hover { background: var(--success); color: white; }
+.card-done-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
 </style>
 </head>
 <body class="dark">
@@ -736,7 +763,8 @@ textarea.field { min-height: 90px; resize: vertical; }
         <div class="form-section-title">Task Details</div>
         <div class="form-group">
           <label class="form-label">Task Name <span class="req">*</span></label>
-          <input id="f_name" class="field" type="text" placeholder="What needs to be done?">
+          <input id="f_name" class="field" type="text" placeholder="What needs to be done?" maxlength="30" oninput="updateNameCount(this,'addNameCount')">
+          <div style="text-align:right;font-size:12px;color:var(--text3);margin-top:4px"><span id="addNameCount">0</span>/30</div>
         </div>
         <div class="form-group">
           <label class="form-label">Notes</label>
@@ -866,9 +894,8 @@ textarea.field { min-height: 90px; resize: vertical; }
     <div class="modal-body" id="editBody"></div>
     <div class="modal-footer">
       <button class="btn btn-danger btn-sm" onclick="deleteTask()">Delete</button>
-      <button class="btn btn-success btn-sm" onclick="completeTask()">✓ Done</button>
       <button class="btn btn-secondary btn-sm" onclick="closeEdit()">Cancel</button>
-      <button class="btn btn-primary btn-sm" onclick="saveEdit()">Save</button>
+      <button class="btn btn-primary btn-sm" onclick="saveEdit()">Save &amp; Close</button>
     </div>
   </div>
 </div>
@@ -1302,6 +1329,18 @@ function buildCard(task,type) {
     });
     h+='</div>';
   }
+  // Quick action bar (status dropdown + Done button)
+  if (task.status !== 'Done' && task.status !== 'Cancelled') {
+    const ts2 = JSON.stringify(task).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    h+='<div class="card-actions">';
+    h+='<select class="card-status-select" onclick="event.stopPropagation()" onchange=\'quickCardStatus('+ts2+',this.value)\'>';
+    formData.statuses.forEach(s => {
+      h+='<option value="'+s+'"'+(task.status===s?' selected':'')+'>'+s+'</option>';
+    });
+    h+='</select>';
+    h+='<button class="card-done-btn" onclick=\'event.stopPropagation();quickCardStatus('+ts2+',\"Done\")\'>&check; Done</button>';
+    h+='</div>';
+  }
   return h+'</div>';
 }
 
@@ -1406,7 +1445,7 @@ function openEditModal(task) {
   let h='<div class="status-row">';
   formData.statuses.forEach(s=>{ h+='<button class="status-btn'+(task.status===s?' active':'')+'" onclick="setStatus(\''+s+'\')">'+s+'</button>'; });
   h+='</div>';
-  h+=fmg('Task Name','<input id="e_name" class="field" value="'+escAttr(task.task_name)+'">');
+  h+=fmg('Task Name','<input id="e_name" class="field" maxlength="30" oninput="updateNameCount(this,\'editNameCount\')" value="'+escAttr(task.task_name)+'"><div style="text-align:right;font-size:12px;color:var(--text3);margin-top:4px"><span id="editNameCount">'+Math.min(task.task_name.length,30)+'</span>/30</div>');
   h+=fmg('Assigned To','<select id="e_to" class="field">'+formData.people.map(p=>'<option value="'+escAttr(p.name)+'"'+(task.assigned_to===p.name?' selected':'')+'>'+esc(p.name)+'</option>').join('')+'</select>');
   h+='<div class="form-row-2">';
   h+=fmg('Priority','<select id="e_pri" class="field">'+formData.priorities.map(p=>'<option value="'+p+'"'+(task.priority===p?' selected':'')+'>'+p+'</option>').join('')+'</select>');
@@ -1577,7 +1616,7 @@ function renderPeopleTable(people) {
   document.getElementById('peopleTable').innerHTML=h;
 }
 
-
+let currentPerson=null;
 function openPersonModal(person) {
   currentPerson=person||null; const isEdit=!!person;
   document.getElementById('personModalTitle').textContent=isEdit?'Edit Person':'Add Person';
@@ -1664,6 +1703,33 @@ function toast(msg,type) {
   t.textContent=msg; t.className='toast show'+(type?' '+type:'');
   clearTimeout(t._to); t._to=setTimeout(()=>t.classList.remove('show'),3200);
 }
+
+// ── QUICK CARD ACTIONS ────────────────────────────────────────
+async function quickCardStatus(task, newStatus) {
+  if (task.status === newStatus) return;
+  try {
+    const r = await apiPost({
+      action: 'updateTask',
+      rowIndex: task._rowIndex,
+      data: { status: newStatus },
+      userName: currentUser.name
+    });
+    if (r.success) {
+      toast(newStatus === 'Done' ? '✓ Task completed!' : 'Status → ' + newStatus, 'ok');
+      await refreshTasks(currentUser);
+    } else toast('Error: ' + r.error, 'err');
+  } catch(e) { toast('Error updating status', 'err'); }
+}
+
+// ── NAME CHARACTER COUNT ──────────────────────────────────────
+function updateNameCount(input, countId) {
+  const el = document.getElementById(countId);
+  if (el) {
+    el.textContent = input.value.length;
+    el.style.color = input.value.length >= 28 ? 'var(--danger)' : 'var(--text3)';
+  }
+}
+
 </script>
 </body>
 </html>
