@@ -905,8 +905,10 @@ textarea.field { min-height: 90px; resize: vertical; }
           <div class="photo-preview-row" id="photoPreview"></div>
         </div>
       </div>
-      <button class="btn btn-primary btn-full" id="saveTaskBtn" onclick="saveNewTask()">Save Task</button>
-      <div style="height:20px"></div>
+      <div style="display:flex;gap:12px;margin-bottom:20px">
+        <button class="btn btn-secondary btn-full" onclick="gotoTab('tasks')">Cancel</button>
+        <button class="btn btn-primary btn-full" onclick="saveNewTask()" id="saveTaskBtn">Save Task</button>
+      </div>
     </div>
   </div>
 
