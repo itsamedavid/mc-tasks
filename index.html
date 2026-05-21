@@ -585,6 +585,23 @@ document.addEventListener('DOMContentLoaded', async () => {
   try {
     const r = await apiPost({ action: 'getPeopleForLogin' });
     loginPeople = r.data || r;
+
+    // Check for saved session token BEFORE showing login
+    const saved = localStorage.getItem('mc_user');
+    if (saved) {
+      try {
+        const u = JSON.parse(saved);
+        const p = loginPeople.find(x => x.name === u.name);
+        if (p && u.token) {
+          // Valid session — skip PIN entirely, launch app directly
+          currentUser = { name: u.name, person: { color: u.color }, isAdmin: false };
+          await launchApp(currentUser);
+          return;
+        }
+      } catch { localStorage.removeItem('mc_user'); }
+    }
+
+    // No valid token — show login screen
     document.getElementById('loadingScreen').classList.add('hide');
     initLogin();
   } catch(e) {
@@ -602,20 +619,14 @@ function initLogin() {
   });
   sel.addEventListener('change', () => { selName = sel.value; clearPin(); document.getElementById('loginBtn').disabled = !selName; });
 
+  // Check for saved name (no token — token check already done in DOMContentLoaded)
   const saved = localStorage.getItem('mc_user');
   if (saved) {
     try {
       const u = JSON.parse(saved);
       const p = loginPeople.find(x => x.name === u.name);
-      if (p && u.token) {
-        // Valid session token — skip PIN, go straight to app
-        currentUser = { name: u.name, person: { color: u.color }, isAdmin: false };
-        document.getElementById('loadingScreen').classList.remove('hide');
-        document.getElementById('loadingScreen').classList.add('show');
-        launchApp(currentUser);
-        return;
-      } else if (p) {
-        // Name saved but no token — show PIN with name pre-filled
+      if (p) {
+        // Show PIN with name pre-filled
         selName = u.name; isReturning = true;
         document.getElementById('rAvatar').textContent = u.name[0].toUpperCase();
         document.getElementById('rAvatar').style.background = p.color || '#3b82f6';
