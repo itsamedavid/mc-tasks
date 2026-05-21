@@ -609,74 +609,66 @@ textarea.field { min-height: 90px; resize: vertical; }
 .card-done-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
 
-/* ── COMPACT TASK ROW ─────────────────────────────────────── */
+/* ── TASK ROW (2-line) ────────────────────────────────────── */
 .task-row {
-  display: flex; align-items: center; gap: 10px;
-  padding: 10px 14px; border-left: 4px solid var(--border);
+  padding: 12px 14px; border-left: 4px solid var(--border);
   background: var(--card); border-radius: 10px;
   cursor: pointer; transition: background 0.1s;
-  min-height: 48px;
 }
 .task-row:hover { background: var(--bg3); }
+.task-row:active { background: var(--bg3); }
 .task-row.done-row { opacity: 0.4; }
-.task-row-name {
-  flex: 1; font-size: 15px; font-weight: 600;
-  color: var(--text); line-height: 1.3;
-  overflow: hidden; text-overflow: ellipsis;
-  white-space: nowrap; min-width: 0;
+
+/* Line 1: task name */
+.task-row-line1 {
+  display: flex; align-items: baseline; gap: 8px;
+  margin-bottom: 7px;
 }
-.task-row-name.done-name { text-decoration: line-through; color: var(--text3); }
 .task-row-overdue {
-  color: var(--danger); font-size: 14px; flex-shrink: 0;
-  font-weight: 800;
+  color: var(--danger); font-size: 13px;
+  font-weight: 800; flex-shrink: 0;
+}
+.task-row-name {
+  font-size: 15px; font-weight: 600;
+  color: var(--text); line-height: 1.3; flex: 1;
+}
+.task-row-name.done-name {
+  text-decoration: line-through; color: var(--text3);
+}
+
+/* Line 2: badges + status dropdown */
+.task-row-line2 {
+  display: flex; align-items: center; gap: 7px;
+  flex-wrap: nowrap;
 }
 .task-row-cat {
-  font-size: 11px; font-weight: 600; padding: 2px 8px;
+  font-size: 11px; font-weight: 600; padding: 3px 8px;
   border-radius: 10px; background: var(--badge-cat-bg);
   color: var(--badge-cat-text); white-space: nowrap;
   flex-shrink: 0;
 }
 .task-row-bus {
-  font-size: 11px; font-weight: 600; padding: 2px 8px;
+  font-size: 11px; font-weight: 600; padding: 3px 8px;
   border-radius: 10px; background: var(--badge-bus-bg);
   color: var(--badge-bus-text); white-space: nowrap;
   flex-shrink: 0;
 }
-.task-row-priority {
-  font-size: 11px; font-weight: 700; padding: 2px 8px;
-  border-radius: 10px; white-space: nowrap; flex-shrink: 0;
-}
-.task-row-done-btn {
-  padding: 5px 12px; border-radius: 20px;
-  font-size: 12px; font-weight: 700;
-  border: 1.5px solid var(--success); background: transparent;
-  color: var(--success); cursor: pointer; transition: all 0.15s;
-  white-space: nowrap; flex-shrink: 0;
-}
-.task-row-done-btn:hover { background: var(--success); color: white; }
-.task-row-status-sel {
-  padding: 5px 24px 5px 8px; border-radius: 20px;
-  font-size: 12px; font-weight: 600;
-  border: 1.5px solid var(--border); background: var(--bg3);
-  color: var(--text2); cursor: pointer;
-  appearance: none; -webkit-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat: no-repeat; background-position: right 6px center;
-  flex-shrink: 0; min-width: 0; max-width: 120px;
-}
-.task-row-status-sel:focus { outline: none; border-color: var(--accent); }
 .task-row-assignee {
   font-size: 11px; font-weight: 700;
   white-space: nowrap; flex-shrink: 0;
 }
-/* Hide lower-priority info on very small screens */
-@media (max-width: 500px) {
-  .task-row-cat { display: none; }
-  .task-row-bus { display: none; }
+.task-row-spacer { flex: 1; }
+.task-row-status-sel {
+  padding: 4px 22px 4px 10px; border-radius: 20px;
+  font-size: 12px; font-weight: 600;
+  border: 1.5px solid var(--border); background: var(--bg3);
+  color: var(--text2); cursor: pointer;
+  appearance: none; -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 6px center;
+  flex-shrink: 0; max-width: 130px;
 }
-@media (max-width: 380px) {
-  .task-row-priority { display: none; }
-}
+.task-row-status-sel:focus { outline: none; border-color: var(--accent); }
 
 </style>
 </head>
@@ -905,10 +897,8 @@ textarea.field { min-height: 90px; resize: vertical; }
           <div class="photo-preview-row" id="photoPreview"></div>
         </div>
       </div>
-      <div style="display:flex;gap:12px;margin-bottom:20px">
-        <button class="btn btn-secondary btn-full" onclick="gotoTab('tasks')">Cancel</button>
-        <button class="btn btn-primary btn-full" onclick="saveNewTask()" id="saveTaskBtn">Save Task</button>
-      </div>
+      <button class="btn btn-primary btn-full" id="saveTaskBtn" onclick="saveNewTask()">Save Task</button>
+      <div style="height:20px"></div>
     </div>
   </div>
 
@@ -1370,404 +1360,36 @@ function buildCard(task,type) {
   const color  = person ? person.color : '#64748b';
   const done   = task.status==='Done' || task.status==='Cancelled';
   const isOverdue = type==='overdue';
-  const po = {'High':'badge-High','Medium':'badge-Medium','Low':'badge-Low'};
 
   let h='<div class="task-row'+(done?' done-row':'')+'" style="border-left-color:'+color+'">';
 
-  // Overdue indicator
-  if (isOverdue) h+='<span class="task-row-overdue" title="Overdue">!</span>';
-
-  // Task name — clicking opens detail modal
-  h+='<div class="task-row-name'+(done?' done-name':'')+'" data-row="'+task._rowIndex+'" onclick="openEditByRow(this.dataset.row)">';
-  h+=esc(task.task_name);
+  // ── Line 1: overdue indicator + task name ──
+  h+='<div class="task-row-line1">';
+  if (isOverdue) h+='<span class="task-row-overdue">! OVERDUE</span>';
+  h+='<div class="task-row-name'+(done?' done-name':'')+'" data-row="'+task._rowIndex+'" onclick="openEditByRow(this.dataset.row)">'+esc(task.task_name)+'</div>';
   h+='</div>';
 
-  // Category badge (hidden on very small screens)
+  // ── Line 2: category, bus, assignee (all tasks view), spacer, status dropdown ──
+  h+='<div class="task-row-line2">';
   if (task.category) h+='<span class="task-row-cat">'+esc(task.category)+'</span>';
-
-  // Bus badge
-  if (task.bus) h+='<span class="task-row-bus">🚌 '+esc(task.bus)+'</span>';
-
-  // Priority (hidden on small screens)
-  if (task.priority) h+='<span class="task-row-priority '+esc(po[task.priority]||'')+'">'+esc(task.priority)+'</span>';
-
-  // Assignee dot (only in All Tasks / Everyone view)
+  if (task.bus)      h+='<span class="task-row-bus">🚌 '+esc(task.bus)+'</span>';
   if (task.assigned_to && personFilter==='all') {
-    h+='<span class="task-row-assignee" style="color:'+color+'">'+esc(task.assigned_to.split(' ')[0])+'</span>';
+    h+='<span class="task-row-assignee" style="color:'+color+'">👤 '+esc(task.assigned_to.split(' ')[0])+'</span>';
   }
-
-  // Done button and status dropdown (not for already-done tasks)
+  h+='<div class="task-row-spacer"></div>';
   if (!done) {
-    h+='<button class="task-row-done-btn" data-row="'+task._rowIndex+'" onclick="event.stopPropagation();cardDone(this)">✓ Done</button>';
     h+='<select class="task-row-status-sel" data-row="'+task._rowIndex+'" onclick="event.stopPropagation()" onchange="cardStatusChange(this)">';
-    formData.statuses.filter(s=>s!=='Done').forEach(function(s){
+    formData.statuses.forEach(function(s){
       h+='<option value="'+esc(s)+'"'+(task.status===s?' selected':'')+'>'+esc(s)+'</option>';
     });
     h+='</select>';
+  } else {
+    h+='<span class="task-row-cat badge-Done" style="background:var(--badge-done-bg);color:var(--badge-done-text)">'+esc(task.status)+'</span>';
   }
+  h+='</div>';
 
   h+='</div>';
   return h;
-}
-
-
-// ── ADD TASK ──────────────────────────────────────────────────
-function goAdd() { gotoTab('add'); }
-function toggleCustomInterval() {
-  document.getElementById('customIntervalGroup').style.display =
-    document.getElementById('f_recur').value==='Custom'?'block':'none';
-}
-
-async function checkBus() {
-  const bn=document.getElementById('f_bus').value;
-  const warn=document.getElementById('busWarn'), info=document.getElementById('busInfo');
-  if (!bn) { warn.style.display='none'; info.textContent=''; return; }
-  try {
-    const buses = await apiGet('getBuses');
-    const bus=buses.find(b=>b.bus_name===bn);
-    if (!bus||!bus.shop_status||bus.shop_status==='Unknown') { warn.style.display='block'; info.textContent=''; }
-    else { warn.style.display='none'; info.textContent='📍 '+bus.shop_status+(bus.expected_return&&bus.expected_return!=='At Shop'?' · Returns: '+bus.expected_return:''); }
-  } catch { warn.style.display='block'; }
-}
-
-// Photo handling for new task
-function handlePhotoSelect(input) {
-  Array.from(input.files).forEach(file => {
-    const reader=new FileReader();
-    reader.onload=e=>{ pendingPhotos.push({file,previewUrl:e.target.result}); renderPhotoPreview(); };
-    reader.readAsDataURL(file);
-  });
-  input.value='';
-}
-function renderPhotoPreview() {
-  const c=document.getElementById('photoPreview'); c.innerHTML='';
-  pendingPhotos.forEach((p,i)=>{
-    const item=document.createElement('div'); item.className='photo-preview-item';
-    item.innerHTML='<img src="'+p.previewUrl+'" alt="preview"><button class="photo-preview-remove" onclick="removePhoto('+i+')">×</button>';
-    c.appendChild(item);
-  });
-}
-function removePhoto(i) { pendingPhotos.splice(i,1); renderPhotoPreview(); }
-
-async function saveNewTask() {
-  const name=document.getElementById('f_name').value.trim();
-  const to=document.getElementById('f_to').value;
-  if (!name) { toast('Task name is required','err'); return; }
-  if (!to)   { toast('Please assign this task','err'); return; }
-  const btn=document.getElementById('saveTaskBtn');
-  btn.textContent='Saving...'; btn.disabled=true;
-
-  const taskData = {
-    task_name:name, assigned_to:to,
-    priority:document.getElementById('f_priority').value,
-    status:document.getElementById('f_status').value,
-    category:document.getElementById('f_category').value,
-    bus:document.getElementById('f_bus').value,
-    due_date:document.getElementById('f_due').value,
-    start_date:document.getElementById('f_start').value,
-    recurring:document.getElementById('f_recur').value,
-    recurrence_interval:document.getElementById('f_interval').value,
-    notes:document.getElementById('f_notes').value
-  };
-
-  try {
-    const r=await apiPost({action:'saveTask', data:taskData, userName:currentUser.name});
-    if (r.success) {
-      // Upload any pending photos
-      if (pendingPhotos.length) {
-        btn.textContent='Uploading photos...';
-        for (const p of pendingPhotos) {
-          const base64=p.previewUrl.split(',')[1];
-          const mimeType=p.file.type;
-          const fileName=p.file.name;
-          await apiPost({action:'uploadPhoto', taskId:r.task_id, fileName, base64Data:base64, mimeType, userName:currentUser.name});
-        }
-      }
-      toast('Task saved! ✓','ok');
-      clearAddForm();
-      await refreshTasks(currentUser);
-      gotoTab('tasks');
-    } else toast('Error: '+r.error,'err');
-  } catch(e) { toast('Error saving task','err'); }
-  btn.textContent='Save Task'; btn.disabled=false;
-}
-
-function clearAddForm() {
-  ['f_name','f_notes','f_due','f_start','f_interval'].forEach(id=>{ const el=document.getElementById(id); if(el)el.value=''; });
-  document.getElementById('f_bus').value='';
-  document.getElementById('f_category').value='';
-  document.getElementById('f_recur').value='None';
-  document.getElementById('f_priority').value='Medium';
-  document.getElementById('f_status').value=formData.statuses?.[0]||'To Do';
-  document.getElementById('busWarn').style.display='none';
-  document.getElementById('busInfo').textContent='';
-  pendingPhotos=[]; renderPhotoPreview();
-  if (currentUser) document.getElementById('f_to').value=currentUser.name;
-}
-
-// ── EDIT MODAL ────────────────────────────────────────────────
-function openEditModal(task) {
-  currentTask=task;
-  document.getElementById('editTitle').textContent=task.task_name;
-  let h='<div class="status-row">';
-  formData.statuses.forEach(s=>{ h+='<button class="status-btn'+(task.status===s?' active':'')+'" onclick="setStatus(\''+s+'\')">'+s+'</button>'; });
-  h+='</div>';
-  h+=fmg('Task Name','<input id="e_name" class="field" maxlength="30" oninput="updateNameCount(this,\'editNameCount\')" value="'+escAttr(task.task_name)+'"><div style="text-align:right;font-size:12px;color:var(--text3);margin-top:4px"><span id="editNameCount">'+Math.min(task.task_name.length,30)+'</span>/30</div>');
-  h+=fmg('Assigned To','<select id="e_to" class="field">'+formData.people.map(p=>'<option value="'+escAttr(p.name)+'"'+(task.assigned_to===p.name?' selected':'')+'>'+esc(p.name)+'</option>').join('')+'</select>');
-  h+='<div class="form-row-2">';
-  h+=fmg('Priority','<select id="e_pri" class="field">'+formData.priorities.map(p=>'<option value="'+p+'"'+(task.priority===p?' selected':'')+'>'+p+'</option>').join('')+'</select>');
-  h+=fmg('Category','<select id="e_cat" class="field"><option value="">None</option>'+formData.categories.map(c=>'<option value="'+escAttr(c)+'"'+(task.category===c?' selected':'')+'>'+esc(c)+'</option>').join('')+'</select>');
-  h+='</div>';
-  h+=fmg('Bus','<select id="e_bus" class="field"><option value="">None</option>'+formData.buses.map(b=>'<option value="'+escAttr(b)+'"'+(task.bus===b?' selected':'')+'>'+esc(b)+'</option>').join('')+'</select>');
-  h+='<div class="form-row-2">';
-  h+=fmg('Due Date','<input id="e_due" class="field" type="date" value="'+(task.due_date||'')+'">');
-  h+=fmg('Start Date','<input id="e_start" class="field" type="date" value="'+(task.start_date||'')+'">');
-  h+='</div>';
-  h+=fmg('Notes','<textarea id="e_notes" class="field">'+esc(task.notes||'')+'</textarea>');
-
-  // Existing photos
-  if (task.photos && task.photos.length) {
-    h+='<div class="form-group"><label class="form-label">Photos</label><div class="card-photos">';
-    task.photos.forEach(ph => {
-      const phs=JSON.stringify(ph).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-      h+='<img class="photo-thumb" src="'+ph.thumbnail_url+'" onclick=\'openPhotoModal('+phs+')\' alt="photo">';
-    });
-    h+='</div></div>';
-  }
-
-  // Add photo in edit modal
-  h+=fmg('Add Photo','<div class="photo-upload-area" onclick="document.getElementById(\'editPhotoInput\').click()"><input type="file" id="editPhotoInput" accept="image/*" onchange="handleEditPhoto(this)">📷 Add a photo</div><div class="photo-preview-row" id="editPhotoPreview"></div>');
-
-  document.getElementById('editBody').innerHTML=h;
-  document.getElementById('editModal').classList.add('open');
-}
-
-function fmg(label,inner) { return '<div class="form-group"><label class="form-label">'+label+'</label>'+inner+'</div>'; }
-
-let editPendingPhotos=[];
-function handleEditPhoto(input) {
-  Array.from(input.files).forEach(file=>{
-    const r=new FileReader();
-    r.onload=e=>{ editPendingPhotos.push({file,previewUrl:e.target.result}); renderEditPhotoPreview(); };
-    r.readAsDataURL(file);
-  });
-  input.value='';
-}
-function renderEditPhotoPreview() {
-  const c=document.getElementById('editPhotoPreview'); if(!c)return; c.innerHTML='';
-  editPendingPhotos.forEach((p,i)=>{
-    const item=document.createElement('div'); item.className='photo-preview-item';
-    item.innerHTML='<img src="'+p.previewUrl+'"><button class="photo-preview-remove" onclick="removeEditPhoto('+i+')">×</button>';
-    c.appendChild(item);
-  });
-}
-function removeEditPhoto(i) { editPendingPhotos.splice(i,1); renderEditPhotoPreview(); }
-
-function setStatus(s) {
-  currentTask.status=s;
-  document.querySelectorAll('.status-btn').forEach(b=>b.classList.toggle('active',b.textContent===s));
-}
-function closeEdit() { document.getElementById('editModal').classList.remove('open'); currentTask=null; editPendingPhotos=[]; }
-
-async function saveEdit() {
-  if (!currentTask) return;
-  try {
-    const r=await apiPost({action:'updateTask', rowIndex:currentTask._rowIndex,
-      data:{
-        task_name:document.getElementById('e_name').value.trim(),
-        assigned_to:document.getElementById('e_to').value,
-        priority:document.getElementById('e_pri').value,
-        category:document.getElementById('e_cat').value,
-        bus:document.getElementById('e_bus').value,
-        due_date:document.getElementById('e_due').value,
-        start_date:document.getElementById('e_start').value,
-        notes:document.getElementById('e_notes').value,
-        status:currentTask.status
-      }, userName:currentUser.name});
-    if (r.success) {
-      // Upload any new photos
-      for (const p of editPendingPhotos) {
-        const base64=p.previewUrl.split(',')[1];
-        await apiPost({action:'uploadPhoto', taskId:currentTask.task_id, fileName:p.file.name, base64Data:base64, mimeType:p.file.type, userName:currentUser.name});
-      }
-      toast('Updated! ✓','ok'); closeEdit(); await refreshTasks(currentUser);
-    } else toast('Error: '+r.error,'err');
-  } catch(e) { toast('Error updating','err'); }
-}
-
-async function completeTask() {
-  if (!currentTask) return;
-  try {
-    const r=await apiPost({action:'completeTask',rowIndex:currentTask._rowIndex,data:currentTask,userName:currentUser.name});
-    if (r.success) { toast('Completed! 🎉','ok'); closeEdit(); await refreshTasks(currentUser); }
-    else toast('Error: '+r.error,'err');
-  } catch(e) { toast('Error completing','err'); }
-}
-
-async function deleteTask() {
-  if (!currentTask||!confirm('Delete "'+currentTask.task_name+'"?')) return;
-  try {
-    const r=await apiPost({action:'deleteTask',rowIndex:currentTask._rowIndex,userName:currentUser.name});
-    if (r.success) { toast('Deleted','ok'); closeEdit(); await refreshTasks(currentUser); }
-    else toast('Error: '+r.error,'err');
-  } catch(e) { toast('Error deleting','err'); }
-}
-
-// ── PHOTO MODAL ───────────────────────────────────────────────
-function openPhotoModal(photo) {
-  viewingPhoto=photo;
-  document.getElementById('photoFull').src=photo.thumbnail_url;
-  document.getElementById('photoViewLink').href=photo.view_url;
-  document.getElementById('photoModal').classList.add('open');
-}
-function closePhotoModal() { document.getElementById('photoModal').classList.remove('open'); viewingPhoto=null; }
-async function deletePhoto() {
-  if (!viewingPhoto||!confirm('Delete this photo?')) return;
-  try {
-    const r=await apiPost({action:'deletePhoto',fileId:viewingPhoto.file_id,userName:currentUser.name});
-    if (r.success) { toast('Photo deleted','ok'); closePhotoModal(); await refreshTasks(currentUser); }
-    else toast('Error: '+r.error,'err');
-  } catch(e) { toast('Error deleting photo','err'); }
-}
-
-// ── ADMIN ─────────────────────────────────────────────────────
-async function loadAdmin() {
-  // People table
-  try {
-    const people=await apiGet('getPeopleAdmin');
-    renderPeopleTable(people);
-  } catch { document.getElementById('peopleTable').innerHTML='<div class="alert alert-warn">Could not load people.</div>'; }
-
-  // Flagged tasks
-  try {
-    const flagged=await apiGet('getFlaggedTasks');
-    const c=document.getElementById('flaggedContainer');
-    if (!flagged.length) { c.innerHTML='<div class="alert alert-ok">✓ All tasks assigned to active members.</div>'; }
-    else {
-      let h='<div class="alert alert-warn">⚠️ '+flagged.length+' task(s) assigned to removed people.</div>';
-      h+='<div class="form-group"><label class="form-label">Reassign all to:</label><select id="reassignTo" class="field"><option value="">Select...</option>';
-      formData.people.forEach(p=>{h+='<option value="'+escAttr(p.name)+'">'+esc(p.name)+'</option>';});
-      h+='</select></div><button class="btn btn-primary btn-sm" onclick="doReassign('+JSON.stringify(flagged.map(t=>t._rowIndex))+')">Reassign</button>';
-      c.innerHTML=h;
-    }
-  } catch { document.getElementById('flaggedContainer').innerHTML='<div class="alert alert-warn">Could not check.</div>'; }
-
-  // Orphaned categories
-  try {
-    const orphaned=await apiGet('getTasksWithMissingCategory');
-    const c=document.getElementById('orphanContainer');
-    if (!orphaned.length) { c.innerHTML='<div class="alert alert-ok">✓ All categories valid.</div>'; }
-    else {
-      let h='<div class="alert alert-warn">⚠️ '+orphaned.length+' task(s) with missing categories.</div>';
-      h+='<div class="form-group"><label class="form-label">Recategorize to:</label><select id="recatTo" class="field"><option value="">Select...</option>';
-      formData.categories.forEach(c=>{h+='<option value="'+escAttr(c)+'">'+esc(c)+'</option>';});
-      h+='</select></div><button class="btn btn-primary btn-sm" onclick="doRecategorize('+JSON.stringify(orphaned.map(t=>t._rowIndex))+')">Recategorize</button>';
-      c.innerHTML=h;
-    }
-  } catch { document.getElementById('orphanContainer').innerHTML='<div class="alert alert-warn">Could not check.</div>'; }
-}
-
-function renderPeopleTable(people) {
-  if (!people.length) { document.getElementById('peopleTable').innerHTML='<div class="empty-state">No people found.</div>'; return; }
-  let h='<div style="overflow-x:auto"><table class="people-table"><thead><tr><th></th><th>Name</th><th>PIN</th><th>Status</th></tr></thead><tbody>';
-  people.forEach(p=>{
-    const active=p.active!=='No'&&p.active!==false&&p.active!=='FALSE'&&p.active!=='no';
-    const ts=JSON.stringify(p).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-    h+='<tr class="'+(active?'':'inactive-row')+'" onclick=\'openPersonModal('+ts+')\'>';
-    h+='<td><span class="color-swatch" style="background:'+(p.color||'#64748b')+'"></span></td>';
-    h+='<td><div style="font-weight:700;font-size:15px">'+esc(p.name||'')+'</div><div style="font-size:12px;color:var(--text3)">'+esc(p.email||'')+'</div></td>';
-    h+='<td>'+(p.pin?'<span style="color:var(--alert-ok-text);font-size:13px">✓ Set</span>':'<span style="color:var(--overdue-text);font-size:13px">Not set</span>')+'</td>';
-    h+='<td>'+(active?'<span class="badge badge-Done">Active</span>':'<span class="badge badge-Cancelled">Inactive</span>')+'</td></tr>';
-  });
-  h+='</tbody></table></div>';
-  document.getElementById('peopleTable').innerHTML=h;
-}
-
-function openPersonModal(person) {
-  currentPerson=person||null; const isEdit=!!person;
-  document.getElementById('personModalTitle').textContent=isEdit?'Edit Person':'Add Person';
-  document.getElementById('deletePersonBtn').style.display=isEdit?'inline-block':'none';
-  document.getElementById('p_name').value=isEdit?(person.name||''):'';
-  document.getElementById('p_email').value=isEdit?(person.email||''):'';
-  document.getElementById('p_altemails').value=isEdit?(person.alt_emails||''):'';
-  document.getElementById('p_pin').value='';
-  document.getElementById('p_phone').value=isEdit?(person.phone?person.phone.toString():''):'';
-  document.getElementById('p_carrier').value=isEdit?(person.carrier||''):'';
-  document.getElementById('p_sms').value=isEdit?(person.sms_opt_in||'Yes'):'Yes';
-  document.getElementById('p_color').value=isEdit?(person.color||'#3b82f6'):'#3b82f6';
-  const a=isEdit?person.active:'Yes';
-  document.getElementById('p_active').value=(a==='No'||a===false||a==='FALSE'||a==='no')?'No':'Yes';
-  document.getElementById('personModal').classList.add('open');
-}
-function closePersonModal() { document.getElementById('personModal').classList.remove('open'); currentPerson=null; }
-
-async function savePerson() {
-  const name=document.getElementById('p_name').value.trim();
-  if (!name) { toast('Name is required','err'); return; }
-  const pinVal=document.getElementById('p_pin').value.trim();
-  if (pinVal&&!/^\d{4}$/.test(pinVal)) { toast('PIN must be exactly 4 digits','err'); return; }
-  const data={name,email:document.getElementById('p_email').value.trim(),alt_emails:document.getElementById('p_altemails').value.trim(),phone:document.getElementById('p_phone').value.replace(/\D/g,''),carrier:document.getElementById('p_carrier').value,sms_opt_in:document.getElementById('p_sms').value,active:document.getElementById('p_active').value,color:document.getElementById('p_color').value};
-  if (pinVal) data.pin=pinVal;
-  if (currentPerson&&currentPerson._rowIndex) data._rowIndex=currentPerson._rowIndex;
-  try {
-    const r=await apiPost({action:'savePerson',data,userName:currentUser.name});
-    if (r.success) {
-      toast(r.action==='added'?'Person added! ✓':'Updated! ✓','ok');
-      closePersonModal(); loadAdmin();
-      formData=await apiGet('getFormData');
-      buildDropdowns();
-      buildFilters(currentUser);
-    } else toast('Error: '+r.error,'err');
-  } catch(e) { toast('Error saving','err'); }
-}
-
-async function deletePerson() {
-  if (!currentPerson||!confirm('Delete '+currentPerson.name+'?\n\nTasks will not be deleted.')) return;
-  try {
-    const r=await apiPost({action:'deletePerson',rowIndex:currentPerson._rowIndex,userName:currentUser.name});
-    if (r.success) { toast('Deleted','ok'); closePersonModal(); loadAdmin(); }
-    else toast('Error: '+r.error,'err');
-  } catch(e) { toast('Error deleting','err'); }
-}
-
-async function doReassign(rows) {
-  const n=document.getElementById('reassignTo').value;
-  if (!n) { toast('Select a person','err'); return; }
-  try { const r=await apiPost({action:'reassignTasks',rows,newAssignee:n,userName:currentUser.name}); if(r.success){toast('Reassigned '+r.count+' tasks','ok');loadAdmin();await refreshTasks(currentUser);}else toast('Error','err'); } catch{toast('Error','err');}
-}
-async function doRecategorize(rows) {
-  const c=document.getElementById('recatTo').value;
-  if (!c) { toast('Select a category','err'); return; }
-  try { const r=await apiPost({action:'recategorizeTasks',rows,newCat:c,userName:currentUser.name}); if(r.success){toast('Recategorized!','ok');loadAdmin();await refreshTasks(currentUser);}else toast('Error','err'); } catch{toast('Error','err');}
-}
-async function sendDigest() {
-  toast('Sending...','');
-  try { await apiPost({action:'sendDailyDigest',userName:currentUser.name}); toast('Digest sent! ✓','ok'); } catch{toast('Error sending','err');}
-}
-
-// ── TABS ──────────────────────────────────────────────────────
-function gotoTab(tab) {
-  activeTab=tab;
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  document.getElementById('view-'+tab).classList.add('active');
-  // Bottom nav
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-  const nb=document.getElementById('nb-'+tab); if(nb)nb.classList.add('active');
-  // Desktop tabs
-  document.querySelectorAll('.desktop-tab').forEach(b=>b.classList.remove('active'));
-  const dt=document.getElementById('dt-'+tab); if(dt)dt.classList.add('active');
-  if (tab==='admin') loadAdmin();
-  // Scroll to top
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-
-// ── UTILS ─────────────────────────────────────────────────────
-function esc(s) { if(!s)return''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function escAttr(s) { if(!s)return''; return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
-function toast(msg,type) {
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.className='toast show'+(type?' '+type:'');
-  clearTimeout(t._to); t._to=setTimeout(()=>t.classList.remove('show'),3200);
 }
 
 

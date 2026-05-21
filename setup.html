@@ -320,9 +320,9 @@ var SETUP_URL = 'https://itsamedavid.github.io/mc-tasks/setup.html';
 function detect() {
   var ua = navigator.userAgent;
 
-  // Already installed as PWA / home screen app
+  // Already installed as PWA / home screen app — just go straight to the app
   if (window.navigator.standalone === true) {
-    show('panelInstalled');
+    window.location.replace('https://itsamedavid.github.io/mc-tasks/');
     return;
   }
 
