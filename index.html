@@ -603,31 +603,32 @@ function initLogin() {
   sel.addEventListener('change', () => { selName = sel.value; clearPin(); document.getElementById('loginBtn').disabled = !selName; });
 
   const saved = localStorage.getItem('mc_user');
-if (saved) {
-  try {
-    const u = JSON.parse(saved);
-    const p = loginPeople.find(x => x.name === u.name);
-    if (p && u.token) {
-      // Has a valid session token — skip PIN and go straight to app
-      currentUser = { name: u.name, person: { color: u.color }, isAdmin: false };
-      document.getElementById('loadingScreen').classList.remove('hide');
-      document.getElementById('loadingScreen').classList.add('show');
-      // Re-verify quietly then launch
-      launchApp(currentUser);
-      return;
-    } else if (p) {
-      // Has saved name but no token — show PIN with name pre-filled
-      selName = u.name; isReturning = true;
-      document.getElementById('rAvatar').textContent = u.name[0].toUpperCase();
-      document.getElementById('rAvatar').style.background = p.color || '#3b82f6';
-      document.getElementById('rName').textContent = u.name;
-      document.getElementById('returningPanel').style.display = 'block';
-      document.getElementById('nameSelectorPanel').style.display = 'none';
-      document.getElementById('notMeBtn').style.display = 'block';
-      document.getElementById('loginBtn').disabled = true;
-      showLogin(); return;
-    }
-  } catch { localStorage.removeItem('mc_user'); }
+  if (saved) {
+    try {
+      const u = JSON.parse(saved);
+      const p = loginPeople.find(x => x.name === u.name);
+      if (p && u.token) {
+        // Valid session token — skip PIN, go straight to app
+        currentUser = { name: u.name, person: { color: u.color }, isAdmin: false };
+        document.getElementById('loadingScreen').classList.remove('hide');
+        document.getElementById('loadingScreen').classList.add('show');
+        launchApp(currentUser);
+        return;
+      } else if (p) {
+        // Name saved but no token — show PIN with name pre-filled
+        selName = u.name; isReturning = true;
+        document.getElementById('rAvatar').textContent = u.name[0].toUpperCase();
+        document.getElementById('rAvatar').style.background = p.color || '#3b82f6';
+        document.getElementById('rName').textContent = u.name;
+        document.getElementById('returningPanel').style.display = 'block';
+        document.getElementById('nameSelectorPanel').style.display = 'none';
+        document.getElementById('notMeBtn').style.display = 'block';
+        document.getElementById('loginBtn').disabled = true;
+        showLogin(); return;
+      }
+    } catch { localStorage.removeItem('mc_user'); }
+  }
+  showNameSelector(); showLogin();
 }
 
 function showLogin() { document.getElementById('loginScreen').classList.add('show'); }
@@ -666,8 +667,8 @@ async function doLogin() {
     document.getElementById('loginBtn').textContent = 'Sign In';
     const result = r.data || r;
     if (result.success) {
-      const token = result.name + '_' + Date.now();
-      localStorage.setItem('mc_user', JSON.stringify({ name: result.name, color: result.person.color, token }));
+      const sessionToken = result.name + '_' + Date.now();
+      localStorage.setItem('mc_user', JSON.stringify({ name: result.name, color: result.person.color, token: sessionToken }));
       currentUser = result;
       document.getElementById('loginScreen').classList.remove('show');
       launchApp(result);
@@ -693,46 +694,52 @@ function doSignOut() {
 
 // ── LAUNCH APP ────────────────────────────────────────────────
 async function launchApp(user) {
-  // If called from auto-login, we need to re-verify to get full user data including isAdmin
-  if (!user.person || !user.person.name) {
-    // Quick re-verify using stored name — get full user data from server
-    try {
-      const saved = JSON.parse(localStorage.getItem('mc_user') || '{}');
-      const r = await apiPost({ action: 'getFormData' });
-      formData = (r.data || r);
-      // Find this person in the people list to get their full record
-      const personData = (formData.people || []).find(p => p.name === user.name);
-      if (personData) {
-        user.person = personData;
-        // Check if admin
-        const admins = ((formData.config || {}).admin_emails || '').split(',').map(s=>s.trim().toLowerCase());
-        user.isAdmin = admins.includes((personData.email||'').toLowerCase()) ||
-          (personData.alt_emails||'').split(',').some(e=>admins.includes(e.trim().toLowerCase()));
-      }
-    } catch(e) {
-      // If server check fails, sign them out for safety
-      doSignOut(); return;
-    }
-  }
-  document.getElementById('loadingScreen').classList.add('hide');
-  document.getElementById('appShell').classList.add('show');
-  document.getElementById('userName').textContent = user.name;
-  document.getElementById('userDot').style.background = (user.person && user.person.color) || '#64748b';
-  if (user.isAdmin) {
-    document.getElementById('dt-admin').style.display = 'block';
-    document.getElementById('nb-admin').style.display = 'flex';
-  }
+  // Always fetch formData first — this also works as a server reachability check
+  // and gives us full user details (isAdmin etc) when auto-launching from token
   try {
     const r = await apiPost({ action: 'getFormData' });
     formData = r.data || r;
+
+    // If auto-launching from token, enrich user object with server data
+    if (!user.person || !user.person.name) {
+      const personData = (formData.people || []).find(p => p.name === user.name);
+      if (!personData) {
+        // Person no longer in system — clear token and force re-login
+        localStorage.removeItem('mc_user');
+        document.getElementById('loadingScreen').classList.add('hide');
+        showNameSelector(); showLogin(); return;
+      }
+      user.person = personData;
+      const admins = ((formData.config || {}).admin_emails || '').split(',').map(s => s.trim().toLowerCase());
+      user.isAdmin = admins.includes((personData.email||'').toLowerCase()) ||
+        (personData.alt_emails||'').split(',').some(e => admins.includes(e.trim().toLowerCase()));
+      currentUser = user;
+    }
+
     const cfg = formData.config || {};
     document.getElementById('appTitle').textContent = cfg.app_title || 'Midnight Coach Tasks';
     document.getElementById('appSub').textContent = cfg.app_subtitle || 'Shop Task Manager';
     document.getElementById('loginTitle').textContent = cfg.app_title || 'Midnight Coach Tasks';
+
+    document.getElementById('loadingScreen').classList.add('hide');
+    document.getElementById('appShell').classList.add('show');
+    document.getElementById('userName').textContent = user.name;
+    document.getElementById('userDot').style.background = (user.person && user.person.color) || '#64748b';
+
+    if (user.isAdmin) {
+      document.getElementById('dt-admin').style.display = 'block';
+      document.getElementById('nb-admin').style.display = 'flex';
+    }
+
     buildDropdowns();
     buildFilters(user);
     await refreshTasks(user);
-  } catch(e) { toast('Error loading app data', 'err'); }
+  } catch(e) {
+    // Server unreachable — clear token and force re-login for safety
+    localStorage.removeItem('mc_user');
+    document.getElementById('loadingScreen').classList.add('hide');
+    showNameSelector(); showLogin();
+  }
 }
 
 async function refreshTasks(user) {
