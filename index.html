@@ -608,6 +608,76 @@ textarea.field { min-height: 90px; resize: vertical; }
 .card-done-btn:hover { background: var(--success); color: white; }
 .card-done-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
+
+/* ── COMPACT TASK ROW ─────────────────────────────────────── */
+.task-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; border-left: 4px solid var(--border);
+  background: var(--card); border-radius: 10px;
+  cursor: pointer; transition: background 0.1s;
+  min-height: 48px;
+}
+.task-row:hover { background: var(--bg3); }
+.task-row.done-row { opacity: 0.4; }
+.task-row-name {
+  flex: 1; font-size: 15px; font-weight: 600;
+  color: var(--text); line-height: 1.3;
+  overflow: hidden; text-overflow: ellipsis;
+  white-space: nowrap; min-width: 0;
+}
+.task-row-name.done-name { text-decoration: line-through; color: var(--text3); }
+.task-row-overdue {
+  color: var(--danger); font-size: 14px; flex-shrink: 0;
+  font-weight: 800;
+}
+.task-row-cat {
+  font-size: 11px; font-weight: 600; padding: 2px 8px;
+  border-radius: 10px; background: var(--badge-cat-bg);
+  color: var(--badge-cat-text); white-space: nowrap;
+  flex-shrink: 0;
+}
+.task-row-bus {
+  font-size: 11px; font-weight: 600; padding: 2px 8px;
+  border-radius: 10px; background: var(--badge-bus-bg);
+  color: var(--badge-bus-text); white-space: nowrap;
+  flex-shrink: 0;
+}
+.task-row-priority {
+  font-size: 11px; font-weight: 700; padding: 2px 8px;
+  border-radius: 10px; white-space: nowrap; flex-shrink: 0;
+}
+.task-row-done-btn {
+  padding: 5px 12px; border-radius: 20px;
+  font-size: 12px; font-weight: 700;
+  border: 1.5px solid var(--success); background: transparent;
+  color: var(--success); cursor: pointer; transition: all 0.15s;
+  white-space: nowrap; flex-shrink: 0;
+}
+.task-row-done-btn:hover { background: var(--success); color: white; }
+.task-row-status-sel {
+  padding: 5px 24px 5px 8px; border-radius: 20px;
+  font-size: 12px; font-weight: 600;
+  border: 1.5px solid var(--border); background: var(--bg3);
+  color: var(--text2); cursor: pointer;
+  appearance: none; -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 6px center;
+  flex-shrink: 0; min-width: 0; max-width: 120px;
+}
+.task-row-status-sel:focus { outline: none; border-color: var(--accent); }
+.task-row-assignee {
+  font-size: 11px; font-weight: 700;
+  white-space: nowrap; flex-shrink: 0;
+}
+/* Hide lower-priority info on very small screens */
+@media (max-width: 500px) {
+  .task-row-cat { display: none; }
+  .task-row-bus { display: none; }
+}
+@media (max-width: 380px) {
+  .task-row-priority { display: none; }
+}
+
 </style>
 </head>
 <body class="dark">
@@ -1277,14 +1347,17 @@ function renderAll() {
 }
 
 function buildSections(ov,ac,up) {
-  if (!ov.length&&!ac.length&&!up.length) return '<div class="empty-state">✅ No tasks found</div>';
-  let h='';
-  if (ov.length) h+=buildSection('🔴 Overdue',ov,'sec-overdue','overdue');
-  h+=buildSection('📋 Active Tasks',ac,'sec-active','active');
-  if (up.length) h+=buildSection('📅 Upcoming',up,'sec-upcoming','upcoming');
-  return h;
+  // Merge into one flat sorted list: overdue first (by priority), then active (by priority), then upcoming
+  const po = {'High':0,'Medium':1,'Low':2};
+  const sortFn = (a,b) => (po[a.priority]||99)-(po[b.priority]||99);
+  const allVisible = [...ov.sort(sortFn), ...ac.sort(sortFn), ...up.sort(sortFn)];
+  if (!allVisible.length) return '<div class="empty-state">✅ No tasks found</div>';
+  let h='<div class="task-list">';
+  allVisible.forEach(t => { h+=buildCard(t, ov.includes(t)?'overdue':up.includes(t)?'upcoming':'active'); });
+  return h+'</div>';
 }
 function buildSection(title,list,cls,type) {
+  // kept for compatibility but not used in main views anymore
   let h='<div class="task-section '+cls+'"><div class="sec-header"><div class="sec-title">'+title+'</div><div class="sec-count">'+list.length+'</div></div><div class="task-list">';
   if (!list.length) h+='<div class="empty-state">✅ All clear!</div>';
   else list.forEach(t=>{ h+=buildCard(t,type); });
@@ -1292,56 +1365,49 @@ function buildSection(title,list,cls,type) {
 }
 function buildCard(task,type) {
   const person = formData.people.find(p=>p.name===task.assigned_to);
-  const color = person?person.color:'#64748b';
-  const done = task.status==='Done';
-  const td=today();
-  const dd=task.due_date?new Date(task.due_date+'T00:00:00'):null;
-  const isToday=dd&&dd.toDateString()===td.toDateString();
-  let dueCls='due-normal', dueText='';
-  if (type==='overdue'&&dd) { dueCls='due-overdue'; dueText='⚠️ Overdue: '+task.due_date; }
-  else if (isToday) { dueCls='due-today'; dueText='📅 Due today'; }
-  else if (type==='upcoming') {
-    dueCls='due-upcoming';
-    if (task.start_date) dueText='🗓 Starts: '+task.start_date;
-    if (task.due_date) dueText+=(dueText?' · ':'')+'Due: '+task.due_date;
-  }
-  else if (dd) dueText='Due: '+task.due_date;
-  const ts=JSON.stringify(task).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-  let h='<div class="task-card'+(done?' done':'')+(type==='upcoming'?' upcoming-fade':'')+'" onclick=\'openEditModal('+ts+')\' style="border-left-color:'+color+'">';
-  h+='<div class="card-header"><div class="card-name'+(done?' done':'')+'">'+esc(task.task_name)+'</div>';
-  if (task.priority) h+='<span class="badge badge-'+esc(task.priority)+'">'+esc(task.priority)+'</span>';
+  const color  = person ? person.color : '#64748b';
+  const done   = task.status==='Done' || task.status==='Cancelled';
+  const isOverdue = type==='overdue';
+  const po = {'High':'badge-High','Medium':'badge-Medium','Low':'badge-Low'};
+
+  let h='<div class="task-row'+(done?' done-row':'')+'" style="border-left-color:'+color+'">';
+
+  // Overdue indicator
+  if (isOverdue) h+='<span class="task-row-overdue" title="Overdue">!</span>';
+
+  // Task name — clicking opens detail modal
+  h+='<div class="task-row-name'+(done?' done-name':'')+'" data-row="'+task._rowIndex+'" onclick="openEditByRow(this.dataset.row)">';
+  h+=esc(task.task_name);
   h+='</div>';
-  h+='<div class="badge-row">';
-  if (task.status) h+='<span class="badge badge-status badge-'+esc(task.status)+'">'+esc(task.status)+'</span>';
-  if (task.category) h+='<span class="badge badge-cat">'+esc(task.category)+'</span>';
-  if (task.bus) h+='<span class="badge badge-bus">🚌 '+esc(task.bus)+'</span>';
-  if (task.recurring&&task.recurring!=='None') h+='<span class="badge badge-recur">🔄 '+esc(task.recurring)+'</span>';
-  h+='</div>';
-  if (task.assigned_to&&personFilter==='all') h+='<div class="card-assignee" style="color:'+color+'">👤 '+esc(task.assigned_to)+'</div>';
-  if (dueText) h+='<div class="card-due '+dueCls+'">'+dueText+'</div>';
-  if (task.notes) h+='<div class="card-notes">'+esc(String(task.notes).substring(0,120))+(task.notes.length>120?'...':'')+'</div>';
-  // Photo thumbnails
-  if (task.photos && task.photos.length) {
-    h+='<div class="card-photos">';
-    task.photos.slice(0,4).forEach(ph => {
-      const phs=JSON.stringify(ph).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-      h+='<img class="photo-thumb" src="'+ph.thumbnail_url+'" onclick=\'event.stopPropagation();openPhotoModal('+phs+')\' alt="photo">';
-    });
-    h+='</div>';
+
+  // Category badge (hidden on very small screens)
+  if (task.category) h+='<span class="task-row-cat">'+esc(task.category)+'</span>';
+
+  // Bus badge
+  if (task.bus) h+='<span class="task-row-bus">🚌 '+esc(task.bus)+'</span>';
+
+  // Priority (hidden on small screens)
+  if (task.priority) h+='<span class="task-row-priority '+esc(po[task.priority]||'')+'">'+esc(task.priority)+'</span>';
+
+  // Assignee dot (only in All Tasks / Everyone view)
+  if (task.assigned_to && personFilter==='all') {
+    h+='<span class="task-row-assignee" style="color:'+color+'">'+esc(task.assigned_to.split(' ')[0])+'</span>';
   }
-  // Quick action bar — use data-rowindex to avoid escaping hell
-  if (task.status !== 'Done' && task.status !== 'Cancelled') {
-    h+='<div class="card-actions">';
-    h+='<select class="card-status-select" data-row="'+task._rowIndex+'" onclick="event.stopPropagation()" onchange="cardStatusChange(this)">';
-    formData.statuses.forEach(function(s) {
+
+  // Done button and status dropdown (not for already-done tasks)
+  if (!done) {
+    h+='<button class="task-row-done-btn" data-row="'+task._rowIndex+'" onclick="event.stopPropagation();cardDone(this)">✓ Done</button>';
+    h+='<select class="task-row-status-sel" data-row="'+task._rowIndex+'" onclick="event.stopPropagation()" onchange="cardStatusChange(this)">';
+    formData.statuses.filter(s=>s!=='Done').forEach(function(s){
       h+='<option value="'+esc(s)+'"'+(task.status===s?' selected':'')+'>'+esc(s)+'</option>';
     });
     h+='</select>';
-    h+='<button class="card-done-btn" data-row="'+task._rowIndex+'" onclick="event.stopPropagation();cardDone(this)">✓ Done</button>';
-    h+='</div>';
   }
-  return h+'</div>';
+
+  h+='</div>';
+  return h;
 }
+
 
 // ── ADD TASK ──────────────────────────────────────────────────
 function goAdd() { gotoTab('add'); }
@@ -1700,6 +1766,12 @@ function toast(msg,type) {
   const t=document.getElementById('toast');
   t.textContent=msg; t.className='toast show'+(type?' '+type:'');
   clearTimeout(t._to); t._to=setTimeout(()=>t.classList.remove('show'),3200);
+}
+
+
+function openEditByRow(rowIndex) {
+  const task = allTasks.find(t => t._rowIndex === parseInt(rowIndex));
+  if (task) openEditModal(task);
 }
 
 // ── QUICK CARD ACTIONS ────────────────────────────────────────
