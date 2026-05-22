@@ -297,6 +297,16 @@ function render(data) {
   const raw = data.data || data;
   const { personMap, peopleOrder, config } = raw;
 
+  // Debug info — log to console
+  console.log('Dashboard data received:');
+  console.log('  peopleOrder:', peopleOrder);
+  if (personMap) {
+    Object.keys(personMap).forEach(name => {
+      const tasks = personMap[name].tasks || [];
+      console.log('  ' + name + ': ' + tasks.length + ' tasks', tasks.map(t => t.task_name + ' [' + t.status + ']'));
+    });
+  }
+
   // Update header
   if (config) {
     if (config.app_title)    document.getElementById('headerTitle').textContent = config.app_title;
@@ -312,9 +322,19 @@ function render(data) {
     return entry.tasks.some(t => t.status !== 'Cancelled');
   });
 
+  // Debug — show count even if empty
+  console.log('Active people with tasks:', activePeople);
+
   if (!activePeople.length) {
+    // Show debug info on screen too
+    const taskSummary = Object.entries(personMap || {})
+      .map(([name, e]) => name + ': ' + (e.tasks||[]).length + ' tasks')
+      .join(', ') || 'none';
     document.getElementById('mainArea').innerHTML =
-      '<div style="width:100%;display:flex;align-items:center;justify-content:center;color:#475569;font-size:24px;font-weight:700">✅ All clear — no active tasks!</div>';
+      '<div style="width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px">' +
+      '<div style="color:#475569;font-size:24px;font-weight:700">✅ All clear — no active tasks!</div>' +
+      '<div style="color:#334155;font-size:13px">API returned: ' + esc(taskSummary) + '</div>' +
+      '</div>';
     return;
   }
 
@@ -533,6 +553,7 @@ function startRetryCountdown() {
   tick();
 }
 
+function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 // Start
 load(false);
 </script>
