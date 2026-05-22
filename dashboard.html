@@ -10,14 +10,11 @@
 :root {
   --bg: #080f1e;
   --bg2: #0f172a;
+  --card: #111827;
   --border: #1e293b;
   --text: #e2e8f0;
   --text2: #94a3b8;
   --text3: #475569;
-  --accent: #3b82f6;
-  --danger: #ef4444;
-  --warning: #f59e0b;
-  --success: #10b981;
 }
 
 html, body {
@@ -30,168 +27,149 @@ html, body {
 /* ── HEADER ── */
 .header {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 0 28px;
-  height: 56px;
-  background: var(--bg2);
-  border-bottom: 1px solid var(--border);
+  padding: 0 24px; height: 52px;
+  background: var(--bg2); border-bottom: 1px solid var(--border);
   flex-shrink: 0;
 }
-.header-left { display: flex; align-items: center; gap: 16px; }
-.header-logo { width: 36px; height: 36px; border-radius: 8px; overflow: hidden; flex-shrink: 0; }
-.header-logo svg { width: 100%; height: 100%; }
-.header-title { font-size: 20px; font-weight: 800; color: var(--text); letter-spacing: -0.01em; }
-.header-sub   { font-size: 13px; color: var(--text3); margin-top: 1px; }
-.header-right { display: flex; align-items: center; gap: 24px; }
-.header-time  { font-size: 28px; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
-.header-date  { font-size: 13px; color: var(--text2); text-align: right; }
-.header-updated { font-size: 12px; color: var(--text3); text-align: right; }
+.header-left { display: flex; align-items: center; gap: 12px; }
+.header-logo { width: 32px; height: 32px; border-radius: 7px; overflow: hidden; flex-shrink: 0; }
+.header-title { font-size: 18px; font-weight: 800; color: var(--text); }
+.header-sub   { font-size: 11px; color: var(--text3); }
+.header-right { display: flex; align-items: center; gap: 20px; }
+.header-updated { font-size: 11px; color: var(--text3); }
+.header-time { font-size: 26px; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; line-height: 1; }
+.header-date { font-size: 11px; color: var(--text2); text-align: right; }
 
-/* ── MAIN GRID AREA ── */
-#mainArea {
+/* ── SCROLL AREA ── */
+#scrollArea {
   width: 100%;
-  /* height = viewport minus header */
-  height: calc(100vh - 56px);
-  padding: 16px;
-  display: flex;
-  align-items: stretch;
-  gap: 14px;
-  overflow: hidden;
+  height: calc(100vh - 52px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 14px;
 }
 
-/* ── PERSON BOX ── */
-.person-box {
-  border-radius: 14px;
+/* ── CARD GRID ── */
+#cardGrid {
+  display: grid;
+  /* Cards are at least 240px wide, max 400px, fill available space */
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+  align-items: start; /* cards only as tall as content */
+}
+
+/* ── PERSON CARD ── */
+.person-card {
+  border-radius: 12px;
   border: 1px solid var(--border);
-  border-top-width: 4px;
-  display: flex;
-  flex-direction: column;
+  border-top: 4px solid var(--border);
+  background: var(--card);
   overflow: hidden;
-  min-width: 0;
-  /* flex-grow set dynamically based on task count */
+  /* NO fixed height — grows with content */
 }
 
-.person-header {
-  padding: 10px 14px 8px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-shrink: 0;
+.card-header {
+  padding: 10px 12px 8px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px;
   border-bottom: 1px solid var(--border);
 }
-.person-name {
-  font-size: 16px; font-weight: 800;
+.card-name {
+  font-size: 15px; font-weight: 800;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.person-count {
-  font-size: 12px; font-weight: 700;
-  padding: 2px 8px; border-radius: 20px;
-  background: rgba(255,255,255,0.08);
-  color: var(--text2); flex-shrink: 0; margin-left: 8px;
+.card-badges { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+.badge-overdue {
+  font-size: 10px; font-weight: 800; padding: 2px 6px;
+  border-radius: 10px; background: rgba(239,68,68,.15); color: #f87171;
+  white-space: nowrap;
 }
-.person-overdue-badge {
-  font-size: 11px; font-weight: 700;
-  padding: 2px 7px; border-radius: 20px;
-  background: rgba(239,68,68,0.15);
-  color: #f87171; flex-shrink: 0; margin-left: 6px;
-}
-
-/* Task list inside person box */
-.person-tasks {
-  flex: 1; overflow: hidden;
-  padding: 8px 10px;
-  display: flex; flex-direction: column; gap: 5px;
+.badge-count {
+  font-size: 10px; font-weight: 700; padding: 2px 6px;
+  border-radius: 10px; background: rgba(255,255,255,.07); color: var(--text2);
+  white-space: nowrap;
 }
 
-.task-item {
-  display: flex; align-items: center; gap: 8px;
-  padding: 7px 10px; border-radius: 8px;
-  background: rgba(255,255,255,0.03);
+/* ── TASK ROWS ── */
+.card-tasks { padding: 6px 8px 8px; display: flex; flex-direction: column; gap: 4px; }
+
+.task-row {
+  display: flex; align-items: center; gap: 7px;
+  padding: 6px 8px; border-radius: 7px;
   border: 1px solid transparent;
-  flex-shrink: 0;
-  min-height: 0;
+  min-height: 32px;
 }
-.task-item.overdue {
-  background: rgba(239,68,68,0.08);
-  border-color: rgba(239,68,68,0.2);
-}
-.task-item.done {
-  opacity: 0.35;
-}
-.task-item.in-progress {
-  background: rgba(59,130,246,0.06);
-  border-color: rgba(59,130,246,0.15);
-}
+.task-row.t-overdue { background: rgba(239,68,68,.07); border-color: rgba(239,68,68,.18); }
+.task-row.t-progress { background: rgba(59,130,246,.06); border-color: rgba(59,130,246,.15); }
+.task-row.t-done { opacity: .32; }
+.task-row.t-normal { background: rgba(255,255,255,.025); }
 
-.task-dot {
-  width: 7px; height: 7px; border-radius: 50%;
-  flex-shrink: 0;
-}
-.task-name {
-  flex: 1; font-size: 14px; font-weight: 600;
-  color: var(--text); white-space: nowrap;
-  overflow: hidden; text-overflow: ellipsis;
+.t-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+.t-name {
+  flex: 1; font-size: 13px; font-weight: 600; color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   line-height: 1.2;
 }
-.task-name.done-name {
-  text-decoration: line-through; color: var(--text3);
+.t-name.done { text-decoration: line-through; color: var(--text3); }
+
+.t-bus {
+  font-size: 10px; color: var(--text3); white-space: nowrap; flex-shrink: 0;
 }
-.task-status-badge {
-  font-size: 10px; font-weight: 700;
-  padding: 2px 7px; border-radius: 10px;
+.t-flag {
+  font-size: 10px; font-weight: 800; color: #f87171; flex-shrink: 0;
+}
+.t-status {
+  font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 8px;
   white-space: nowrap; flex-shrink: 0;
 }
-.task-overdue-flag {
-  font-size: 10px; font-weight: 800;
-  color: #f87171; flex-shrink: 0; white-space: nowrap;
-}
-.task-bus {
-  font-size: 10px; color: var(--text3);
-  white-space: nowrap; flex-shrink: 0;
+.s-todo     { background: rgba(100,116,139,.2); color: #94a3b8; }
+.s-progress { background: rgba(59,130,246,.2);  color: #93c5fd; }
+.s-hold     { background: rgba(245,158,11,.15); color: #fbbf24; }
+.s-done     { background: rgba(16,185,129,.15); color: #6ee7b7; }
+
+/* divider between active and done tasks */
+.done-divider {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .06em; color: var(--text3);
+  padding: 4px 8px 2px; opacity: .6;
 }
 
-/* overflow indicator */
-.task-more {
-  font-size: 12px; color: var(--text3);
-  padding: 4px 10px; text-align: center;
-  font-style: italic; flex-shrink: 0;
+/* ── ALL CLEAR ── */
+.all-clear {
+  grid-column: 1 / -1;
+  display: flex; align-items: center; justify-content: center;
+  min-height: calc(100vh - 100px);
+  font-size: 22px; font-weight: 700; color: var(--text3);
 }
 
 /* ── LOADING / ERROR ── */
 #loadingScreen {
-  position: fixed; inset: 0;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  gap: 20px; background: var(--bg); z-index: 99;
+  position: fixed; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 20px;
+  background: var(--bg); z-index: 99;
 }
 #loadingScreen.hide { display: none; }
-.spin { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; }
+.spin { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: #3b82f6; border-radius: 50%; animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
-.load-text { font-size: 16px; color: var(--text3); }
 
 #errorScreen {
-  position: fixed; inset: 0;
-  display: none; flex-direction: column;
-  align-items: center; justify-content: center;
-  gap: 16px; background: var(--bg); z-index: 98;
+  position: fixed; inset: 0; display: none; flex-direction: column;
+  align-items: center; justify-content: center; gap: 14px;
+  background: var(--bg); z-index: 98;
 }
 #errorScreen.show { display: flex; }
-.error-icon { font-size: 48px; }
-.error-msg { font-size: 18px; color: var(--text2); text-align: center; max-width: 400px; }
-.error-retry { font-size: 13px; color: var(--text3); }
-
-/* ── STATUS BADGE COLORS ── */
-.sb-todo     { background: rgba(100,116,139,.25); color: #94a3b8; }
-.sb-progress { background: rgba(59,130,246,.2);  color: #93c5fd; }
-.sb-hold     { background: rgba(245,158,11,.15); color: #fbbf24; }
-.sb-done     { background: rgba(16,185,129,.15); color: #6ee7b7; }
+.err-icon { font-size: 44px; }
+.err-msg  { font-size: 17px; color: var(--text2); text-align: center; max-width: 380px; }
+.err-retry{ font-size: 13px; color: var(--text3); }
 </style>
 </head>
 <body>
 
 <!-- LOADING -->
 <div id="loadingScreen">
-  <div style="width:64px;height:64px;border-radius:14px;overflow:hidden">
-    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" width="64" height="64">
+  <div style="width:60px;height:60px;border-radius:14px;overflow:hidden">
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" width="60" height="60">
       <rect width="100" height="100" fill="#0f172a"/>
       <rect x="8" y="22" width="84" height="46" rx="7" fill="#3b82f6"/>
       <rect x="14" y="30" width="20" height="16" rx="3" fill="#dbeafe"/>
@@ -203,25 +181,24 @@ html, body {
       <circle cx="24" cy="76" r="9" fill="#0f172a"/><circle cx="24" cy="76" r="5" fill="#1e293b"/><circle cx="24" cy="76" r="2.5" fill="#3b82f6"/>
       <circle cx="76" cy="76" r="9" fill="#0f172a"/><circle cx="76" cy="76" r="5" fill="#1e293b"/><circle cx="76" cy="76" r="2.5" fill="#3b82f6"/>
       <rect x="8" y="28" width="4" height="8" rx="2" fill="#fbbf24"/>
-      <text x="50" y="94" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="11" font-weight="800" fill="#e2e8f0" letter-spacing="2">TASKS</text>
     </svg>
   </div>
   <div class="spin"></div>
-  <div class="load-text">Loading dashboard...</div>
+  <div style="font-size:15px;color:var(--text3)">Loading dashboard...</div>
 </div>
 
 <!-- ERROR -->
 <div id="errorScreen">
-  <div class="error-icon">⚠️</div>
-  <div class="error-msg" id="errorMsg">Unable to load dashboard data.</div>
-  <div class="error-retry">Retrying in <span id="retryCountdown">30</span> seconds...</div>
+  <div class="err-icon">⚠️</div>
+  <div class="err-msg" id="errorMsg">Unable to load dashboard.</div>
+  <div class="err-retry">Retrying in <span id="retryCountdown">30</span>s...</div>
 </div>
 
 <!-- HEADER -->
 <div class="header">
   <div class="header-left">
     <div class="header-logo">
-      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" width="32" height="32">
         <rect width="100" height="100" fill="#0f172a"/>
         <rect x="8" y="22" width="84" height="46" rx="7" fill="#3b82f6"/>
         <rect x="14" y="30" width="20" height="16" rx="3" fill="#dbeafe"/>
@@ -241,282 +218,209 @@ html, body {
     </div>
   </div>
   <div class="header-right">
-    <div style="text-align:right">
-      <div class="header-updated" id="lastUpdated">Updating...</div>
-    </div>
+    <div class="header-updated" id="lastUpdated">Updating...</div>
     <div style="text-align:right">
       <div class="header-time" id="clockTime">--:--</div>
-      <div class="header-date" id="clockDate">---</div>
+      <div class="header-date" id="clockDate"></div>
     </div>
   </div>
 </div>
 
-<!-- MAIN GRID -->
-<div id="mainArea"></div>
+<!-- SCROLL + GRID -->
+<div id="scrollArea">
+  <div id="cardGrid"></div>
+</div>
 
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbzlxKOJrnG7jR627iux0W1X4-lgS2-PNugRs8b9P_4pVhC5ItdyFZM3rvfekFc7jD4S7g/exec';
-const REFRESH_INTERVAL = 90000; // 90 seconds
-const PRIORITY_ORDER = { 'High': 0, 'Medium': 1, 'Low': 2 };
-
-let refreshTimer = null;
-let retryTimer   = null;
+const REFRESH = 90000;
+const PRI = { 'High':0, 'Medium':1, 'Low':2 };
+let refreshTimer = null, retryTimer = null;
 
 // ── CLOCK ──────────────────────────────────────────────────────
-function updateClock() {
-  const now  = new Date();
-  const h    = now.getHours();
-  const m    = String(now.getMinutes()).padStart(2,'0');
-  const ampm = h >= 12 ? 'PM' : 'AM';
-  const h12  = h % 12 || 12;
-  document.getElementById('clockTime').textContent = h12 + ':' + m + ' ' + ampm;
-  document.getElementById('clockDate').textContent = now.toLocaleDateString('en-US',{ weekday:'long', month:'long', day:'numeric' });
+function tick() {
+  const n = new Date();
+  const h = n.getHours() % 12 || 12;
+  const m = String(n.getMinutes()).padStart(2,'0');
+  const ap = n.getHours() >= 12 ? 'PM' : 'AM';
+  document.getElementById('clockTime').textContent = h + ':' + m + ' ' + ap;
+  document.getElementById('clockDate').textContent = n.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
 }
-updateClock();
-setInterval(updateClock, 1000);
+tick(); setInterval(tick, 1000);
 
 // ── API ────────────────────────────────────────────────────────
-async function fetchDashboard() {
-  const resp = await fetch(API, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain' },
-    body: JSON.stringify({ action: 'getDashboardData' }),
-    redirect: 'follow'
+async function fetchData() {
+  const r = await fetch(API, {
+    method:'POST', headers:{'Content-Type':'text/plain'},
+    body: JSON.stringify({ action:'getDashboardData' }), redirect:'follow'
   });
-  const text = await resp.text();
-  try { return JSON.parse(text); }
-  catch {
-    const m = text.match(/\{[\s\S]*\}/);
-    if (m) return JSON.parse(m[0]);
-    throw new Error('Invalid response');
-  }
+  const txt = await r.text();
+  try { return JSON.parse(txt); }
+  catch { const m=txt.match(/\{[\s\S]*\}/); if(m) return JSON.parse(m[0]); throw new Error('Bad response'); }
 }
 
 // ── RENDER ─────────────────────────────────────────────────────
-function render(data) {
-  // Log the raw response so we can see exactly what came back
-  console.log('Raw API response:', JSON.stringify(data).substring(0, 500));
+function render(raw) {
+  const { personMap={}, peopleOrder=[], config={} } = raw;
 
-  // Handle multiple possible response shapes from Apps Script
-  let raw = data;
-  if (data && data.data) raw = data.data;
-  if (data && data.success && data.data) raw = data.data;
+  if (config.app_title)    document.getElementById('headerTitle').textContent = config.app_title;
+  if (config.app_subtitle) document.getElementById('headerSub').textContent   = config.app_subtitle;
 
-  console.log('Raw after unwrap:', JSON.stringify(raw).substring(0, 500));
-
-  const personMap  = raw.personMap  || raw['personMap']  || {};
-  const peopleOrder= raw.peopleOrder|| raw['peopleOrder'] || [];
-  const config     = raw.config     || raw['config']     || {};
-
-  // Debug info — log to console
-  console.log('personMap keys:', Object.keys(personMap));
-  console.log('peopleOrder:', peopleOrder);
-  Object.keys(personMap).forEach(name => {
-    const tasks = personMap[name].tasks || [];
-    console.log('  ' + name + ': ' + tasks.length + ' tasks');
-  });
-
-  // Update header
-  if (config) {
-    if (config.app_title)    document.getElementById('headerTitle').textContent = config.app_title;
-    if (config.app_subtitle) document.getElementById('headerSub').textContent   = config.app_subtitle;
-  }
-
-  // Build list of people who have active (non-cancelled) tasks
   const today = new Date(); today.setHours(0,0,0,0);
+  const grid  = document.getElementById('cardGrid');
+  grid.innerHTML = '';
 
-  const activePeople = (peopleOrder || []).filter(name => {
-    const entry = personMap[name];
-    if (!entry) return false;
-    return entry.tasks.some(t => t.status !== 'Cancelled');
+  // Only people with at least one non-cancelled task
+  const active = (peopleOrder||[]).filter(name => {
+    const e = personMap[name];
+    return e && e.tasks && e.tasks.some(t => t.status !== 'Cancelled');
   });
 
-  // Debug — show count even if empty
-  console.log('Active people with tasks:', activePeople);
-
-  if (!activePeople.length) {
-    // Show debug info on screen too
-    const taskSummary = Object.entries(personMap || {})
-      .map(([name, e]) => name + ': ' + (e.tasks||[]).length + ' tasks')
-      .join(', ') || 'none';
-    document.getElementById('mainArea').innerHTML =
-      '<div style="width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px">' +
-      '<div style="color:#475569;font-size:24px;font-weight:700">✅ All clear — no active tasks!</div>' +
-      '<div style="color:#334155;font-size:13px">API returned: ' + esc(taskSummary) + '</div>' + '<div style="color:#334155;font-size:11px;margin-top:4px">personMap keys: ' + esc(Object.keys(personMap||{}).join(', ')||'none') + ' | peopleOrder: ' + esc((peopleOrder||[]).join(', ')||'none') + '</div>' +
-      '</div>';
+  if (!active.length) {
+    grid.innerHTML = '<div class="all-clear">✅ All clear — no active tasks!</div>';
     return;
   }
 
-  // Calculate task weights for sizing
-  // Weight = active task count (done tasks count less)
-  const weights = {};
-  activePeople.forEach(name => {
-    const tasks = personMap[name].tasks;
-    const active = tasks.filter(t => t.status !== 'Done' && t.status !== 'Cancelled').length;
-    const done   = tasks.filter(t => t.status === 'Done').length;
-    weights[name] = Math.max(1, active + Math.ceil(done * 0.25));
-  });
-
-  const totalWeight = Object.values(weights).reduce((a,b)=>a+b,0);
-
-  // Build grid
-  const area = document.getElementById('mainArea');
-  area.innerHTML = '';
-
-  activePeople.forEach(name => {
+  active.forEach(name => {
     const entry  = personMap[name];
     const color  = (entry.person && entry.person.color) || '#64748b';
-    const tasks  = entry.tasks.filter(t => t.status !== 'Cancelled');
-    const flexGrow = (weights[name] / totalWeight) * activePeople.length;
+    const tasks  = (entry.tasks || []).filter(t => t.status !== 'Cancelled');
 
-    // Sort: overdue first → by priority → done last (sorted newest→oldest by completed_at)
-    tasks.sort((a,b) => {
-      const aDone = a.status === 'Done', bDone = b.status === 'Done';
-      // Done tasks always go to the bottom
-      if (aDone && !bDone) return 1;
-      if (!aDone && bDone) return -1;
-      // Both done — sort newest completed first so oldest roll off screen
-      if (aDone && bDone) {
-        const aTime = a.completed_at ? new Date(a.completed_at) : new Date(0);
-        const bTime = b.completed_at ? new Date(b.completed_at) : new Date(0);
-        return bTime - aTime; // newest first
-      }
-      // Active: overdue before normal
+    // Split into active and done
+    const activeTasks = tasks.filter(t => t.status !== 'Done');
+    const doneTasks   = tasks.filter(t => t.status === 'Done');
+
+    // Sort active: overdue → priority
+    activeTasks.sort((a,b) => {
       const aOv = a.due_date && new Date(a.due_date+'T00:00:00') < today;
       const bOv = b.due_date && new Date(b.due_date+'T00:00:00') < today;
       if (aOv && !bOv) return -1;
       if (!aOv && bOv) return 1;
-      // Then by priority
-      return (PRIORITY_ORDER[a.priority]||99) - (PRIORITY_ORDER[b.priority]||99);
+      return (PRI[a.priority]||99) - (PRI[b.priority]||99);
     });
 
-    const overdueCnt = tasks.filter(t => {
-      return t.due_date && new Date(t.due_date+'T00:00:00') < today && t.status !== 'Done';
-    }).length;
+    // Sort done: newest completed first
+    doneTasks.sort((a,b) => {
+      const at = a.completed_at ? new Date(a.completed_at) : new Date(0);
+      const bt = b.completed_at ? new Date(b.completed_at) : new Date(0);
+      return bt - at;
+    });
 
-    // Create box
-    const box = document.createElement('div');
-    box.className = 'person-box';
-    box.style.cssText = `flex:${flexGrow} 1 0%;border-top-color:${color};background:${color}0d`;
+    const overdueCnt = activeTasks.filter(t =>
+      t.due_date && new Date(t.due_date+'T00:00:00') < today
+    ).length;
+
+    // ── Build card ──
+    const card = document.createElement('div');
+    card.className = 'person-card';
+    card.style.borderTopColor = color;
+    card.style.background = color + '0d'; // 5% tint
 
     // Header
     const hdr = document.createElement('div');
-    hdr.className = 'person-header';
+    hdr.className = 'card-header';
     hdr.style.borderBottomColor = color + '30';
 
     const nameEl = document.createElement('div');
-    nameEl.className = 'person-name';
+    nameEl.className = 'card-name';
     nameEl.style.color = color;
     nameEl.textContent = name;
 
-    const meta = document.createElement('div');
-    meta.style.cssText = 'display:flex;align-items:center;gap:4px;flex-shrink:0';
-
+    const badges = document.createElement('div');
+    badges.className = 'card-badges';
     if (overdueCnt > 0) {
-      const ob = document.createElement('div');
-      ob.className = 'person-overdue-badge';
+      const ob = document.createElement('span');
+      ob.className = 'badge-overdue';
       ob.textContent = overdueCnt + ' overdue';
-      meta.appendChild(ob);
+      badges.appendChild(ob);
     }
-
-    const cb = document.createElement('div');
-    cb.className = 'person-count';
-    cb.textContent = tasks.filter(t=>t.status!=='Done').length + ' tasks';
-    meta.appendChild(cb);
+    const cb = document.createElement('span');
+    cb.className = 'badge-count';
+    cb.textContent = activeTasks.length + ' task' + (activeTasks.length!==1?'s':'');
+    badges.appendChild(cb);
 
     hdr.appendChild(nameEl);
-    hdr.appendChild(meta);
-    box.appendChild(hdr);
+    hdr.appendChild(badges);
+    card.appendChild(hdr);
 
-    // Task list
+    // Tasks
     const taskList = document.createElement('div');
-    taskList.className = 'person-tasks';
+    taskList.className = 'card-tasks';
 
-    // We'll render tasks and check if they fit — show as many as possible
-    tasks.forEach((task, idx) => {
-      const isOverdue = task.due_date && new Date(task.due_date+'T00:00:00') < today && task.status !== 'Done';
-      const isDone    = task.status === 'Done';
-      const isProgress = task.status === 'In Progress';
-
-      const item = document.createElement('div');
-      item.className = 'task-item' + (isOverdue?' overdue':isDone?' done':isProgress?' in-progress':'');
-
-      // Color dot
-      const dot = document.createElement('div');
-      dot.className = 'task-dot';
-      dot.style.background = isOverdue ? '#ef4444' : isDone ? '#10b981' : isProgress ? '#3b82f6' : color;
-
-      // Name
-      const tname = document.createElement('div');
-      tname.className = 'task-name' + (isDone?' done-name':'');
-      tname.textContent = task.task_name;
-
-      item.appendChild(dot);
-      item.appendChild(tname);
-
-      // Bus tag
-      if (task.bus) {
-        const busEl = document.createElement('div');
-        busEl.className = 'task-bus';
-        busEl.textContent = '🚌 ' + task.bus;
-        item.appendChild(busEl);
-      }
-
-      // Overdue flag
-      if (isOverdue) {
-        const flag = document.createElement('div');
-        flag.className = 'task-overdue-flag';
-        flag.textContent = '! OVR';
-        item.appendChild(flag);
-      } else if (!isDone) {
-        // Status badge
-        const sb = document.createElement('div');
-        sb.className = 'task-status-badge ' + statusClass(task.status);
-        sb.textContent = shortStatus(task.status);
-        item.appendChild(sb);
-      }
-
-      taskList.appendChild(item);
+    // Active tasks
+    activeTasks.forEach(t => {
+      taskList.appendChild(makeTaskRow(t, color, today));
     });
 
-    box.appendChild(taskList);
-    area.appendChild(box);
-  });
-
-  // After render, check for overflow and add "more" indicators
-  requestAnimationFrame(() => {
-    document.querySelectorAll('.person-box').forEach(box => {
-      const list = box.querySelector('.person-tasks');
-      if (!list) return;
-      const items = list.querySelectorAll('.task-item');
-      let hiddenCount = 0;
-      items.forEach(item => {
-        if (item.offsetTop + item.offsetHeight > list.offsetHeight + 4) {
-          item.style.display = 'none';
-          hiddenCount++;
-        }
+    // Done tasks (show up to 3 most recent)
+    if (doneTasks.length > 0) {
+      const divider = document.createElement('div');
+      divider.className = 'done-divider';
+      divider.textContent = 'Recently done';
+      taskList.appendChild(divider);
+      doneTasks.slice(0, 3).forEach(t => {
+        taskList.appendChild(makeTaskRow(t, color, today));
       });
-      if (hiddenCount > 0) {
-        const more = document.createElement('div');
-        more.className = 'task-more';
-        more.textContent = '+ ' + hiddenCount + ' more task' + (hiddenCount>1?'s':'');
-        list.appendChild(more);
-      }
-    });
+    }
+
+    card.appendChild(taskList);
+    grid.appendChild(card);
   });
+}
+
+function makeTaskRow(task, color, today) {
+  const isOverdue  = task.due_date && new Date(task.due_date+'T00:00:00') < today && task.status !== 'Done';
+  const isDone     = task.status === 'Done';
+  const isProgress = task.status === 'In Progress';
+
+  const row = document.createElement('div');
+  row.className = 'task-row ' + (isOverdue?'t-overdue':isDone?'t-done':isProgress?'t-progress':'t-normal');
+
+  // Dot
+  const dot = document.createElement('div');
+  dot.className = 't-dot';
+  dot.style.background = isOverdue ? '#ef4444' : isDone ? '#10b981' : isProgress ? '#3b82f6' : color;
+  row.appendChild(dot);
+
+  // Name
+  const nm = document.createElement('div');
+  nm.className = 't-name' + (isDone?' done':'');
+  nm.textContent = task.task_name;
+  row.appendChild(nm);
+
+  // Bus
+  if (task.bus) {
+    const b = document.createElement('div');
+    b.className = 't-bus';
+    b.textContent = '🚌 ' + task.bus;
+    row.appendChild(b);
+  }
+
+  // Overdue flag or status badge
+  if (isOverdue) {
+    const f = document.createElement('div');
+    f.className = 't-flag';
+    f.textContent = '!';
+    row.appendChild(f);
+  } else if (!isDone) {
+    const s = document.createElement('div');
+    s.className = 't-status ' + statusClass(task.status);
+    s.textContent = shortStatus(task.status);
+    row.appendChild(s);
+  }
+
+  return row;
 }
 
 function statusClass(s) {
-  if (s === 'To Do')       return 'sb-todo';
-  if (s === 'In Progress') return 'sb-progress';
-  if (s === 'On Hold')     return 'sb-hold';
-  if (s === 'Done')        return 'sb-done';
-  return 'sb-todo';
+  if (s==='In Progress') return 's-progress';
+  if (s==='On Hold')     return 's-hold';
+  if (s==='Done')        return 's-done';
+  return 's-todo';
 }
 function shortStatus(s) {
-  if (s === 'To Do')       return 'To Do';
-  if (s === 'In Progress') return 'In Progress';
-  if (s === 'On Hold')     return 'On Hold';
+  if (s==='In Progress') return 'In Progress';
+  if (s==='On Hold')     return 'On Hold';
   return s;
 }
 
@@ -527,43 +431,31 @@ async function load(isRefresh) {
     document.getElementById('errorScreen').classList.remove('show');
   }
   try {
-    const data = await fetchDashboard();
+    const data = await fetchData();
+    const raw  = (data && data.data) ? data.data : data;
     document.getElementById('loadingScreen').classList.add('hide');
     document.getElementById('errorScreen').classList.remove('show');
-    render(data);
-    document.getElementById('lastUpdated').textContent = 'Updated ' + new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
-    scheduleRefresh();
+    render(raw);
+    document.getElementById('lastUpdated').textContent =
+      'Updated ' + new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+    clearTimeout(refreshTimer);
+    clearTimeout(retryTimer);
+    refreshTimer = setTimeout(() => load(true), REFRESH);
   } catch(e) {
-    console.error('Dashboard load error:', e);
+    console.error(e);
     document.getElementById('loadingScreen').classList.add('hide');
-    if (!isRefresh) {
-      document.getElementById('errorScreen').classList.add('show');
-    }
-    startRetryCountdown();
+    if (!isRefresh) document.getElementById('errorScreen').classList.add('show');
+    startRetry();
   }
 }
 
-function scheduleRefresh() {
-  clearTimeout(refreshTimer);
-  clearTimeout(retryTimer);
-  refreshTimer = setTimeout(() => load(true), REFRESH_INTERVAL);
+function startRetry() {
+  let s = 30; clearTimeout(retryTimer);
+  const el = document.getElementById('retryCountdown');
+  const t = () => { if(s<=0){load(false);return;} if(el)el.textContent=s; s--; retryTimer=setTimeout(t,1000); };
+  t();
 }
 
-function startRetryCountdown() {
-  let secs = 30;
-  clearTimeout(retryTimer);
-  const countdown = document.getElementById('retryCountdown');
-  const tick = () => {
-    if (secs <= 0) { load(false); return; }
-    if (countdown) countdown.textContent = secs;
-    secs--;
-    retryTimer = setTimeout(tick, 1000);
-  };
-  tick();
-}
-
-function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-// Start
 load(false);
 </script>
 </body>
