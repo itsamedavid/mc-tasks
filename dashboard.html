@@ -4,172 +4,248 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Midnight Coach — Shop Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg: #080f1e;
-  --bg2: #0f172a;
-  --card: #111827;
-  --border: #1e293b;
-  --text: #e2e8f0;
-  --text2: #94a3b8;
-  --text3: #475569;
+  --bg:     #060d1a;
+  --bg2:    #0b1528;
+  --card:   #0e1b30;
+  --border: #1a2e4a;
+  --text:   #e8f0fe;
+  --text2:  #8aadcf;
+  --text3:  #3d5a7a;
+  --accent: #2563eb;
 }
 
 html, body {
   width: 100%; height: 100%; overflow: hidden;
   background: var(--bg);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: 'Barlow', sans-serif;
   color: var(--text);
 }
 
+/* subtle animated grid bg */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0;
+  background-image:
+    linear-gradient(rgba(37,99,235,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(37,99,235,0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+  animation: gridScroll 30s linear infinite;
+}
+@keyframes gridScroll { to { background-position: 0 48px; } }
+
 /* ── HEADER ── */
 .header {
+  position: relative; z-index: 10;
   display: flex; align-items: center; justify-content: space-between;
-  padding: 0 24px; height: 52px;
-  background: var(--bg2); border-bottom: 1px solid var(--border);
+  padding: 0 32px; height: 72px;
+  background: linear-gradient(180deg, #0b1832 0%, #060d1a 100%);
+  border-bottom: 1px solid var(--border);
   flex-shrink: 0;
 }
-.header-left { display: flex; align-items: center; gap: 12px; }
-.header-logo { width: 32px; height: 32px; border-radius: 7px; overflow: hidden; flex-shrink: 0; }
-.header-title { font-size: 18px; font-weight: 800; color: var(--text); }
-.header-sub   { font-size: 11px; color: var(--text3); }
-.header-right { display: flex; align-items: center; gap: 20px; }
-.header-updated { font-size: 11px; color: var(--text3); }
-.header-time { font-size: 26px; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; line-height: 1; }
-.header-date { font-size: 11px; color: var(--text2); text-align: right; }
+/* thin accent line at very top */
+.header::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, #1d4ed8, #2563eb, #3b82f6, #1d4ed8);
+  background-size: 200% 100%;
+  animation: shimmer 4s linear infinite;
+}
+@keyframes shimmer { to { background-position: -200% 0; } }
 
-/* ── SCROLL AREA ── */
-#scrollArea {
+.header-left { display: flex; align-items: center; gap: 16px; }
+.header-logo { width: 44px; height: 44px; border-radius: 10px; overflow: hidden; flex-shrink: 0; border: 1px solid rgba(59,130,246,0.3); }
+.header-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 28px; font-weight: 900; letter-spacing: 0.02em;
+  color: var(--text); text-transform: uppercase;
+}
+.header-sub { font-size: 12px; font-weight: 600; color: var(--text3); letter-spacing: 0.12em; text-transform: uppercase; margin-top: 1px; }
+
+.header-center {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 8px;
+}
+.live-dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; animation: pulse 2s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(0.8)} }
+.live-label { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #22c55e; }
+
+.header-right { display: flex; align-items: center; gap: 28px; }
+.header-updated { font-size: 12px; color: var(--text3); font-weight: 500; text-align: right; }
+.clock-wrap { text-align: right; }
+.header-time {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 38px; font-weight: 800; color: var(--text);
+  font-variant-numeric: tabular-nums; line-height: 1; letter-spacing: -0.01em;
+}
+.header-date { font-size: 12px; color: var(--text2); text-align: right; font-weight: 500; margin-top: 1px; }
+
+/* ── MAIN AREA ── */
+#mainArea {
+  position: relative; z-index: 1;
   width: 100%;
-  height: calc(100vh - 52px);
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 14px;
+  height: calc(100vh - 72px);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ── CARD GRID ── */
 #cardGrid {
+  flex: 1;
   display: grid;
-  /* Cards are at least 240px wide, max 400px, fill available space */
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 12px;
-  align-items: start; /* cards only as tall as content */
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+  align-items: stretch; /* cards stretch to fill row height */
+  min-height: 0;
 }
 
 /* ── PERSON CARD ── */
 .person-card {
-  border-radius: 12px;
+  border-radius: 14px;
   border: 1px solid var(--border);
-  border-top: 4px solid var(--border);
+  border-top: 5px solid var(--border);
   background: var(--card);
   overflow: hidden;
-  /* NO fixed height — grows with content */
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.3s;
+  animation: cardIn 0.4s ease both;
+}
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .card-header {
-  padding: 10px 12px 8px;
+  padding: 14px 16px 12px;
   display: flex; align-items: center; justify-content: space-between;
-  gap: 8px;
+  gap: 10px;
   border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
 }
 .card-name {
-  font-size: 15px; font-weight: 800;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 24px; font-weight: 900; letter-spacing: 0.03em; text-transform: uppercase;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.card-badges { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+.card-badges { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 .badge-overdue {
-  font-size: 10px; font-weight: 800; padding: 2px 6px;
-  border-radius: 10px; background: rgba(239,68,68,.15); color: #f87171;
-  white-space: nowrap;
+  font-size: 11px; font-weight: 800; padding: 3px 8px;
+  border-radius: 10px; background: rgba(239,68,68,.18); color: #f87171;
+  white-space: nowrap; letter-spacing: 0.04em;
 }
 .badge-count {
-  font-size: 10px; font-weight: 700; padding: 2px 6px;
+  font-size: 11px; font-weight: 700; padding: 3px 8px;
   border-radius: 10px; background: rgba(255,255,255,.07); color: var(--text2);
   white-space: nowrap;
 }
 
-/* ── TASK ROWS ── */
-.card-tasks { padding: 6px 8px 8px; display: flex; flex-direction: column; gap: 4px; }
+/* ── TASK LIST (fills remaining card height) ── */
+.card-tasks {
+  padding: 10px 12px 12px;
+  display: flex; flex-direction: column; gap: 6px;
+  flex: 1;
+  overflow: hidden;
+}
 
 .task-row {
-  display: flex; align-items: center; gap: 7px;
-  padding: 6px 8px; border-radius: 7px;
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 12px;
+  border-radius: 9px;
   border: 1px solid transparent;
-  min-height: 32px;
 }
-.task-row.t-overdue { background: rgba(239,68,68,.07); border-color: rgba(239,68,68,.18); }
-.task-row.t-progress { background: rgba(59,130,246,.06); border-color: rgba(59,130,246,.15); }
-.task-row.t-done { opacity: .32; }
-.task-row.t-normal { background: rgba(255,255,255,.025); }
+.task-row.t-overdue  { background: rgba(239,68,68,.08); border-color: rgba(239,68,68,.2); }
+.task-row.t-progress { background: rgba(59,130,246,.07); border-color: rgba(59,130,246,.18); }
+.task-row.t-done     { opacity: .28; }
+.task-row.t-normal   { background: rgba(255,255,255,.03); }
 
-.t-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.t-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
 
+.t-body { flex: 1; min-width: 0; }
 .t-name {
-  flex: 1; font-size: 13px; font-weight: 600; color: var(--text);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  line-height: 1.2;
+  font-size: 16px; font-weight: 700; color: var(--text);
+  white-space: normal;        /* WRAP instead of truncate */
+  word-break: break-word;
+  line-height: 1.3;
 }
 .t-name.done { text-decoration: line-through; color: var(--text3); }
 
-.t-bus {
-  font-size: 10px; color: var(--text3); white-space: nowrap; flex-shrink: 0;
+.t-meta {
+  display: flex; align-items: center; gap: 8px; margin-top: 4px; flex-wrap: wrap;
 }
+.t-bus {
+  font-size: 12px; color: var(--text3); white-space: nowrap;
+}
+.t-due {
+  font-size: 11px; font-weight: 700; color: #f87171; white-space: nowrap;
+}
+
+.t-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
 .t-flag {
-  font-size: 10px; font-weight: 800; color: #f87171; flex-shrink: 0;
+  font-size: 13px; font-weight: 900; color: #f87171; flex-shrink: 0;
 }
 .t-status {
-  font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 8px;
+  font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 8px;
   white-space: nowrap; flex-shrink: 0;
 }
 .s-todo     { background: rgba(100,116,139,.2); color: #94a3b8; }
-.s-progress { background: rgba(59,130,246,.2);  color: #93c5fd; }
-.s-hold     { background: rgba(245,158,11,.15); color: #fbbf24; }
+.s-progress { background: rgba(59,130,246,.22); color: #93c5fd; }
+.s-hold     { background: rgba(245,158,11,.17); color: #fbbf24; }
 .s-done     { background: rgba(16,185,129,.15); color: #6ee7b7; }
 
-/* divider between active and done tasks */
+/* divider */
 .done-divider {
-  font-size: 10px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: .06em; color: var(--text3);
-  padding: 4px 8px 2px; opacity: .6;
+  font-size: 10px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: .1em; color: var(--text3);
+  padding: 6px 12px 2px; opacity: .7;
+  border-top: 1px solid var(--border);
+  margin-top: 2px;
 }
 
 /* ── ALL CLEAR ── */
 .all-clear {
   grid-column: 1 / -1;
-  display: flex; align-items: center; justify-content: center;
-  min-height: calc(100vh - 100px);
-  font-size: 22px; font-weight: 700; color: var(--text3);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 60vh; gap: 16px;
 }
+.all-clear-icon { font-size: 64px; }
+.all-clear-text { font-family: 'Barlow Condensed', sans-serif; font-size: 36px; font-weight: 800; color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em; }
 
 /* ── LOADING / ERROR ── */
 #loadingScreen {
   position: fixed; inset: 0; display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: 20px;
+  align-items: center; justify-content: center; gap: 24px;
   background: var(--bg); z-index: 99;
 }
 #loadingScreen.hide { display: none; }
-.spin { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: #3b82f6; border-radius: 50%; animation: spin .8s linear infinite; }
+.spin { width: 44px; height: 44px; border: 3px solid var(--border); border-top-color: #3b82f6; border-radius: 50%; animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
+.loading-label { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; color: var(--text3); letter-spacing: 0.1em; text-transform: uppercase; }
 
 #errorScreen {
   position: fixed; inset: 0; display: none; flex-direction: column;
-  align-items: center; justify-content: center; gap: 14px;
+  align-items: center; justify-content: center; gap: 16px;
   background: var(--bg); z-index: 98;
 }
 #errorScreen.show { display: flex; }
-.err-icon { font-size: 44px; }
-.err-msg  { font-size: 17px; color: var(--text2); text-align: center; max-width: 380px; }
-.err-retry{ font-size: 13px; color: var(--text3); }
+.err-icon { font-size: 56px; }
+.err-msg  { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; color: var(--text2); text-align: center; max-width: 420px; text-transform: uppercase; letter-spacing: 0.05em; }
+.err-retry{ font-size: 14px; color: var(--text3); }
 </style>
 </head>
 <body>
 
 <!-- LOADING -->
 <div id="loadingScreen">
-  <div style="width:60px;height:60px;border-radius:14px;overflow:hidden">
-    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" width="60" height="60">
+  <div style="width:72px;height:72px;border-radius:16px;overflow:hidden;border:1px solid rgba(59,130,246,0.3)">
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" width="72" height="72">
       <rect width="100" height="100" fill="#0f172a"/>
       <rect x="8" y="22" width="84" height="46" rx="7" fill="#3b82f6"/>
       <rect x="14" y="30" width="20" height="16" rx="3" fill="#dbeafe"/>
@@ -184,13 +260,13 @@ html, body {
     </svg>
   </div>
   <div class="spin"></div>
-  <div style="font-size:15px;color:var(--text3)">Loading dashboard...</div>
+  <div class="loading-label">Loading Dashboard...</div>
 </div>
 
 <!-- ERROR -->
 <div id="errorScreen">
   <div class="err-icon">⚠️</div>
-  <div class="err-msg" id="errorMsg">Unable to load dashboard.</div>
+  <div class="err-msg" id="errorMsg">Unable to load dashboard</div>
   <div class="err-retry">Retrying in <span id="retryCountdown">30</span>s...</div>
 </div>
 
@@ -198,7 +274,7 @@ html, body {
 <div class="header">
   <div class="header-left">
     <div class="header-logo">
-      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" width="32" height="32">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" width="44" height="44">
         <rect width="100" height="100" fill="#0f172a"/>
         <rect x="8" y="22" width="84" height="46" rx="7" fill="#3b82f6"/>
         <rect x="14" y="30" width="20" height="16" rx="3" fill="#dbeafe"/>
@@ -217,17 +293,23 @@ html, body {
       <div class="header-sub" id="headerSub">Shop Task Manager</div>
     </div>
   </div>
+
+  <div class="header-center">
+    <div class="live-dot"></div>
+    <div class="live-label">Live</div>
+  </div>
+
   <div class="header-right">
     <div class="header-updated" id="lastUpdated">Updating...</div>
-    <div style="text-align:right">
+    <div class="clock-wrap">
       <div class="header-time" id="clockTime">--:--</div>
       <div class="header-date" id="clockDate"></div>
     </div>
   </div>
 </div>
 
-<!-- SCROLL + GRID -->
-<div id="scrollArea">
+<!-- MAIN -->
+<div id="mainArea">
   <div id="cardGrid"></div>
 </div>
 
@@ -237,7 +319,7 @@ const REFRESH = 90000;
 const PRI = { 'High':0, 'Medium':1, 'Low':2 };
 let refreshTimer = null, retryTimer = null;
 
-// ── CLOCK ──────────────────────────────────────────────────────
+// ── CLOCK ──
 function tick() {
   const n = new Date();
   const h = n.getHours() % 12 || 12;
@@ -248,7 +330,7 @@ function tick() {
 }
 tick(); setInterval(tick, 1000);
 
-// ── API ────────────────────────────────────────────────────────
+// ── API ──
 async function fetchData() {
   const r = await fetch(API, {
     method:'POST', headers:{'Content-Type':'text/plain'},
@@ -259,7 +341,7 @@ async function fetchData() {
   catch { const m=txt.match(/\{[\s\S]*\}/); if(m) return JSON.parse(m[0]); throw new Error('Bad response'); }
 }
 
-// ── RENDER ─────────────────────────────────────────────────────
+// ── RENDER ──
 function render(raw) {
   const { personMap={}, peopleOrder=[], config={} } = raw;
 
@@ -270,27 +352,29 @@ function render(raw) {
   const grid  = document.getElementById('cardGrid');
   grid.innerHTML = '';
 
-  // Only people with at least one non-cancelled task
   const active = (peopleOrder||[]).filter(name => {
     const e = personMap[name];
     return e && e.tasks && e.tasks.some(t => t.status !== 'Cancelled');
   });
 
   if (!active.length) {
-    grid.innerHTML = '<div class="all-clear">✅ All clear — no active tasks!</div>';
+    grid.innerHTML = `
+      <div class="all-clear">
+        <div class="all-clear-icon">✅</div>
+        <div class="all-clear-text">All Clear — No Active Tasks</div>
+      </div>`;
     return;
   }
 
-  active.forEach(name => {
+  // Stagger card animation
+  active.forEach((name, idx) => {
     const entry  = personMap[name];
     const color  = (entry.person && entry.person.color) || '#64748b';
     const tasks  = (entry.tasks || []).filter(t => t.status !== 'Cancelled');
 
-    // Split into active and done
     const activeTasks = tasks.filter(t => t.status !== 'Done');
     const doneTasks   = tasks.filter(t => t.status === 'Done');
 
-    // Sort active: overdue → priority
     activeTasks.sort((a,b) => {
       const aOv = a.due_date && new Date(a.due_date+'T00:00:00') < today;
       const bOv = b.due_date && new Date(b.due_date+'T00:00:00') < today;
@@ -299,7 +383,6 @@ function render(raw) {
       return (PRI[a.priority]||99) - (PRI[b.priority]||99);
     });
 
-    // Sort done: newest completed first
     doneTasks.sort((a,b) => {
       const at = a.completed_at ? new Date(a.completed_at) : new Date(0);
       const bt = b.completed_at ? new Date(b.completed_at) : new Date(0);
@@ -310,16 +393,16 @@ function render(raw) {
       t.due_date && new Date(t.due_date+'T00:00:00') < today
     ).length;
 
-    // ── Build card ──
     const card = document.createElement('div');
     card.className = 'person-card';
     card.style.borderTopColor = color;
-    card.style.background = color + '0d'; // 5% tint
+    card.style.background = color + '0d';
+    card.style.animationDelay = (idx * 60) + 'ms';
 
     // Header
     const hdr = document.createElement('div');
     hdr.className = 'card-header';
-    hdr.style.borderBottomColor = color + '30';
+    hdr.style.borderBottomColor = color + '35';
 
     const nameEl = document.createElement('div');
     nameEl.className = 'card-name';
@@ -347,16 +430,14 @@ function render(raw) {
     const taskList = document.createElement('div');
     taskList.className = 'card-tasks';
 
-    // Active tasks
     activeTasks.forEach(t => {
       taskList.appendChild(makeTaskRow(t, color, today));
     });
 
-    // Done tasks (show up to 3 most recent)
     if (doneTasks.length > 0) {
       const divider = document.createElement('div');
       divider.className = 'done-divider';
-      divider.textContent = 'Recently done';
+      divider.textContent = 'Recently Done';
       taskList.appendChild(divider);
       doneTasks.slice(0, 3).forEach(t => {
         taskList.appendChild(makeTaskRow(t, color, today));
@@ -382,32 +463,49 @@ function makeTaskRow(task, color, today) {
   dot.style.background = isOverdue ? '#ef4444' : isDone ? '#10b981' : isProgress ? '#3b82f6' : color;
   row.appendChild(dot);
 
-  // Name
+  // Body (name + meta)
+  const body = document.createElement('div');
+  body.className = 't-body';
+
   const nm = document.createElement('div');
   nm.className = 't-name' + (isDone?' done':'');
   nm.textContent = task.task_name;
-  row.appendChild(nm);
+  body.appendChild(nm);
 
-  // Bus
+  const meta = document.createElement('div');
+  meta.className = 't-meta';
   if (task.bus) {
-    const b = document.createElement('div');
+    const b = document.createElement('span');
     b.className = 't-bus';
     b.textContent = '🚌 ' + task.bus;
-    row.appendChild(b);
+    meta.appendChild(b);
   }
+  if (isOverdue && task.due_date) {
+    const d = document.createElement('span');
+    d.className = 't-due';
+    const due = new Date(task.due_date+'T00:00:00');
+    d.textContent = 'Due ' + due.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    meta.appendChild(d);
+  }
+  if (meta.children.length) body.appendChild(meta);
 
-  // Overdue flag or status badge
+  row.appendChild(body);
+
+  // Right side: flag or status
+  const right = document.createElement('div');
+  right.className = 't-right';
   if (isOverdue) {
     const f = document.createElement('div');
     f.className = 't-flag';
     f.textContent = '!';
-    row.appendChild(f);
+    right.appendChild(f);
   } else if (!isDone) {
     const s = document.createElement('div');
     s.className = 't-status ' + statusClass(task.status);
     s.textContent = shortStatus(task.status);
-    row.appendChild(s);
+    right.appendChild(s);
   }
+  if (right.children.length) row.appendChild(right);
 
   return row;
 }
@@ -424,7 +522,7 @@ function shortStatus(s) {
   return s;
 }
 
-// ── LOAD & REFRESH ─────────────────────────────────────────────
+// ── LOAD & REFRESH ──
 async function load(isRefresh) {
   if (!isRefresh) {
     document.getElementById('loadingScreen').classList.remove('hide');
