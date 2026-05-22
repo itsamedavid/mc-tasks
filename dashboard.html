@@ -13,7 +13,7 @@
 :root {
   --bg:     #060d1a;
   --bg2:    #0b1528;
-  --card:   #0e1b30;
+  --card:   #101f38;
   --border: #1a2e4a;
   --text:   #e8f0fe;
   --text2:  #8aadcf;
@@ -102,20 +102,22 @@ body::before {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 16px;
-  align-items: stretch; /* cards stretch to fill row height */
+  align-items: start; /* cards size to their content — look like real cards */
+  align-content: start;
   min-height: 0;
 }
 
 /* ── PERSON CARD ── */
 .person-card {
-  border-radius: 14px;
-  border: 1px solid var(--border);
-  border-top: 5px solid var(--border);
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.10);
+  border-top: 4px solid var(--border);
   background: var(--card);
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  transition: border-color 0.3s;
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,0.4),
+    0 4px 24px rgba(0,0,0,0.5),
+    inset 0 1px 0 rgba(255,255,255,0.05);
   animation: cardIn 0.4s ease both;
 }
 @keyframes cardIn {
@@ -147,12 +149,10 @@ body::before {
   white-space: nowrap;
 }
 
-/* ── TASK LIST (fills remaining card height) ── */
+/* ── TASK LIST ── */
 .card-tasks {
   padding: 10px 12px 12px;
   display: flex; flex-direction: column; gap: 6px;
-  flex: 1;
-  overflow: hidden;
 }
 
 .task-row {
@@ -394,7 +394,7 @@ function render(raw) {
     const card = document.createElement('div');
     card.className = 'person-card';
     card.style.borderTopColor = color;
-    card.style.background = color + '0d';
+    card.style.background = color + '14';
     card.style.animationDelay = (idx * 60) + 'ms';
 
     // Header
