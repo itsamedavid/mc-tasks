@@ -505,7 +505,7 @@ textarea.field{min-height:90px;resize:vertical}
       </div>
       <div class="form-group"><label class="form-label">Primary Email</label><input id="p_email" class="field" type="email" placeholder="name@example.com"></div>
       <div class="form-group"><label class="form-label">Alternate Emails <span class="hint">comma-separated</span></label><input id="p_altemails" class="field" type="text" placeholder="other@gmail.com"></div>
-      <div class="form-group"><label class="form-label">PIN <span class="hint">4 digits — blank keeps existing</span></label><input id="p_pin" class="field" type="number" placeholder="e.g. 7291" min="0" max="9999"></div>
+      <div class="form-group"><label class="form-label">PIN <span class="hint">4 digits — blank keeps existing</span></label><input id="p_pin" class="field" type="tel" placeholder="e.g. 0712" maxlength="4" pattern="[0-9]{4}"></div>
       <div class="form-row-2">
         <div class="form-group"><label class="form-label">Phone</label><input id="p_phone" class="field" type="tel" placeholder="10-digit"></div>
         <div class="form-group"><label class="form-label">Carrier</label><select id="p_carrier" class="field"><option value="">Select...</option><option>AT&T</option><option>Verizon</option><option>T-Mobile</option><option>Sprint</option><option>US Cellular</option><option>Boost Mobile</option><option>Cricket</option></select></div>
@@ -962,11 +962,12 @@ function renderPhotoPreview() {
 function removePhoto(i) { pendingPhotos.splice(i,1); renderPhotoPreview(); }
 
 async function saveNewTask() {
+  const btn = document.getElementById('saveTaskBtn');
+  if (btn.disabled) return; // prevent double-submit
   const name = document.getElementById('f_name').value.trim();
   const to   = document.getElementById('f_to').value;
   if (!name) { toast('Task name is required','err'); return; }
   if (!to)   { toast('Please assign this task','err'); return; }
-  const btn = document.getElementById('saveTaskBtn');
   btn.textContent='Saving...'; btn.disabled=true;
   const taskData = {
     task_name:name, assigned_to:to,
@@ -978,7 +979,8 @@ async function saveNewTask() {
     start_date:document.getElementById('f_start').value,
     recurring:document.getElementById('f_recur').value,
     recurrence_interval:document.getElementById('f_interval').value,
-    notes:document.getElementById('f_notes').value
+    notes:document.getElementById('f_notes').value,
+    created_by:currentUser.name
   };
   try {
     const r = await apiPost({ action:'saveTask', data:taskData, userName:currentUser.name });
@@ -987,16 +989,27 @@ async function saveNewTask() {
       if (pendingPhotos.length) {
         btn.textContent='Uploading photos...';
         for (const p of pendingPhotos) {
-          await apiPost({ action:'uploadPhoto', taskId:result.task_id, fileName:p.file.name, base64Data:p.previewUrl.split(',')[1], mimeType:p.file.type, userName:currentUser.name });
+          try {
+            await apiPost({ action:'uploadPhoto', taskId:result.task_id, fileName:p.file.name, base64Data:p.previewUrl.split(',')[1], mimeType:p.file.type, userName:currentUser.name });
+          } catch(photoErr) {
+            console.error('Photo upload error:', photoErr);
+            // Continue even if photo fails — task was saved
+          }
         }
       }
       toast('Task saved! ✓','ok');
       clearAddForm();
-      await refreshTasks(currentUser);
+      btn.textContent='Save Task'; btn.disabled=false;
       gotoTab('tasks');
-    } else toast('Error: '+result.error,'err');
-  } catch(e) { toast('Error saving task','err'); }
-  btn.textContent='Save Task'; btn.disabled=false;
+      await refreshTasks(currentUser);
+    } else {
+      toast('Error: '+result.error,'err');
+      btn.textContent='Save Task'; btn.disabled=false;
+    }
+  } catch(e) {
+    toast('Error saving task','err');
+    btn.textContent='Save Task'; btn.disabled=false;
+  }
 }
 function clearAddForm() {
   ['f_name','f_notes','f_due','f_start','f_interval'].forEach(id => { const el=document.getElementById(id); if(el)el.value=''; });
@@ -1037,6 +1050,9 @@ function openEditModal(task) {
   h += fmg('Start Date','<input id="e_start" class="field" type="date" value="'+(task.start_date||'')+'">');
   h += '</div>';
   h += fmg('Notes','<textarea id="e_notes" class="field">'+esc(task.notes||'')+'</textarea>');
+  if (task.created_by) {
+    h += '<div style="font-size:13px;color:var(--text3);margin-bottom:8px">Created by <strong style="color:var(--text2)">'+esc(task.created_by)+'</strong></div>';
+  }
   if (task.photos && task.photos.length) {
     h += '<div class="form-group"><label class="form-label">Photos</label><div class="card-photos">';
     task.photos.forEach(ph => {
@@ -1110,7 +1126,9 @@ async function saveEdit() {
     const result = r.data||r;
     if (result.success) {
       for (const p of editPendingPhotos) {
-        await apiPost({ action:'uploadPhoto', taskId:currentTask.task_id, fileName:p.file.name, base64Data:p.previewUrl.split(',')[1], mimeType:p.file.type, userName:currentUser.name });
+        try {
+          await apiPost({ action:'uploadPhoto', taskId:currentTask.task_id, fileName:p.file.name, base64Data:p.previewUrl.split(',')[1], mimeType:p.file.type, userName:currentUser.name });
+        } catch(photoErr) { console.error('Edit photo upload error:', photoErr); }
       }
       toast('Updated! ✓','ok'); closeEdit(); await refreshTasks(currentUser);
     } else toast('Error: '+result.error,'err');
@@ -1188,8 +1206,14 @@ function openPersonModal(person) {
 }
 function closePersonModal() { document.getElementById('personModal').classList.remove('open'); currentPerson=null; }
 async function savePerson() {
+  const btn = document.querySelector('#personModal .btn-primary');
+  if (btn && btn.disabled) return; // prevent double-submit
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving...'; }
   const name=document.getElementById('p_name').value.trim();
-  if (!name) { toast('Name is required','err'); return; }
+  if (!name) {
+    if (btn) { btn.disabled=false; btn.textContent='Save'; }
+    toast('Name is required','err'); return;
+  }
   const pinVal=document.getElementById('p_pin').value.trim();
   if (pinVal&&!/^\d{4}$/.test(pinVal)) { toast('PIN must be exactly 4 digits','err'); return; }
   const data={name,email:document.getElementById('p_email').value.trim(),alt_emails:document.getElementById('p_altemails').value.trim(),phone:document.getElementById('p_phone').value.replace(/\D/g,''),carrier:document.getElementById('p_carrier').value,sms_opt_in:document.getElementById('p_sms').value,active:document.getElementById('p_active').value,color:document.getElementById('p_color').value};
@@ -1204,8 +1228,14 @@ async function savePerson() {
       const fd=await apiPost({action:'getFormData'});
       formData=fd.data||fd;
       buildDropdowns(); buildFilters(currentUser);
-    } else toast('Error: '+result.error,'err');
-  } catch { toast('Error saving','err'); }
+    } else {
+      toast('Error: '+result.error,'err');
+      if (btn) { btn.disabled=false; btn.textContent='Save'; }
+    }
+  } catch {
+    toast('Error saving','err');
+    if (btn) { btn.disabled=false; btn.textContent='Save'; }
+  }
 }
 async function deletePerson() {
   if (!currentPerson||!confirm('Delete '+currentPerson.name+'?\n\nTasks will not be deleted.')) return;

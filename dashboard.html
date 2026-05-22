@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Midnight Coach — Shop Dashboard</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #080f1e;
+  --bg2: #0f172a;
+  --border: #1e293b;
+  --text: #e2e8f0;
+  --text2: #94a3b8;
+  --text3: #475569;
+  --accent: #3b82f6;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --success: #10b981;
+}
+
+html, body {
+  width: 100%; height: 100%; overflow: hidden;
+  background: var(--bg);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: var(--text);
+}
+
+/* ── HEADER ── */
+.header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 28px;
+  height: 56px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.header-left { display: flex; align-items: center; gap: 16px; }
+.header-logo { width: 36px; height: 36px; border-radius: 8px; overflow: hidden; flex-shrink: 0; }
+.header-logo svg { width: 100%; height: 100%; }
+.header-title { font-size: 20px; font-weight: 800; color: var(--text); letter-spacing: -0.01em; }
+.header-sub   { font-size: 13px; color: var(--text3); margin-top: 1px; }
+.header-right { display: flex; align-items: center; gap: 24px; }
+.header-time  { font-size: 28px; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
+.header-date  { font-size: 13px; color: var(--text2); text-align: right; }
+.header-updated { font-size: 12px; color: var(--text3); text-align: right; }
+
+/* ── MAIN GRID AREA ── */
+#mainArea {
+  width: 100%;
+  /* height = viewport minus header */
+  height: calc(100vh - 56px);
+  padding: 16px;
+  display: flex;
+  align-items: stretch;
+  gap: 14px;
+  overflow: hidden;
+}
+
+/* ── PERSON BOX ── */
+.person-box {
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  border-top-width: 4px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+  /* flex-grow set dynamically based on task count */
+}
+
+.person-header {
+  padding: 10px 14px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border);
+}
+.person-name {
+  font-size: 16px; font-weight: 800;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.person-count {
+  font-size: 12px; font-weight: 700;
+  padding: 2px 8px; border-radius: 20px;
+  background: rgba(255,255,255,0.08);
+  color: var(--text2); flex-shrink: 0; margin-left: 8px;
+}
+.person-overdue-badge {
+  font-size: 11px; font-weight: 700;
+  padding: 2px 7px; border-radius: 20px;
+  background: rgba(239,68,68,0.15);
+  color: #f87171; flex-shrink: 0; margin-left: 6px;
+}
+
+/* Task list inside person box */
+.person-tasks {
+  flex: 1; overflow: hidden;
+  padding: 8px 10px;
+  display: flex; flex-direction: column; gap: 5px;
+}
+
+.task-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 10px; border-radius: 8px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid transparent;
+  flex-shrink: 0;
+  min-height: 0;
+}
+.task-item.overdue {
+  background: rgba(239,68,68,0.08);
+  border-color: rgba(239,68,68,0.2);
+}
+.task-item.done {
+  opacity: 0.35;
+}
+.task-item.in-progress {
+  background: rgba(59,130,246,0.06);
+  border-color: rgba(59,130,246,0.15);
+}
+
+.task-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  flex-shrink: 0;
+}
+.task-name {
+  flex: 1; font-size: 14px; font-weight: 600;
+  color: var(--text); white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+  line-height: 1.2;
+}
+.task-name.done-name {
+  text-decoration: line-through; color: var(--text3);
+}
+.task-status-badge {
+  font-size: 10px; font-weight: 700;
+  padding: 2px 7px; border-radius: 10px;
+  white-space: nowrap; flex-shrink: 0;
+}
+.task-overdue-flag {
+  font-size: 10px; font-weight: 800;
+  color: #f87171; flex-shrink: 0; white-space: nowrap;
+}
+.task-bus {
+  font-size: 10px; color: var(--text3);
+  white-space: nowrap; flex-shrink: 0;
+}
+
+/* overflow indicator */
+.task-more {
+  font-size: 12px; color: var(--text3);
+  padding: 4px 10px; text-align: center;
+  font-style: italic; flex-shrink: 0;
+}
+
+/* ── LOADING / ERROR ── */
+#loadingScreen {
+  position: fixed; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 20px; background: var(--bg); z-index: 99;
+}
+#loadingScreen.hide { display: none; }
+.spin { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.load-text { font-size: 16px; color: var(--text3); }
+
+#errorScreen {
+  position: fixed; inset: 0;
+  display: none; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 16px; background: var(--bg); z-index: 98;
+}
+#errorScreen.show { display: flex; }
+.error-icon { font-size: 48px; }
+.error-msg { font-size: 18px; color: var(--text2); text-align: center; max-width: 400px; }
+.error-retry { font-size: 13px; color: var(--text3); }
+
+/* ── STATUS BADGE COLORS ── */
+.sb-todo     { background: rgba(100,116,139,.25); color: #94a3b8; }
+.sb-progress { background: rgba(59,130,246,.2);  color: #93c5fd; }
+.sb-hold     { background: rgba(245,158,11,.15); color: #fbbf24; }
+.sb-done     { background: rgba(16,185,129,.15); color: #6ee7b7; }
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="loadingScreen">
+  <div style="width:64px;height:64px;border-radius:14px;overflow:hidden">
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" width="64" height="64">
+      <rect width="100" height="100" fill="#0f172a"/>
+      <rect x="8" y="22" width="84" height="46" rx="7" fill="#3b82f6"/>
+      <rect x="14" y="30" width="20" height="16" rx="3" fill="#dbeafe"/>
+      <rect x="40" y="30" width="20" height="16" rx="3" fill="#dbeafe"/>
+      <rect x="66" y="30" width="16" height="16" rx="3" fill="#dbeafe"/>
+      <rect x="14" y="50" width="58" height="10" rx="2" fill="#bfdbfe"/>
+      <rect x="74" y="34" width="14" height="22" rx="3" fill="#1d4ed8"/>
+      <rect x="8" y="64" width="84" height="6" fill="#1e40af"/>
+      <circle cx="24" cy="76" r="9" fill="#0f172a"/><circle cx="24" cy="76" r="5" fill="#1e293b"/><circle cx="24" cy="76" r="2.5" fill="#3b82f6"/>
+      <circle cx="76" cy="76" r="9" fill="#0f172a"/><circle cx="76" cy="76" r="5" fill="#1e293b"/><circle cx="76" cy="76" r="2.5" fill="#3b82f6"/>
+      <rect x="8" y="28" width="4" height="8" rx="2" fill="#fbbf24"/>
+      <text x="50" y="94" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="11" font-weight="800" fill="#e2e8f0" letter-spacing="2">TASKS</text>
+    </svg>
+  </div>
+  <div class="spin"></div>
+  <div class="load-text">Loading dashboard...</div>
+</div>
+
+<!-- ERROR -->
+<div id="errorScreen">
+  <div class="error-icon">⚠️</div>
+  <div class="error-msg" id="errorMsg">Unable to load dashboard data.</div>
+  <div class="error-retry">Retrying in <span id="retryCountdown">30</span> seconds...</div>
+</div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <div class="header-logo">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <rect width="100" height="100" fill="#0f172a"/>
+        <rect x="8" y="22" width="84" height="46" rx="7" fill="#3b82f6"/>
+        <rect x="14" y="30" width="20" height="16" rx="3" fill="#dbeafe"/>
+        <rect x="40" y="30" width="20" height="16" rx="3" fill="#dbeafe"/>
+        <rect x="66" y="30" width="16" height="16" rx="3" fill="#dbeafe"/>
+        <rect x="14" y="50" width="58" height="10" rx="2" fill="#bfdbfe"/>
+        <rect x="74" y="34" width="14" height="22" rx="3" fill="#1d4ed8"/>
+        <rect x="8" y="64" width="84" height="6" fill="#1e40af"/>
+        <circle cx="24" cy="76" r="9" fill="#0f172a"/><circle cx="24" cy="76" r="5" fill="#1e293b"/><circle cx="24" cy="76" r="2.5" fill="#3b82f6"/>
+        <circle cx="76" cy="76" r="9" fill="#0f172a"/><circle cx="76" cy="76" r="5" fill="#1e293b"/><circle cx="76" cy="76" r="2.5" fill="#3b82f6"/>
+        <rect x="8" y="28" width="4" height="8" rx="2" fill="#fbbf24"/>
+      </svg>
+    </div>
+    <div>
+      <div class="header-title" id="headerTitle">Midnight Coach Tasks</div>
+      <div class="header-sub" id="headerSub">Shop Task Manager</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div style="text-align:right">
+      <div class="header-updated" id="lastUpdated">Updating...</div>
+    </div>
+    <div style="text-align:right">
+      <div class="header-time" id="clockTime">--:--</div>
+      <div class="header-date" id="clockDate">---</div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN GRID -->
+<div id="mainArea"></div>
+
+<script>
+const API = 'https://script.google.com/macros/s/AKfycbzlxKOJrnG7jR627iux0W1X4-lgS2-PNugRs8b9P_4pVhC5ItdyFZM3rvfekFc7jD4S7g/exec';
+const REFRESH_INTERVAL = 90000; // 90 seconds
+const PRIORITY_ORDER = { 'High': 0, 'Medium': 1, 'Low': 2 };
+
+let refreshTimer = null;
+let retryTimer   = null;
+
+// ── CLOCK ──────────────────────────────────────────────────────
+function updateClock() {
+  const now  = new Date();
+  const h    = now.getHours();
+  const m    = String(now.getMinutes()).padStart(2,'0');
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const h12  = h % 12 || 12;
+  document.getElementById('clockTime').textContent = h12 + ':' + m + ' ' + ampm;
+  document.getElementById('clockDate').textContent = now.toLocaleDateString('en-US',{ weekday:'long', month:'long', day:'numeric' });
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+// ── API ────────────────────────────────────────────────────────
+async function fetchDashboard() {
+  const resp = await fetch(API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify({ action: 'getDashboardData' }),
+    redirect: 'follow'
+  });
+  const text = await resp.text();
+  try { return JSON.parse(text); }
+  catch {
+    const m = text.match(/\{[\s\S]*\}/);
+    if (m) return JSON.parse(m[0]);
+    throw new Error('Invalid response');
+  }
+}
+
+// ── RENDER ─────────────────────────────────────────────────────
+function render(data) {
+  const raw = data.data || data;
+  const { personMap, peopleOrder, config } = raw;
+
+  // Update header
+  if (config) {
+    if (config.app_title)    document.getElementById('headerTitle').textContent = config.app_title;
+    if (config.app_subtitle) document.getElementById('headerSub').textContent   = config.app_subtitle;
+  }
+
+  // Build list of people who have active (non-cancelled) tasks
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  const activePeople = (peopleOrder || []).filter(name => {
+    const entry = personMap[name];
+    if (!entry) return false;
+    return entry.tasks.some(t => t.status !== 'Cancelled');
+  });
+
+  if (!activePeople.length) {
+    document.getElementById('mainArea').innerHTML =
+      '<div style="width:100%;display:flex;align-items:center;justify-content:center;color:#475569;font-size:24px;font-weight:700">✅ All clear — no active tasks!</div>';
+    return;
+  }
+
+  // Calculate task weights for sizing
+  // Weight = active task count (done tasks count less)
+  const weights = {};
+  activePeople.forEach(name => {
+    const tasks = personMap[name].tasks;
+    const active = tasks.filter(t => t.status !== 'Done' && t.status !== 'Cancelled').length;
+    const done   = tasks.filter(t => t.status === 'Done').length;
+    weights[name] = Math.max(1, active + Math.ceil(done * 0.25));
+  });
+
+  const totalWeight = Object.values(weights).reduce((a,b)=>a+b,0);
+
+  // Build grid
+  const area = document.getElementById('mainArea');
+  area.innerHTML = '';
+
+  activePeople.forEach(name => {
+    const entry  = personMap[name];
+    const color  = (entry.person && entry.person.color) || '#64748b';
+    const tasks  = entry.tasks.filter(t => t.status !== 'Cancelled');
+    const flexGrow = (weights[name] / totalWeight) * activePeople.length;
+
+    // Sort: overdue first → by priority → done last (sorted newest→oldest by completed_at)
+    tasks.sort((a,b) => {
+      const aDone = a.status === 'Done', bDone = b.status === 'Done';
+      // Done tasks always go to the bottom
+      if (aDone && !bDone) return 1;
+      if (!aDone && bDone) return -1;
+      // Both done — sort newest completed first so oldest roll off screen
+      if (aDone && bDone) {
+        const aTime = a.completed_at ? new Date(a.completed_at) : new Date(0);
+        const bTime = b.completed_at ? new Date(b.completed_at) : new Date(0);
+        return bTime - aTime; // newest first
+      }
+      // Active: overdue before normal
+      const aOv = a.due_date && new Date(a.due_date+'T00:00:00') < today;
+      const bOv = b.due_date && new Date(b.due_date+'T00:00:00') < today;
+      if (aOv && !bOv) return -1;
+      if (!aOv && bOv) return 1;
+      // Then by priority
+      return (PRIORITY_ORDER[a.priority]||99) - (PRIORITY_ORDER[b.priority]||99);
+    });
+
+    const overdueCnt = tasks.filter(t => {
+      return t.due_date && new Date(t.due_date+'T00:00:00') < today && t.status !== 'Done';
+    }).length;
+
+    // Create box
+    const box = document.createElement('div');
+    box.className = 'person-box';
+    box.style.cssText = `flex:${flexGrow} 1 0%;border-top-color:${color};background:${color}0d`;
+
+    // Header
+    const hdr = document.createElement('div');
+    hdr.className = 'person-header';
+    hdr.style.borderBottomColor = color + '30';
+
+    const nameEl = document.createElement('div');
+    nameEl.className = 'person-name';
+    nameEl.style.color = color;
+    nameEl.textContent = name;
+
+    const meta = document.createElement('div');
+    meta.style.cssText = 'display:flex;align-items:center;gap:4px;flex-shrink:0';
+
+    if (overdueCnt > 0) {
+      const ob = document.createElement('div');
+      ob.className = 'person-overdue-badge';
+      ob.textContent = overdueCnt + ' overdue';
+      meta.appendChild(ob);
+    }
+
+    const cb = document.createElement('div');
+    cb.className = 'person-count';
+    cb.textContent = tasks.filter(t=>t.status!=='Done').length + ' tasks';
+    meta.appendChild(cb);
+
+    hdr.appendChild(nameEl);
+    hdr.appendChild(meta);
+    box.appendChild(hdr);
+
+    // Task list
+    const taskList = document.createElement('div');
+    taskList.className = 'person-tasks';
+
+    // We'll render tasks and check if they fit — show as many as possible
+    tasks.forEach((task, idx) => {
+      const isOverdue = task.due_date && new Date(task.due_date+'T00:00:00') < today && task.status !== 'Done';
+      const isDone    = task.status === 'Done';
+      const isProgress = task.status === 'In Progress';
+
+      const item = document.createElement('div');
+      item.className = 'task-item' + (isOverdue?' overdue':isDone?' done':isProgress?' in-progress':'');
+
+      // Color dot
+      const dot = document.createElement('div');
+      dot.className = 'task-dot';
+      dot.style.background = isOverdue ? '#ef4444' : isDone ? '#10b981' : isProgress ? '#3b82f6' : color;
+
+      // Name
+      const tname = document.createElement('div');
+      tname.className = 'task-name' + (isDone?' done-name':'');
+      tname.textContent = task.task_name;
+
+      item.appendChild(dot);
+      item.appendChild(tname);
+
+      // Bus tag
+      if (task.bus) {
+        const busEl = document.createElement('div');
+        busEl.className = 'task-bus';
+        busEl.textContent = '🚌 ' + task.bus;
+        item.appendChild(busEl);
+      }
+
+      // Overdue flag
+      if (isOverdue) {
+        const flag = document.createElement('div');
+        flag.className = 'task-overdue-flag';
+        flag.textContent = '! OVR';
+        item.appendChild(flag);
+      } else if (!isDone) {
+        // Status badge
+        const sb = document.createElement('div');
+        sb.className = 'task-status-badge ' + statusClass(task.status);
+        sb.textContent = shortStatus(task.status);
+        item.appendChild(sb);
+      }
+
+      taskList.appendChild(item);
+    });
+
+    box.appendChild(taskList);
+    area.appendChild(box);
+  });
+
+  // After render, check for overflow and add "more" indicators
+  requestAnimationFrame(() => {
+    document.querySelectorAll('.person-box').forEach(box => {
+      const list = box.querySelector('.person-tasks');
+      if (!list) return;
+      const items = list.querySelectorAll('.task-item');
+      let hiddenCount = 0;
+      items.forEach(item => {
+        if (item.offsetTop + item.offsetHeight > list.offsetHeight + 4) {
+          item.style.display = 'none';
+          hiddenCount++;
+        }
+      });
+      if (hiddenCount > 0) {
+        const more = document.createElement('div');
+        more.className = 'task-more';
+        more.textContent = '+ ' + hiddenCount + ' more task' + (hiddenCount>1?'s':'');
+        list.appendChild(more);
+      }
+    });
+  });
+}
+
+function statusClass(s) {
+  if (s === 'To Do')       return 'sb-todo';
+  if (s === 'In Progress') return 'sb-progress';
+  if (s === 'On Hold')     return 'sb-hold';
+  if (s === 'Done')        return 'sb-done';
+  return 'sb-todo';
+}
+function shortStatus(s) {
+  if (s === 'To Do')       return 'To Do';
+  if (s === 'In Progress') return 'In Progress';
+  if (s === 'On Hold')     return 'On Hold';
+  return s;
+}
+
+// ── LOAD & REFRESH ─────────────────────────────────────────────
+async function load(isRefresh) {
+  if (!isRefresh) {
+    document.getElementById('loadingScreen').classList.remove('hide');
+    document.getElementById('errorScreen').classList.remove('show');
+  }
+  try {
+    const data = await fetchDashboard();
+    document.getElementById('loadingScreen').classList.add('hide');
+    document.getElementById('errorScreen').classList.remove('show');
+    render(data);
+    document.getElementById('lastUpdated').textContent = 'Updated ' + new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+    scheduleRefresh();
+  } catch(e) {
+    console.error('Dashboard load error:', e);
+    document.getElementById('loadingScreen').classList.add('hide');
+    if (!isRefresh) {
+      document.getElementById('errorScreen').classList.add('show');
+    }
+    startRetryCountdown();
+  }
+}
+
+function scheduleRefresh() {
+  clearTimeout(refreshTimer);
+  clearTimeout(retryTimer);
+  refreshTimer = setTimeout(() => load(true), REFRESH_INTERVAL);
+}
+
+function startRetryCountdown() {
+  let secs = 30;
+  clearTimeout(retryTimer);
+  const countdown = document.getElementById('retryCountdown');
+  const tick = () => {
+    if (secs <= 0) { load(false); return; }
+    if (countdown) countdown.textContent = secs;
+    secs--;
+    retryTimer = setTimeout(tick, 1000);
+  };
+  tick();
+}
+
+// Start
+load(false);
+</script>
+</body>
+</html>
