@@ -63,10 +63,10 @@ body::before {
 .header-logo { width: 44px; height: 44px; border-radius: 10px; overflow: hidden; flex-shrink: 0; border: 1px solid rgba(59,130,246,0.3); }
 .header-title {
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 28px; font-weight: 900; letter-spacing: 0.02em;
-  color: var(--text); text-transform: uppercase;
+  font-size: 30px; font-weight: 800; letter-spacing: 0.01em;
+  color: var(--text);
 }
-.header-sub { font-size: 12px; font-weight: 600; color: var(--text3); letter-spacing: 0.12em; text-transform: uppercase; margin-top: 1px; }
+.header-sub { font-size: 12px; font-weight: 500; color: var(--text3); letter-spacing: 0.06em; margin-top: 2px; }
 
 .header-center {
   position: absolute; left: 50%; transform: translateX(-50%);
@@ -74,7 +74,7 @@ body::before {
 }
 .live-dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; animation: pulse 2s ease-in-out infinite; }
 @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(0.8)} }
-.live-label { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #22c55e; }
+.live-label { font-size: 12px; font-weight: 600; letter-spacing: 0.05em; color: #22c55e; }
 
 .header-right { display: flex; align-items: center; gap: 28px; }
 .header-updated { font-size: 12px; color: var(--text3); font-weight: 500; text-align: right; }
@@ -131,8 +131,8 @@ body::before {
   flex-shrink: 0;
 }
 .card-name {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 24px; font-weight: 900; letter-spacing: 0.03em; text-transform: uppercase;
+  font-family: 'Barlow', sans-serif;
+  font-size: 20px; font-weight: 800; letter-spacing: 0.01em;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .card-badges { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
@@ -202,11 +202,9 @@ body::before {
 
 /* divider */
 .done-divider {
-  font-size: 10px; font-weight: 800; text-transform: uppercase;
-  letter-spacing: .1em; color: var(--text3);
-  padding: 6px 12px 2px; opacity: .7;
-  border-top: 1px solid var(--border);
-  margin-top: 2px;
+  font-size: 11px; font-weight: 700; letter-spacing: .08em;
+  color: var(--text3); padding: 6px 12px 2px; opacity: .7;
+  border-top: 1px solid var(--border); margin-top: 2px;
 }
 
 /* ── ALL CLEAR ── */
@@ -216,7 +214,7 @@ body::before {
   min-height: 60vh; gap: 16px;
 }
 .all-clear-icon { font-size: 64px; }
-.all-clear-text { font-family: 'Barlow Condensed', sans-serif; font-size: 36px; font-weight: 800; color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em; }
+.all-clear-text { font-family: 'Barlow', sans-serif; font-size: 28px; font-weight: 700; color: var(--text3); }
 
 /* ── LOADING / ERROR ── */
 #loadingScreen {
@@ -227,7 +225,7 @@ body::before {
 #loadingScreen.hide { display: none; }
 .spin { width: 44px; height: 44px; border: 3px solid var(--border); border-top-color: #3b82f6; border-radius: 50%; animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
-.loading-label { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; color: var(--text3); letter-spacing: 0.1em; text-transform: uppercase; }
+.loading-label { font-family: 'Barlow', sans-serif; font-size: 18px; font-weight: 600; color: var(--text3); }
 
 #errorScreen {
   position: fixed; inset: 0; display: none; flex-direction: column;
@@ -236,7 +234,7 @@ body::before {
 }
 #errorScreen.show { display: flex; }
 .err-icon { font-size: 56px; }
-.err-msg  { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; color: var(--text2); text-align: center; max-width: 420px; text-transform: uppercase; letter-spacing: 0.05em; }
+.err-msg  { font-family: 'Barlow', sans-serif; font-size: 20px; font-weight: 600; color: var(--text2); text-align: center; max-width: 420px; }
 .err-retry{ font-size: 14px; color: var(--text3); }
 </style>
 </head>
@@ -437,7 +435,7 @@ function render(raw) {
     if (doneTasks.length > 0) {
       const divider = document.createElement('div');
       divider.className = 'done-divider';
-      divider.textContent = 'Recently Done';
+      divider.textContent = 'Recently done';
       taskList.appendChild(divider);
       doneTasks.slice(0, 3).forEach(t => {
         taskList.appendChild(makeTaskRow(t, color, today));
