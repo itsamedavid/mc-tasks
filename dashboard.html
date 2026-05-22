@@ -294,18 +294,27 @@ async function fetchDashboard() {
 
 // ── RENDER ─────────────────────────────────────────────────────
 function render(data) {
-  const raw = data.data || data;
-  const { personMap, peopleOrder, config } = raw;
+  // Log the raw response so we can see exactly what came back
+  console.log('Raw API response:', JSON.stringify(data).substring(0, 500));
+
+  // Handle multiple possible response shapes from Apps Script
+  let raw = data;
+  if (data && data.data) raw = data.data;
+  if (data && data.success && data.data) raw = data.data;
+
+  console.log('Raw after unwrap:', JSON.stringify(raw).substring(0, 500));
+
+  const personMap  = raw.personMap  || raw['personMap']  || {};
+  const peopleOrder= raw.peopleOrder|| raw['peopleOrder'] || [];
+  const config     = raw.config     || raw['config']     || {};
 
   // Debug info — log to console
-  console.log('Dashboard data received:');
-  console.log('  peopleOrder:', peopleOrder);
-  if (personMap) {
-    Object.keys(personMap).forEach(name => {
-      const tasks = personMap[name].tasks || [];
-      console.log('  ' + name + ': ' + tasks.length + ' tasks', tasks.map(t => t.task_name + ' [' + t.status + ']'));
-    });
-  }
+  console.log('personMap keys:', Object.keys(personMap));
+  console.log('peopleOrder:', peopleOrder);
+  Object.keys(personMap).forEach(name => {
+    const tasks = personMap[name].tasks || [];
+    console.log('  ' + name + ': ' + tasks.length + ' tasks');
+  });
 
   // Update header
   if (config) {
@@ -333,7 +342,7 @@ function render(data) {
     document.getElementById('mainArea').innerHTML =
       '<div style="width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px">' +
       '<div style="color:#475569;font-size:24px;font-weight:700">✅ All clear — no active tasks!</div>' +
-      '<div style="color:#334155;font-size:13px">API returned: ' + esc(taskSummary) + '</div>' +
+      '<div style="color:#334155;font-size:13px">API returned: ' + esc(taskSummary) + '</div>' + '<div style="color:#334155;font-size:11px;margin-top:4px">personMap keys: ' + esc(Object.keys(personMap||{}).join(', ')||'none') + ' | peopleOrder: ' + esc((peopleOrder||[]).join(', ')||'none') + '</div>' +
       '</div>';
     return;
   }
