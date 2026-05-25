@@ -124,7 +124,17 @@ html, body {
   border-radius: 20px; background: rgba(239,68,68,.15); color: #f87171;
   white-space: nowrap;
 }
-.badge-count {
+.badge-active {
+  font-size: 0.68em; font-weight: 600; padding: 1px 6px;
+  border-radius: 20px; background: rgba(59,130,246,.18); color: #93c5fd;
+  white-space: nowrap;
+}
+.badge-tomorrow {
+  font-size: 0.68em; font-weight: 600; padding: 1px 6px;
+  border-radius: 20px; background: rgba(245,158,11,.18); color: #fbbf24;
+  white-space: nowrap;
+}
+.badge-future {
   font-size: 0.68em; font-weight: 500; padding: 1px 6px;
   border-radius: 20px; background: rgba(255,255,255,.06); color: var(--text2);
   white-space: nowrap;
@@ -400,11 +410,25 @@ function render(raw) {
     });
     doneTasks.sort((a,b) => new Date(b.completed_at||0) - new Date(a.completed_at||0));
 
-    const overdueCnt    = activeTasks.filter(t => t.due_date && new Date(t.due_date+'T00:00:00') < today).length;
-    const maxActive     = Math.max(2, maxTasksPerCard - (doneTasks.length ? 2 : 0));
-    const shownActive   = activeTasks.slice(0, maxActive);
-    const hiddenActive  = activeTasks.length - shownActive.length;
-    const shownDone     = doneTasks.slice(0, 2);
+    const tomorrow = new Date(today); tomorrow.setDate(tomorrow.getDate() + 1);
+    const dayAfter = new Date(today); dayAfter.setDate(dayAfter.getDate() + 2);
+
+    const overdueCnt  = activeTasks.filter(t => t.due_date && new Date(t.due_date+'T00:00:00') < today).length;
+    const activeCnt   = activeTasks.filter(t => !t.due_date || new Date(t.due_date+'T00:00:00') <= today).length;
+    const tomorrowCnt = activeTasks.filter(t => {
+      if (!t.due_date) return false;
+      const d = new Date(t.due_date+'T00:00:00');
+      return d >= tomorrow && d < dayAfter;
+    }).length;
+    const futureCnt   = activeTasks.filter(t => {
+      if (!t.due_date) return true;
+      return new Date(t.due_date+'T00:00:00') >= dayAfter;
+    }).length;
+
+    const maxActive    = Math.max(2, maxTasksPerCard - (doneTasks.length ? 2 : 0));
+    const shownActive  = activeTasks.slice(0, maxActive);
+    const hiddenActive = activeTasks.length - shownActive.length;
+    const shownDone    = doneTasks.slice(0, 2);
 
     const card = document.createElement('div');
     card.className = 'person-card';
@@ -422,16 +446,28 @@ function render(raw) {
 
     const badges = document.createElement('div');
     badges.className = 'card-badges';
-    if (overdueCnt > 0) {
-      const ob = document.createElement('span');
-      ob.className = 'badge-overdue';
-      ob.textContent = overdueCnt + ' overdue';
-      badges.appendChild(ob);
+
+    // Active badge (overdue + due today) — red if any overdue, blue otherwise
+    if (activeCnt > 0) {
+      const ab = document.createElement('span');
+      ab.className = overdueCnt > 0 ? 'badge-overdue' : 'badge-active';
+      ab.textContent = activeCnt + ' active';
+      badges.appendChild(ab);
     }
-    const cb = document.createElement('span');
-    cb.className = 'badge-count';
-    cb.textContent = activeTasks.length + ' task' + (activeTasks.length!==1?'s':'');
-    badges.appendChild(cb);
+    // Tomorrow badge — amber
+    if (tomorrowCnt > 0) {
+      const tb = document.createElement('span');
+      tb.className = 'badge-tomorrow';
+      tb.textContent = tomorrowCnt + ' tomorrow';
+      badges.appendChild(tb);
+    }
+    // Future badge — muted
+    if (futureCnt > 0) {
+      const fb = document.createElement('span');
+      fb.className = 'badge-future';
+      fb.textContent = futureCnt + ' future';
+      badges.appendChild(fb);
+    }
 
     hdr.appendChild(nameEl); hdr.appendChild(badges);
     card.appendChild(hdr);
