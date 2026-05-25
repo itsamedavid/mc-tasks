@@ -18,9 +18,8 @@
   --text:   #e4e9f4;
   --text2:  #8a99b8;
   --text3:  #5a6a88;
-  --accent: #3b82f6;
-  --col-w:  280px;   /* masonry column width */
-  --gap:    14px;
+  --gap:    10px;
+  --fs:     16px;   /* base font — JS overrides this */
 }
 
 html, body {
@@ -28,12 +27,13 @@ html, body {
   background: var(--bg);
   font-family: 'Inter', system-ui, sans-serif;
   color: var(--text);
+  font-size: var(--fs);
 }
 
-/* Safe zone wrapper — keeps content off TV edges */
+/* ── SAFE ZONE: keeps content off TV crop edges ── */
 #safeZone {
   position: fixed;
-  inset: 30px 40px 30px 40px;
+  top: 30px; bottom: 30px; left: 40px; right: 40px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -41,72 +41,65 @@ html, body {
 
 /* ── HEADER ── */
 .header {
-  position: relative; z-index: 10;
+  position: relative;
   display: flex; align-items: center; justify-content: space-between;
-  padding: 0 20px; height: 64px;
+  padding: 0 12px;
+  height: 52px;
   background: var(--bg2);
-  border-bottom: 1px solid var(--border);
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  margin-bottom: var(--gap);
   flex-shrink: 0;
 }
 .header::before {
   content: '';
   position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  border-radius: 10px 10px 0 0;
   background: linear-gradient(90deg, #1d4ed8, #3b82f6, #60a5fa, #3b82f6, #1d4ed8);
   background-size: 200% 100%;
   animation: shimmer 5s linear infinite;
 }
 @keyframes shimmer { to { background-position: -200% 0; } }
 
-.header-left { display: flex; align-items: center; gap: 12px; }
-.header-logo { width: 38px; height: 38px; border-radius: 8px; overflow: hidden; flex-shrink: 0; border: 1px solid rgba(59,130,246,0.25); }
-.header-title { font-size: 20px; font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
-.header-sub   { font-size: 11px; font-weight: 400; color: var(--text3); margin-top: 2px; }
+.header-left { display: flex; align-items: center; gap: 10px; }
+.header-logo { width: 32px; height: 32px; border-radius: 7px; overflow: hidden; flex-shrink: 0; border: 1px solid rgba(59,130,246,0.25); }
+.header-title { font-size: 1.2em; font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
+.header-sub   { font-size: 0.65em; font-weight: 400; color: var(--text3); margin-top: 1px; }
 
 .header-center {
   position: absolute; left: 50%; transform: translateX(-50%);
-  display: flex; align-items: center; gap: 7px;
+  display: flex; align-items: center; gap: 6px;
 }
-.live-dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; animation: pulse 2.5s ease-in-out infinite; }
+.live-dot { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; animation: pulse 2.5s ease-in-out infinite; }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
-.live-label { font-size: 12px; font-weight: 600; color: #22c55e; }
+.live-label { font-size: 0.72em; font-weight: 600; color: #22c55e; }
 
-.header-right { display: flex; align-items: center; gap: 20px; }
-.header-updated { font-size: 11px; color: var(--text3); }
+.header-right { display: flex; align-items: center; gap: 16px; }
+.header-updated { font-size: 0.65em; color: var(--text3); }
 .clock-wrap { text-align: right; }
-.header-time { font-size: 32px; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; line-height: 1; letter-spacing: -0.02em; }
-.header-date { font-size: 11px; color: var(--text2); text-align: right; margin-top: 2px; }
+.header-time { font-size: 1.8em; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; line-height: 1; letter-spacing: -0.02em; }
+.header-date { font-size: 0.65em; color: var(--text2); text-align: right; margin-top: 1px; }
 
-/* ── MAIN AREA ── */
-#mainArea {
-  width: 100%;
+/* ── CARD GRID: JS sets columns and sizes ── */
+#cardGrid {
   flex: 1;
-  padding: var(--gap);
+  display: grid;
+  /* columns and rows set by JS based on card count */
+  gap: var(--gap);
+  align-items: start;
+  align-content: start;
   overflow: hidden;
   min-height: 0;
 }
 
-/* ── MASONRY CONTAINER ── */
-/* CSS columns give us true masonry — cards flow into shortest column */
-#cardGrid {
-  height: 100%;
-  column-width: var(--col-w);
-  column-gap: var(--gap);
-  column-fill: auto;         /* fills columns top-to-bottom */
-  overflow: hidden;          /* no scroll — fits to screen */
-}
-
-/* Cards must not break across column boundaries */
+/* ── PERSON CARD ── */
 .person-card {
-  break-inside: avoid;
-  display: inline-block;     /* required for CSS columns masonry */
-  width: 100%;
-  margin-bottom: var(--gap);
-  border-radius: 11px;
+  border-radius: 10px;
   border: 1px solid var(--border);
   border-top: 3px solid var(--border);
   background: var(--card);
   overflow: hidden;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
   animation: cardIn 0.35s ease both;
 }
 @keyframes cardIn {
@@ -116,37 +109,37 @@ html, body {
 
 /* ── CARD HEADER ── */
 .card-header {
-  padding: 11px 13px 10px;
+  padding: 0.5em 0.75em;
   display: flex; align-items: center; justify-content: space-between;
-  gap: 8px;
+  gap: 0.5em;
   border-bottom: 1px solid var(--border);
 }
 .card-name {
-  font-size: 17px; font-weight: 700; letter-spacing: -0.01em;
+  font-size: 1.05em; font-weight: 700; letter-spacing: -0.01em;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.card-badges { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+.card-badges { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
 .badge-overdue {
-  font-size: 11px; font-weight: 600; padding: 2px 7px;
+  font-size: 0.68em; font-weight: 600; padding: 1px 6px;
   border-radius: 20px; background: rgba(239,68,68,.15); color: #f87171;
   white-space: nowrap;
 }
 .badge-count {
-  font-size: 11px; font-weight: 500; padding: 2px 7px;
+  font-size: 0.68em; font-weight: 500; padding: 1px 6px;
   border-radius: 20px; background: rgba(255,255,255,.06); color: var(--text2);
   white-space: nowrap;
 }
 
 /* ── TASK LIST ── */
 .card-tasks {
-  padding: 7px 9px 9px;
-  display: flex; flex-direction: column; gap: 4px;
+  padding: 0.4em 0.5em 0.5em;
+  display: flex; flex-direction: column; gap: 3px;
 }
 
 .task-row {
-  display: flex; align-items: flex-start; gap: 9px;
-  padding: 8px 9px;
-  border-radius: 7px;
+  display: flex; align-items: flex-start; gap: 0.5em;
+  padding: 0.4em 0.5em;
+  border-radius: 6px;
   border: 1px solid transparent;
 }
 .task-row.t-overdue  { background: rgba(239,68,68,.07); border-color: rgba(239,68,68,.18); }
@@ -154,11 +147,11 @@ html, body {
 .task-row.t-done     { background: rgba(255,255,255,.02); border-color: rgba(255,255,255,.04); }
 .task-row.t-normal   { background: rgba(255,255,255,.03); }
 
-.t-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+.t-dot { width: 0.45em; height: 0.45em; border-radius: 50%; flex-shrink: 0; margin-top: 0.38em; }
 
 .t-body { flex: 1; min-width: 0; }
 .t-name {
-  font-size: 14px; font-weight: 600; color: var(--text);
+  font-size: 0.9em; font-weight: 600; color: var(--text);
   white-space: normal; word-break: break-word; line-height: 1.3;
 }
 .t-name.done {
@@ -168,17 +161,16 @@ html, body {
   color: var(--text2);
   font-weight: 500;
 }
-
 .t-meta {
-  display: flex; align-items: center; gap: 6px; margin-top: 2px; flex-wrap: wrap;
+  display: flex; align-items: center; gap: 0.4em; margin-top: 0.15em; flex-wrap: wrap;
 }
-.t-bus { font-size: 11px; color: var(--text3); }
-.t-due { font-size: 11px; font-weight: 600; color: #f87171; }
+.t-bus { font-size: 0.7em; color: var(--text3); }
+.t-due { font-size: 0.7em; font-weight: 600; color: #f87171; }
 
 .t-right { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; flex-shrink: 0; }
-.t-flag  { font-size: 13px; font-weight: 700; color: #f87171; }
+.t-flag  { font-size: 0.8em; font-weight: 700; color: #f87171; }
 .t-status {
-  font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 20px;
+  font-size: 0.68em; font-weight: 600; padding: 1px 6px; border-radius: 20px;
   white-space: nowrap;
 }
 .s-todo     { background: rgba(100,116,139,.18); color: #94a3b8; }
@@ -187,55 +179,51 @@ html, body {
 .s-done     { background: rgba(16,185,129,.15);  color: #6ee7b7; }
 
 .done-divider {
-  font-size: 10px; font-weight: 600; letter-spacing: .05em;
-  color: var(--text3); padding: 7px 9px 2px;
-  border-top: 1px solid var(--border); margin-top: 3px;
+  font-size: 0.65em; font-weight: 600; letter-spacing: .05em;
+  color: var(--text3); padding: 0.4em 0.5em 0.15em;
+  border-top: 1px solid var(--border); margin-top: 2px;
 }
-
-/* ── OVERFLOW INDICATOR ── */
-/* When a card has more tasks than fit, show a subtle "…more" line */
 .more-indicator {
-  font-size: 11px; color: var(--text3); font-weight: 500;
-  padding: 4px 9px 6px; text-align: center;
+  font-size: 0.7em; color: var(--text3); font-weight: 500;
+  padding: 0.2em 0.5em 0.35em; text-align: center;
 }
 
 /* ── ALL CLEAR ── */
 .all-clear {
-  height: 100%;
+  grid-column: 1 / -1;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 14px;
+  min-height: 60vh; gap: 12px;
 }
-.all-clear-icon { font-size: 56px; }
-.all-clear-text { font-size: 22px; font-weight: 600; color: var(--text3); }
+.all-clear-icon { font-size: 3em; }
+.all-clear-text { font-size: 1.4em; font-weight: 600; color: var(--text3); }
 
 /* ── LOADING / ERROR ── */
 #loadingScreen {
   position: fixed; inset: 0; display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: 20px;
+  align-items: center; justify-content: center; gap: 18px;
   background: var(--bg); z-index: 99;
 }
 #loadingScreen.hide { display: none; }
-.spin { width: 38px; height: 38px; border: 3px solid var(--border); border-top-color: #3b82f6; border-radius: 50%; animation: spin .8s linear infinite; }
+.spin { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: #3b82f6; border-radius: 50%; animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
-.loading-label { font-size: 14px; font-weight: 500; color: var(--text3); }
+.loading-label { font-size: 0.9em; font-weight: 500; color: var(--text3); }
 
 #errorScreen {
   position: fixed; inset: 0; display: none; flex-direction: column;
-  align-items: center; justify-content: center; gap: 14px;
+  align-items: center; justify-content: center; gap: 12px;
   background: var(--bg); z-index: 98;
 }
 #errorScreen.show { display: flex; }
-.err-icon { font-size: 44px; }
-.err-msg  { font-size: 17px; font-weight: 600; color: var(--text2); text-align: center; max-width: 400px; }
-.err-retry{ font-size: 12px; color: var(--text3); }
+.err-icon { font-size: 2.5em; }
+.err-msg  { font-size: 1.1em; font-weight: 600; color: var(--text2); text-align: center; max-width: 400px; }
+.err-retry{ font-size: 0.75em; color: var(--text3); }
 </style>
 </head>
 <body>
 
-<!-- LOADING -->
 <div id="loadingScreen">
-  <div style="width:56px;height:56px;border-radius:12px;overflow:hidden;border:1px solid rgba(59,130,246,0.25)">
-    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" width="56" height="56">
+  <div style="width:52px;height:52px;border-radius:11px;overflow:hidden;border:1px solid rgba(59,130,246,0.25)">
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" width="52" height="52">
       <rect width="100" height="100" fill="#1e2436"/>
       <rect x="8" y="22" width="84" height="46" rx="7" fill="#3b82f6"/>
       <rect x="14" y="30" width="20" height="16" rx="3" fill="#dbeafe"/>
@@ -253,117 +241,106 @@ html, body {
   <div class="loading-label">Loading dashboard...</div>
 </div>
 
-<!-- ERROR -->
 <div id="errorScreen">
   <div class="err-icon">⚠️</div>
   <div class="err-msg" id="errorMsg">Unable to load dashboard.</div>
   <div class="err-retry">Retrying in <span id="retryCountdown">30</span>s...</div>
 </div>
 
-<!-- SAFE ZONE: keeps all content off TV crop edges -->
 <div id="safeZone">
-
-<!-- HEADER -->
-<div class="header">
-  <div class="header-left">
-    <div class="header-logo">
-      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" width="38" height="38">
-        <rect width="100" height="100" fill="#1e2436"/>
-        <rect x="8" y="22" width="84" height="46" rx="7" fill="#3b82f6"/>
-        <rect x="14" y="30" width="20" height="16" rx="3" fill="#dbeafe"/>
-        <rect x="40" y="30" width="20" height="16" rx="3" fill="#dbeafe"/>
-        <rect x="66" y="30" width="16" height="16" rx="3" fill="#dbeafe"/>
-        <rect x="14" y="50" width="58" height="10" rx="2" fill="#bfdbfe"/>
-        <rect x="74" y="34" width="14" height="22" rx="3" fill="#1d4ed8"/>
-        <rect x="8" y="64" width="84" height="6" fill="#1e40af"/>
-        <circle cx="24" cy="76" r="9" fill="#1e2436"/><circle cx="24" cy="76" r="5" fill="#2e3a52"/><circle cx="24" cy="76" r="2.5" fill="#3b82f6"/>
-        <circle cx="76" cy="76" r="9" fill="#1e2436"/><circle cx="76" cy="76" r="5" fill="#2e3a52"/><circle cx="76" cy="76" r="2.5" fill="#3b82f6"/>
-        <rect x="8" y="28" width="4" height="8" rx="2" fill="#fbbf24"/>
-      </svg>
+  <div class="header">
+    <div class="header-left">
+      <div class="header-logo">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" width="32" height="32">
+          <rect width="100" height="100" fill="#1e2436"/>
+          <rect x="8" y="22" width="84" height="46" rx="7" fill="#3b82f6"/>
+          <rect x="14" y="30" width="20" height="16" rx="3" fill="#dbeafe"/>
+          <rect x="40" y="30" width="20" height="16" rx="3" fill="#dbeafe"/>
+          <rect x="66" y="30" width="16" height="16" rx="3" fill="#dbeafe"/>
+          <rect x="14" y="50" width="58" height="10" rx="2" fill="#bfdbfe"/>
+          <rect x="74" y="34" width="14" height="22" rx="3" fill="#1d4ed8"/>
+          <rect x="8" y="64" width="84" height="6" fill="#1e40af"/>
+          <circle cx="24" cy="76" r="9" fill="#1e2436"/><circle cx="24" cy="76" r="5" fill="#2e3a52"/><circle cx="24" cy="76" r="2.5" fill="#3b82f6"/>
+          <circle cx="76" cy="76" r="9" fill="#1e2436"/><circle cx="76" cy="76" r="5" fill="#2e3a52"/><circle cx="76" cy="76" r="2.5" fill="#3b82f6"/>
+          <rect x="8" y="28" width="4" height="8" rx="2" fill="#fbbf24"/>
+        </svg>
+      </div>
+      <div>
+        <div class="header-title" id="headerTitle">Midnight Coach Tasks</div>
+        <div class="header-sub" id="headerSub">Shop Task Manager</div>
+      </div>
     </div>
-    <div>
-      <div class="header-title" id="headerTitle">Midnight Coach Tasks</div>
-      <div class="header-sub" id="headerSub">Shop Task Manager</div>
+    <div class="header-center">
+      <div class="live-dot"></div>
+      <div class="live-label">Live</div>
     </div>
-  </div>
-
-  <div class="header-center">
-    <div class="live-dot"></div>
-    <div class="live-label">Live</div>
-  </div>
-
-  <div class="header-right">
-    <div class="header-updated" id="lastUpdated">Updating...</div>
-    <div class="clock-wrap">
-      <div class="header-time" id="clockTime">--:--</div>
-      <div class="header-date" id="clockDate"></div>
+    <div class="header-right">
+      <div class="header-updated" id="lastUpdated">Updating...</div>
+      <div class="clock-wrap">
+        <div class="header-time" id="clockTime">--:--</div>
+        <div class="header-date" id="clockDate"></div>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- MAIN -->
-<div id="mainArea">
-  <div id="cardGrid"></div>
+  <div id="mainArea" style="flex:1;min-height:0;overflow:hidden;">
+    <div id="cardGrid"></div>
+  </div>
 </div>
 
 <script>
-const API = 'https://script.google.com/macros/s/AKfycbzlxKOJrnG7jR627iux0W1X4-lgS2-PNugRs8b9P_4pVhC5ItdyFZM3rvfekFc7jD4S7g/exec';
+const API     = 'https://script.google.com/macros/s/AKfycbzlxKOJrnG7jR627iux0W1X4-lgS2-PNugRs8b9P_4pVhC5ItdyFZM3rvfekFc7jD4S7g/exec';
 const REFRESH = 90000;
-const PRI = { 'High':0, 'Medium':1, 'Low':2 };
-// Max tasks to show per card before showing "… N more" indicator
-// Keeps cards from overflowing the screen height
-const MAX_ACTIVE_SHOWN = 8;
-const MAX_DONE_SHOWN   = 2;
+const PRI     = { 'High':0, 'Medium':1, 'Low':2 };
 let refreshTimer = null, retryTimer = null;
+let lastRaw = null;
 
 // ── CLOCK ──
 function tick() {
-  const n = new Date();
-  const h = n.getHours() % 12 || 12;
-  const m = String(n.getMinutes()).padStart(2,'0');
+  const n  = new Date();
+  const h  = n.getHours() % 12 || 12;
+  const m  = String(n.getMinutes()).padStart(2,'0');
   const ap = n.getHours() >= 12 ? 'PM' : 'AM';
   document.getElementById('clockTime').textContent = h + ':' + m + ' ' + ap;
   document.getElementById('clockDate').textContent = n.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
 }
 tick(); setInterval(tick, 1000);
 
-// ── AUTO-SCALE FONT ──
-// After render, measure how much vertical space cards use vs available,
-// then scale font-size up or down to fill the screen better.
-function autoScale() {
-  const grid = document.getElementById('cardGrid');
-  const cards = grid.querySelectorAll('.person-card');
-  if (!cards.length) return;
+// ── LAYOUT CALCULATION ──
+// Figures out the best grid layout and font size to fill the screen
+function computeLayout(cardCount) {
+  const grid     = document.getElementById('cardGrid');
+  const mainArea = document.getElementById('mainArea');
+  const W        = mainArea.clientWidth;
+  const H        = mainArea.clientHeight;
+  const GAP      = 10;
 
-  const available = grid.clientHeight;
-  // Find the tallest column by summing card heights per column
-  // CSS columns handles layout — we just check if content overflows
-  // by comparing scrollHeight vs clientHeight of the grid
-  const contentH = grid.scrollHeight;
-  const ratio = available / contentH;
+  // Try different column counts and pick the one that best fills the screen
+  let bestCols = 1, bestScore = -1;
 
-  // Get current font size from body
-  const currentSize = parseFloat(getComputedStyle(document.body).fontSize) || 16;
+  for (let cols = 1; cols <= Math.min(cardCount, 8); cols++) {
+    const rows    = Math.ceil(cardCount / cols);
+    const cardW   = (W - GAP * (cols - 1)) / cols;
+    const cardH   = (H - GAP * (rows - 1)) / rows;
+    // Score: penalize very tall/narrow or very wide/flat cards
+    const ratio   = cardW / cardH;
+    const ideal   = 1.4; // ideal card aspect ratio
+    const score   = 1 / (Math.abs(Math.log(ratio / ideal)) + 0.1);
+    if (score > bestScore) { bestScore = score; bestCols = cols; }
+  }
 
-  // Scale proportionally, clamp between 10px and 22px
-  let newSize = Math.min(22, Math.max(10, currentSize * ratio * 0.92));
-  document.body.style.fontSize = newSize + 'px';
+  const bestRows = Math.ceil(cardCount / bestCols);
+  const cardW    = Math.floor((W - GAP * (bestCols - 1)) / bestCols);
+  const cardH    = Math.floor((H - GAP * (bestRows - 1)) / bestRows);
 
-  // Also scale column width proportionally
-  const colCount = Math.round(grid.clientWidth / 280);
-  const colW = Math.floor((grid.clientWidth - (colCount - 1) * 14) / colCount);
-  document.documentElement.style.setProperty('--col-w', colW + 'px');
-}
+  // Font size: scale so content fills the card height
+  // Estimate: a task row is ~2.2em tall, card header ~2.5em
+  // We'll set font and let the DOM confirm, then adjust
+  const avgTasksPerCard = 5; // rough estimate
+  const estimatedRows   = avgTasksPerCard * 2.2 + 2.5; // in em
+  const fontSize        = Math.min(26, Math.max(11, cardH / estimatedRows));
 
-// ── API ──
-async function fetchData() {
-  const r = await fetch(API, {
-    method:'POST', headers:{'Content-Type':'text/plain'},
-    body: JSON.stringify({ action:'getDashboardData' }), redirect:'follow'
-  });
-  const txt = await r.text();
-  try { return JSON.parse(txt); }
-  catch { const m=txt.match(/\{[\s\S]*\}/); if(m) return JSON.parse(m[0]); throw new Error('Bad response'); }
+  return { cols: bestCols, rows: bestRows, cardW, cardH, fontSize };
 }
 
 // ── RENDER ──
@@ -383,13 +360,29 @@ function render(raw) {
   });
 
   if (!active.length) {
-    grid.innerHTML = `
-      <div class="all-clear">
-        <div class="all-clear-icon">✅</div>
-        <div class="all-clear-text">All clear — no active tasks</div>
-      </div>`;
+    grid.style.cssText = '';
+    grid.innerHTML = `<div class="all-clear"><div class="all-clear-icon">✅</div><div class="all-clear-text">All clear — no active tasks</div></div>`;
     return;
   }
+
+  // Compute layout
+  const layout = computeLayout(active.length);
+  document.body.style.fontSize = layout.fontSize + 'px';
+
+  // Set grid to exact columns, each card gets equal space
+  grid.style.cssText = `
+    display: grid;
+    grid-template-columns: repeat(${layout.cols}, 1fr);
+    grid-template-rows: repeat(${layout.rows}, 1fr);
+    gap: 10px;
+    height: 100%;
+    overflow: hidden;
+  `;
+
+  // Max tasks per card based on available card height and font size
+  const rowH        = layout.fontSize * 2.2;
+  const headerH     = layout.fontSize * 2.5;
+  const maxTasksPerCard = Math.max(2, Math.floor((layout.cardH - headerH) / rowH));
 
   active.forEach((name, idx) => {
     const entry  = personMap[name];
@@ -402,26 +395,20 @@ function render(raw) {
     activeTasks.sort((a,b) => {
       const aOv = a.due_date && new Date(a.due_date+'T00:00:00') < today;
       const bOv = b.due_date && new Date(b.due_date+'T00:00:00') < today;
-      if (aOv && !bOv) return -1;
-      if (!aOv && bOv) return 1;
+      if (aOv && !bOv) return -1; if (!aOv && bOv) return 1;
       return (PRI[a.priority]||99) - (PRI[b.priority]||99);
     });
+    doneTasks.sort((a,b) => new Date(b.completed_at||0) - new Date(a.completed_at||0));
 
-    doneTasks.sort((a,b) => {
-      const at = a.completed_at ? new Date(a.completed_at) : new Date(0);
-      const bt = b.completed_at ? new Date(b.completed_at) : new Date(0);
-      return bt - at;
-    });
-
-    const overdueCnt = activeTasks.filter(t =>
-      t.due_date && new Date(t.due_date+'T00:00:00') < today
-    ).length;
+    const overdueCnt    = activeTasks.filter(t => t.due_date && new Date(t.due_date+'T00:00:00') < today).length;
+    const maxActive     = Math.max(2, maxTasksPerCard - (doneTasks.length ? 2 : 0));
+    const shownActive   = activeTasks.slice(0, maxActive);
+    const hiddenActive  = activeTasks.length - shownActive.length;
+    const shownDone     = doneTasks.slice(0, 2);
 
     const card = document.createElement('div');
     card.className = 'person-card';
-    card.style.borderTopColor = color;
-    card.style.background = color + '14';
-    card.style.animationDelay = (idx * 50) + 'ms';
+    card.style.cssText = `border-top-color:${color}; background:${color}14; animation-delay:${idx*45}ms; overflow:hidden; height:100%;`;
 
     // Header
     const hdr = document.createElement('div');
@@ -446,33 +433,27 @@ function render(raw) {
     cb.textContent = activeTasks.length + ' task' + (activeTasks.length!==1?'s':'');
     badges.appendChild(cb);
 
-    hdr.appendChild(nameEl);
-    hdr.appendChild(badges);
+    hdr.appendChild(nameEl); hdr.appendChild(badges);
     card.appendChild(hdr);
 
-    // Tasks
     const taskList = document.createElement('div');
     taskList.className = 'card-tasks';
 
-    // Show up to MAX_ACTIVE_SHOWN active tasks
-    const shownActive = activeTasks.slice(0, MAX_ACTIVE_SHOWN);
     shownActive.forEach(t => taskList.appendChild(makeTaskRow(t, color, today)));
 
-    const hiddenActive = activeTasks.length - shownActive.length;
     if (hiddenActive > 0) {
       const more = document.createElement('div');
       more.className = 'more-indicator';
-      more.textContent = '+ ' + hiddenActive + ' more task' + (hiddenActive!==1?'s':'') + ' (see app)';
+      more.textContent = '+ ' + hiddenActive + ' more (see app)';
       taskList.appendChild(more);
     }
 
-    // Show up to MAX_DONE_SHOWN recently done tasks
-    if (doneTasks.length > 0) {
-      const divider = document.createElement('div');
-      divider.className = 'done-divider';
-      divider.textContent = 'Recently done';
-      taskList.appendChild(divider);
-      doneTasks.slice(0, MAX_DONE_SHOWN).forEach(t => taskList.appendChild(makeTaskRow(t, color, today)));
+    if (shownDone.length > 0) {
+      const div = document.createElement('div');
+      div.className = 'done-divider';
+      div.textContent = 'Recently done';
+      taskList.appendChild(div);
+      shownDone.forEach(t => taskList.appendChild(makeTaskRow(t, color, today)));
     }
 
     card.appendChild(taskList);
@@ -490,14 +471,13 @@ function makeTaskRow(task, color, today) {
 
   const dot = document.createElement('div');
   dot.className = 't-dot';
-  dot.style.background = isOverdue ? '#ef4444' : isDone ? '#10b981' : isProgress ? '#3b82f6' : color;
+  dot.style.background = isOverdue?'#ef4444':isDone?'#10b981':isProgress?'#3b82f6':color;
   row.appendChild(dot);
 
   const body = document.createElement('div');
   body.className = 't-body';
-
   const nm = document.createElement('div');
-  nm.className = 't-name' + (isDone ? ' done' : '');
+  nm.className = 't-name' + (isDone?' done':'');
   nm.textContent = task.task_name;
   body.appendChild(nm);
 
@@ -512,8 +492,7 @@ function makeTaskRow(task, color, today) {
   if (isOverdue && task.due_date) {
     const d = document.createElement('span');
     d.className = 't-due';
-    const due = new Date(task.due_date+'T00:00:00');
-    d.textContent = 'Due ' + due.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    d.textContent = 'Due ' + new Date(task.due_date+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
     meta.appendChild(d);
   }
   if (meta.children.length) body.appendChild(meta);
@@ -522,31 +501,26 @@ function makeTaskRow(task, color, today) {
   const right = document.createElement('div');
   right.className = 't-right';
   if (isOverdue) {
-    const f = document.createElement('div');
-    f.className = 't-flag';
-    f.textContent = '!';
-    right.appendChild(f);
+    const f = document.createElement('div'); f.className = 't-flag'; f.textContent = '!'; right.appendChild(f);
   } else if (!isDone) {
     const s = document.createElement('div');
-    s.className = 't-status ' + statusClass(task.status);
-    s.textContent = shortStatus(task.status);
+    s.className = 't-status ' + (task.status==='In Progress'?'s-progress':task.status==='On Hold'?'s-hold':'s-todo');
+    s.textContent = task.status==='In Progress'?'In Progress':task.status==='On Hold'?'On Hold':task.status;
     right.appendChild(s);
   }
   if (right.children.length) row.appendChild(right);
-
   return row;
 }
 
-function statusClass(s) {
-  if (s==='In Progress') return 's-progress';
-  if (s==='On Hold')     return 's-hold';
-  if (s==='Done')        return 's-done';
-  return 's-todo';
-}
-function shortStatus(s) {
-  if (s==='In Progress') return 'In Progress';
-  if (s==='On Hold')     return 'On Hold';
-  return s;
+// ── API ──
+async function fetchData() {
+  const r = await fetch(API, {
+    method:'POST', headers:{'Content-Type':'text/plain'},
+    body: JSON.stringify({ action:'getDashboardData' }), redirect:'follow'
+  });
+  const txt = await r.text();
+  try { return JSON.parse(txt); }
+  catch { const m=txt.match(/\{[\s\S]*\}/); if(m) return JSON.parse(m[0]); throw new Error('Bad response'); }
 }
 
 // ── LOAD & REFRESH ──
@@ -557,15 +531,13 @@ async function load(isRefresh) {
   }
   try {
     const data = await fetchData();
-    const raw  = (data && data.data) ? data.data : data;
+    lastRaw = (data && data.data) ? data.data : data;
     document.getElementById('loadingScreen').classList.add('hide');
     document.getElementById('errorScreen').classList.remove('show');
-    render(raw);
-    setTimeout(autoScale, 100); // let DOM paint first
+    render(lastRaw);
     document.getElementById('lastUpdated').textContent =
       'Updated ' + new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
-    clearTimeout(refreshTimer);
-    clearTimeout(retryTimer);
+    clearTimeout(refreshTimer); clearTimeout(retryTimer);
     refreshTimer = setTimeout(() => load(true), REFRESH);
   } catch(e) {
     console.error(e);
@@ -582,8 +554,10 @@ function startRetry() {
   t();
 }
 
+// Re-render on window resize (handles if Pi resolution changes)
+window.addEventListener('resize', () => { if (lastRaw) render(lastRaw); });
+
 load(false);
 </script>
-</div><!-- /safeZone -->
 </body>
 </html>
