@@ -30,11 +30,20 @@ html, body {
   color: var(--text);
 }
 
+/* Safe zone wrapper — keeps content off TV edges */
+#safeZone {
+  position: fixed;
+  inset: 30px 40px 30px 40px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
 /* ── HEADER ── */
 .header {
   position: relative; z-index: 10;
   display: flex; align-items: center; justify-content: space-between;
-  padding: 0 54px; height: 64px;
+  padding: 0 20px; height: 64px;
   background: var(--bg2);
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
@@ -70,11 +79,10 @@ html, body {
 /* ── MAIN AREA ── */
 #mainArea {
   width: 100%;
-  height: calc(100vh - 64px);
+  flex: 1;
   padding: var(--gap);
-  padding-left: calc(var(--gap) + 30px);
-  padding-right: calc(var(--gap) + 30px);
   overflow: hidden;
+  min-height: 0;
 }
 
 /* ── MASONRY CONTAINER ── */
@@ -252,6 +260,9 @@ html, body {
   <div class="err-retry">Retrying in <span id="retryCountdown">30</span>s...</div>
 </div>
 
+<!-- SAFE ZONE: keeps all content off TV crop edges -->
+<div id="safeZone">
+
 <!-- HEADER -->
 <div class="header">
   <div class="header-left">
@@ -315,6 +326,34 @@ function tick() {
   document.getElementById('clockDate').textContent = n.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
 }
 tick(); setInterval(tick, 1000);
+
+// ── AUTO-SCALE FONT ──
+// After render, measure how much vertical space cards use vs available,
+// then scale font-size up or down to fill the screen better.
+function autoScale() {
+  const grid = document.getElementById('cardGrid');
+  const cards = grid.querySelectorAll('.person-card');
+  if (!cards.length) return;
+
+  const available = grid.clientHeight;
+  // Find the tallest column by summing card heights per column
+  // CSS columns handles layout — we just check if content overflows
+  // by comparing scrollHeight vs clientHeight of the grid
+  const contentH = grid.scrollHeight;
+  const ratio = available / contentH;
+
+  // Get current font size from body
+  const currentSize = parseFloat(getComputedStyle(document.body).fontSize) || 16;
+
+  // Scale proportionally, clamp between 10px and 22px
+  let newSize = Math.min(22, Math.max(10, currentSize * ratio * 0.92));
+  document.body.style.fontSize = newSize + 'px';
+
+  // Also scale column width proportionally
+  const colCount = Math.round(grid.clientWidth / 280);
+  const colW = Math.floor((grid.clientWidth - (colCount - 1) * 14) / colCount);
+  document.documentElement.style.setProperty('--col-w', colW + 'px');
+}
 
 // ── API ──
 async function fetchData() {
@@ -522,6 +561,7 @@ async function load(isRefresh) {
     document.getElementById('loadingScreen').classList.add('hide');
     document.getElementById('errorScreen').classList.remove('show');
     render(raw);
+    setTimeout(autoScale, 100); // let DOM paint first
     document.getElementById('lastUpdated').textContent =
       'Updated ' + new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
     clearTimeout(refreshTimer);
@@ -544,5 +584,6 @@ function startRetry() {
 
 load(false);
 </script>
+</div><!-- /safeZone -->
 </body>
 </html>
