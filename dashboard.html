@@ -377,7 +377,7 @@ function render(raw) {
 
   // Compute layout
   const layout = computeLayout(active.length);
-  document.body.style.fontSize = layout.fontSize + 'px';
+  // Font size is set per-card based on each card's task count
 
   // Set grid to exact columns, each card gets equal space
   grid.style.cssText = `
@@ -389,10 +389,7 @@ function render(raw) {
     overflow: hidden;
   `;
 
-  // Max tasks per card based on available card height and font size
-  const rowH        = layout.fontSize * 2.2;
-  const headerH     = layout.fontSize * 2.5;
-  const maxTasksPerCard = Math.max(2, Math.floor((layout.cardH - headerH) / rowH));
+  // Each card calculates its own font size and task limit
 
   active.forEach((name, idx) => {
     const entry  = personMap[name];
@@ -413,26 +410,51 @@ function render(raw) {
     const tomorrow = new Date(today); tomorrow.setDate(tomorrow.getDate() + 1);
     const dayAfter = new Date(today); dayAfter.setDate(dayAfter.getDate() + 2);
 
+    // Bucket every task into exactly one category — no double counting
     const overdueCnt  = activeTasks.filter(t => t.due_date && new Date(t.due_date+'T00:00:00') < today).length;
-    const activeCnt   = activeTasks.filter(t => !t.due_date || new Date(t.due_date+'T00:00:00') <= today).length;
+    const activeCnt   = activeTasks.filter(t => t.due_date && new Date(t.due_date+'T00:00:00') >= today && new Date(t.due_date+'T00:00:00') < tomorrow).length;
     const tomorrowCnt = activeTasks.filter(t => {
       if (!t.due_date) return false;
       const d = new Date(t.due_date+'T00:00:00');
       return d >= tomorrow && d < dayAfter;
     }).length;
     const futureCnt   = activeTasks.filter(t => {
-      if (!t.due_date) return true;
+      if (!t.due_date) return true;   // no due date = future
       return new Date(t.due_date+'T00:00:00') >= dayAfter;
     }).length;
 
-    const maxActive    = Math.max(2, maxTasksPerCard - (doneTasks.length ? 2 : 0));
+    // Per-card font sizing:
+    // Total items = active tasks + (done divider + 2 done rows if any) + (more row if needed)
+    // Estimate rows needed, then shrink font to fit card height
+    const doneRows     = doneTasks.length > 0 ? 3 : 0; // divider + up to 2 done
+    const totalItems   = activeTasks.length + doneRows;
+    const cardH        = layout.cardH;
+    const HEADER_EM    = 2.5;  // card header height in em
+    const ROW_EM       = 2.3;  // one task row height in em
+
+    // Binary search for the largest font that fits all tasks
+    let cardFs = layout.fontSize; // start at global estimate
+    for (let fs = 26; fs >= 9; fs -= 0.5) {
+      const headerPx = HEADER_EM * fs;
+      const rowPx    = ROW_EM * fs;
+      const fitsRows = Math.floor((cardH - headerPx) / rowPx);
+      if (fitsRows >= totalItems) { cardFs = fs; break; }
+      if (fs <= 9) cardFs = 9; // minimum font size
+    }
+
+    // How many active tasks fit at this font size
+    const headerPx  = HEADER_EM * cardFs;
+    const rowPx     = ROW_EM * cardFs;
+    const totalFits = Math.max(2, Math.floor((cardH - headerPx) / rowPx));
+    const maxActive = Math.max(2, totalFits - doneRows);
+
     const shownActive  = activeTasks.slice(0, maxActive);
     const hiddenActive = activeTasks.length - shownActive.length;
     const shownDone    = doneTasks.slice(0, 2);
 
     const card = document.createElement('div');
     card.className = 'person-card';
-    card.style.cssText = `border-top-color:${color}; background:${color}14; animation-delay:${idx*45}ms; overflow:hidden; height:100%;`;
+    card.style.cssText = `border-top-color:${color}; background:${color}14; animation-delay:${idx*45}ms; overflow:hidden; height:100%; display:flex; flex-direction:column; font-size:${cardFs}px;`;
 
     // Header
     const hdr = document.createElement('div');
@@ -447,11 +469,18 @@ function render(raw) {
     const badges = document.createElement('div');
     badges.className = 'card-badges';
 
-    // Active badge (overdue + due today) — red if any overdue, blue otherwise
+    // Overdue badge — red
+    if (overdueCnt > 0) {
+      const ob = document.createElement('span');
+      ob.className = 'badge-overdue';
+      ob.textContent = overdueCnt + ' overdue';
+      badges.appendChild(ob);
+    }
+    // Due today badge — blue
     if (activeCnt > 0) {
       const ab = document.createElement('span');
-      ab.className = overdueCnt > 0 ? 'badge-overdue' : 'badge-active';
-      ab.textContent = activeCnt + ' active';
+      ab.className = 'badge-active';
+      ab.textContent = activeCnt + ' today';
       badges.appendChild(ab);
     }
     // Tomorrow badge — amber
@@ -474,6 +503,7 @@ function render(raw) {
 
     const taskList = document.createElement('div');
     taskList.className = 'card-tasks';
+    taskList.style.cssText = 'flex:1; overflow:hidden; min-height:0;';
 
     shownActive.forEach(t => taskList.appendChild(makeTaskRow(t, color, today)));
 
