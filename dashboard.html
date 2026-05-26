@@ -364,9 +364,28 @@ function render(raw) {
   const grid  = document.getElementById('cardGrid');
   grid.innerHTML = '';
 
+  const tomorrow = new Date(today); tomorrow.setDate(tomorrow.getDate() + 1);
+  const dayAfter  = new Date(today); dayAfter.setDate(dayAfter.getDate() + 2);
+
+  // Helper: is this task a "show today" task?
+  function isShowToday(t) {
+    if (t.status === 'Done' || t.status === 'Cancelled') return false;
+    // Overdue
+    if (t.due_date && new Date(t.due_date+'T00:00:00') < today) return true;
+    // do_today flag set
+    if (t.do_today === true || t.do_today === 'TRUE' || t.do_today === 'true') return true;
+    // Today falls between start_date and due_date (inclusive)
+    const start = t.start_date ? new Date(t.start_date+'T00:00:00') : null;
+    const due   = t.due_date   ? new Date(t.due_date+'T00:00:00')   : null;
+    if (start && due && today >= start && today <= due) return true;
+    if (!start && due && today <= due && due < tomorrow) return true;
+    return false;
+  }
+
+  // Only show people who have at least one "today" task on the dashboard
   const active = (peopleOrder||[]).filter(name => {
     const e = personMap[name];
-    return e && e.tasks && e.tasks.some(t => t.status !== 'Cancelled');
+    return e && e.tasks && e.tasks.some(t => isShowToday(t));
   });
 
   if (!active.length) {
@@ -396,8 +415,17 @@ function render(raw) {
     const color  = (entry.person && entry.person.color) || '#64748b';
     const tasks  = (entry.tasks || []).filter(t => t.status !== 'Cancelled');
 
-    const activeTasks = tasks.filter(t => t.status !== 'Done');
-    const doneTasks   = tasks.filter(t => t.status === 'Done');
+    // todayTasks = what shows as full rows on the dashboard
+    // allActiveTasks = everything not done (used for badge counts)
+    const allActiveTasks = tasks.filter(t => t.status !== 'Done' && t.status !== 'Cancelled');
+    const activeTasks    = allActiveTasks.filter(t => isShowToday(t));
+    const doneTasks      = tasks.filter(t => {
+      if (t.status !== 'Done') return false;
+      // Only show done tasks completed today
+      if (!t.completed_at) return false;
+      const comp = new Date(t.completed_at); comp.setHours(0,0,0,0);
+      return comp.getTime() === today.getTime();
+    });
 
     activeTasks.sort((a,b) => {
       const aOv = a.due_date && new Date(a.due_date+'T00:00:00') < today;
@@ -407,27 +435,36 @@ function render(raw) {
     });
     doneTasks.sort((a,b) => new Date(b.completed_at||0) - new Date(a.completed_at||0));
 
-    const tomorrow = new Date(today); tomorrow.setDate(tomorrow.getDate() + 1);
-    const dayAfter = new Date(today); dayAfter.setDate(dayAfter.getDate() + 2);
+    // Badge counts use ALL active tasks (not just today's shown tasks)
+    // Each task counted in exactly one bucket
+    const overdueCnt  = allActiveTasks.filter(t =>
+      t.due_date && new Date(t.due_date+'T00:00:00') < today
+    ).length;
 
-    // Bucket every task into exactly one category — no double counting
-    const overdueCnt  = activeTasks.filter(t => t.due_date && new Date(t.due_date+'T00:00:00') < today).length;
-    const activeCnt   = activeTasks.filter(t => t.due_date && new Date(t.due_date+'T00:00:00') >= today && new Date(t.due_date+'T00:00:00') < tomorrow).length;
-    const tomorrowCnt = activeTasks.filter(t => {
+    const todayCnt    = allActiveTasks.filter(t => isShowToday(t) &&
+      !(t.due_date && new Date(t.due_date+'T00:00:00') < today)
+    ).length;
+
+    const tomorrowCnt = allActiveTasks.filter(t => {
+      if (isShowToday(t)) return false;  // already counted above
       if (!t.due_date) return false;
       const d = new Date(t.due_date+'T00:00:00');
       return d >= tomorrow && d < dayAfter;
     }).length;
-    const futureCnt   = activeTasks.filter(t => {
-      if (!t.due_date) return true;   // no due date = future
-      return new Date(t.due_date+'T00:00:00') >= dayAfter;
+
+    // Future = everything else: due after tomorrow, or no due date (parking lot)
+    const futureCnt   = allActiveTasks.filter(t => {
+      if (isShowToday(t)) return false;  // already counted
+      if (!t.due_date) return true;      // parking lot = future
+      const d = new Date(t.due_date+'T00:00:00');
+      return d >= dayAfter;
     }).length;
 
     // Per-card font sizing:
     // Total items = active tasks + (done divider + 2 done rows if any) + (more row if needed)
     // Estimate rows needed, then shrink font to fit card height
-    const doneRows     = doneTasks.length > 0 ? 3 : 0; // divider + up to 2 done
-    const totalItems   = activeTasks.length + doneRows;
+    const doneRows   = doneTasks.length > 0 ? Math.min(doneTasks.length, 2) + 1 : 0; // divider + up to 2 done
+    const totalItems = activeTasks.length + doneRows;
     const cardH        = layout.cardH;
     const HEADER_EM    = 2.5;  // card header height in em
     const ROW_EM       = 2.3;  // one task row height in em
@@ -476,11 +513,11 @@ function render(raw) {
       ob.textContent = overdueCnt + ' overdue';
       badges.appendChild(ob);
     }
-    // Due today badge — blue
-    if (activeCnt > 0) {
+    // Due today / do_today badge — blue
+    if (todayCnt > 0) {
       const ab = document.createElement('span');
       ab.className = 'badge-active';
-      ab.textContent = activeCnt + ' today';
+      ab.textContent = todayCnt + ' today';
       badges.appendChild(ab);
     }
     // Tomorrow badge — amber
@@ -503,7 +540,7 @@ function render(raw) {
 
     const taskList = document.createElement('div');
     taskList.className = 'card-tasks';
-    taskList.style.cssText = 'flex:1; overflow:hidden; min-height:0;';
+    taskList.style.cssText = 'flex:1; overflow:hidden; min-height:0; padding-bottom:0.5em;';
 
     shownActive.forEach(t => taskList.appendChild(makeTaskRow(t, color, today)));
 
