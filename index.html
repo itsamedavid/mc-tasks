@@ -946,7 +946,23 @@ async function checkBus() {
 function handlePhotoSelect(input) {
   Array.from(input.files).forEach(file => {
     const r = new FileReader();
-    r.onload = e => { pendingPhotos.push({file,previewUrl:e.target.result}); renderPhotoPreview(); };
+    r.onload = e => {
+      // Compress image to max 1200px wide, 0.75 quality JPEG before storing
+      // This keeps payload well under Apps Script limits (~1MB vs 5MB+)
+      const img = new Image();
+      img.onload = () => {
+        const MAX = 1200;
+        let w = img.width, h = img.height;
+        if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        const compressed = canvas.toDataURL('image/jpeg', 0.75);
+        pendingPhotos.push({ file, previewUrl: compressed, mimeType: 'image/jpeg' });
+        renderPhotoPreview();
+      };
+      img.src = e.target.result;
+    };
     r.readAsDataURL(file);
   });
   input.value = '';
@@ -988,13 +1004,31 @@ async function saveNewTask() {
     if (result.success) {
       if (pendingPhotos.length) {
         btn.textContent='Uploading photos...';
+        let photosFailed = 0;
         for (const p of pendingPhotos) {
           try {
-            await apiPost({ action:'uploadPhoto', taskId:result.task_id, fileName:p.file.name, base64Data:p.previewUrl.split(',')[1], mimeType:p.file.type, userName:currentUser.name });
+            // Use compressed mimeType if set, otherwise fall back to file type
+            const mt = p.mimeType || p.file.type || 'image/jpeg';
+            const fn = p.file.name.replace(/\.[^.]+$/, '') + '.jpg'; // always .jpg after compression
+            const photoResult = await apiPost({
+              action: 'uploadPhoto',
+              taskId: result.task_id,
+              fileName: fn,
+              base64Data: p.previewUrl.split(',')[1],
+              mimeType: mt,
+              userName: currentUser.name
+            });
+            if (!photoResult.success) {
+              console.error('Photo upload failed:', photoResult.error);
+              photosFailed++;
+            }
           } catch(photoErr) {
             console.error('Photo upload error:', photoErr);
-            // Continue even if photo fails — task was saved
+            photosFailed++;
           }
+        }
+        if (photosFailed > 0) {
+          toast(photosFailed + ' photo(s) failed to upload — task was saved', 'err');
         }
       }
       toast('Task saved! ✓','ok');
@@ -1127,7 +1161,17 @@ async function saveEdit() {
     if (result.success) {
       for (const p of editPendingPhotos) {
         try {
-          await apiPost({ action:'uploadPhoto', taskId:currentTask.task_id, fileName:p.file.name, base64Data:p.previewUrl.split(',')[1], mimeType:p.file.type, userName:currentUser.name });
+          const mt = p.mimeType || p.file.type || 'image/jpeg';
+          const fn = p.file.name.replace(/\.[^.]+$/, '') + '.jpg';
+          const photoResult = await apiPost({
+            action: 'uploadPhoto',
+            taskId: currentTask.task_id,
+            fileName: fn,
+            base64Data: p.previewUrl.split(',')[1],
+            mimeType: mt,
+            userName: currentUser.name
+          });
+          if (!photoResult.success) console.error('Edit photo failed:', photoResult.error);
         } catch(photoErr) { console.error('Edit photo upload error:', photoErr); }
       }
       toast('Updated! ✓','ok'); closeEdit(); await refreshTasks(currentUser);
