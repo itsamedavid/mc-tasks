@@ -1164,8 +1164,10 @@ async function saveEdit() {
         try{
           const mt=p.mimeType||p.file.type||'image/jpeg';
           const fn=p.file.name.replace(/\.[^.]+$/,'')+'.jpg';
-          await apiPost({action:'uploadPhoto',taskId:currentTask.task_id,fileName:fn,base64Data:p.previewUrl.split(',')[1],mimeType:mt,userName:currentUser.name});
-        }catch(err){console.error('Edit photo error:',err);}
+          const pr=await apiPost({action:'uploadPhoto',taskId:currentTask.task_id,fileName:fn,base64Data:p.previewUrl.split(',')[1],mimeType:mt,userName:currentUser.name});
+          const pres=pr.data||pr;
+          if(!pres.success){ toast('Photo error: '+(pres.error||'unknown'),'err'); console.error('Upload failed:',pres); }
+        }catch(err){ toast('Photo upload error','err'); console.error('Edit photo error:',err); }
       }
       toast('Updated! ✓','ok'); closeEdit(); await refreshTasks(currentUser);
     } else toast('Error: '+res.error,'err');
