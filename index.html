@@ -2,6 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -13,7 +16,6 @@
 <link rel="icon" href="icon.png" type="image/png">
 <title>Midnight Coach Tasks</title>
 <style>
-/* ── RESET ── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
   --accent:#3b82f6;--accent-dark:#2563eb;--success:#10b981;--danger:#ef4444;--warning:#f59e0b;
@@ -22,14 +24,13 @@
 body.dark{
   --bg:#0f172a;--bg2:#1e293b;--bg3:#263347;--bg4:#1a2540;
   --border:#334155;--text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;
-  --input:#1e293b;--card:#1e293b;--nav:#1e293b;--shadow:rgba(0,0,0,.4);
+  --input:#1e293b;--card:#1e293b;--nav:#0f172a;--shadow:rgba(0,0,0,.4);
   --badge-high-bg:#450a0a;--badge-high-text:#fca5a5;
   --badge-med-bg:#431407;--badge-med-text:#fdba74;
   --badge-low-bg:#052e16;--badge-low-text:#86efac;
   --badge-done-bg:#052e16;--badge-done-text:#86efac;
   --badge-cancel-bg:#263347;--badge-cancel-text:#64748b;
-  --badge-status-bg:#1e3a5f;--badge-status-text:#93c5fd;
-  --badge-cat-bg:#292524;--badge-cat-text:#d6d3d1;
+  --badge-cat-bg:#1e3a5f;--badge-cat-text:#93c5fd;
   --badge-bus-bg:#1a2e1a;--badge-bus-text:#86efac;
   --alert-warn-bg:#451a03;--alert-warn-border:#92400e;--alert-warn-text:#fbbf24;
   --alert-ok-bg:#052e16;--alert-ok-border:#166534;--alert-ok-text:#86efac;
@@ -43,8 +44,7 @@ body.light{
   --badge-low-bg:#dcfce7;--badge-low-text:#166534;
   --badge-done-bg:#dcfce7;--badge-done-text:#166534;
   --badge-cancel-bg:#f1f5f9;--badge-cancel-text:#94a3b8;
-  --badge-status-bg:#dbeafe;--badge-status-text:#1d4ed8;
-  --badge-cat-bg:#f1f5f9;--badge-cat-text:#475569;
+  --badge-cat-bg:#dbeafe;--badge-cat-text:#1d4ed8;
   --badge-bus-bg:#f0fdf4;--badge-bus-text:#166534;
   --alert-warn-bg:#fffbeb;--alert-warn-border:#fcd34d;--alert-warn-text:#92400e;
   --alert-ok-bg:#f0fdf4;--alert-ok-border:#86efac;--alert-ok-text:#166534;
@@ -98,20 +98,33 @@ html,body{font-family:var(--font);font-size:16px;background:var(--bg);color:var(
 
 /* ── HEADER ── */
 .header{background:var(--bg2);border-bottom:1px solid var(--border);padding:max(env(safe-area-inset-top),0px) 0 0;position:sticky;top:0;z-index:50}
-.header-inner{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;min-height:58px}
-.header-brand{display:flex;flex-direction:column}
-.header-title{font-size:18px;font-weight:800;color:var(--text);line-height:1.1}
-.header-sub{font-size:12px;color:var(--text3)}
-.header-actions{display:flex;align-items:center;gap:8px}
-.user-chip{display:flex;align-items:center;gap:7px;padding:6px 12px;border-radius:20px;background:var(--bg3);border:1px solid var(--border);cursor:pointer;font-size:14px;color:var(--text2)}
-.user-chip:hover{border-color:var(--accent)}
-.user-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-.btn-icon{width:38px;height:38px;border-radius:10px;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:var(--text2)}
-.btn-icon:hover{border-color:var(--accent)}
-.btn-add-task{padding:8px 16px;border-radius:10px;background:var(--accent);color:white;border:none;font-size:15px;font-weight:700;cursor:pointer;white-space:nowrap}
-.btn-add-task:hover{background:var(--accent-dark)}
+.header-inner{display:flex;align-items:center;gap:8px;padding:10px 14px;min-height:54px}
+.header-brand{flex:1;min-width:0}
+.header-title{font-size:17px;font-weight:800;color:var(--text);line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.header-sub{font-size:11px;color:var(--text3)}
+.show-done-wrap{display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:20px;background:var(--bg3);border:1px solid var(--border);cursor:pointer;flex-shrink:0}
+.show-done-cb{width:16px;height:16px;accent-color:var(--accent);cursor:pointer;flex-shrink:0}
+.show-done-label{font-size:12px;font-weight:600;color:var(--text2);white-space:nowrap;user-select:none}
+.user-chip{display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:20px;background:var(--bg3);border:1px solid var(--border);cursor:pointer;font-size:13px;font-weight:600;color:var(--text2);flex-shrink:0}
+.user-chip:active{border-color:var(--accent)}
+.user-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.btn-icon{width:36px;height:36px;border-radius:10px;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:17px;color:var(--text2);flex-shrink:0}
 
-/* ── BOTTOM NAV (mobile) ── */
+/* ── FILTER ROWS ── */
+.filter-bar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 14px}
+.filter-row{display:flex;gap:7px;overflow-x:auto;padding:8px 0;scrollbar-width:none}
+.filter-row::-webkit-scrollbar{display:none}
+.filter-row + .filter-row{border-top:1px solid var(--border)}
+
+/* People pills */
+.ppill{padding:6px 14px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;border:2px solid;white-space:nowrap;flex-shrink:0;min-height:34px;display:flex;align-items:center;transition:all .15s;opacity:.55}
+.ppill.active{opacity:1}
+
+/* Time pills */
+.tpill{padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--bg3);color:var(--text2);white-space:nowrap;flex-shrink:0;min-height:34px;display:flex;align-items:center;transition:all .15s}
+.tpill.active{background:var(--accent);border-color:var(--accent);color:white}
+
+/* ── BOTTOM NAV ── */
 .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--nav);border-top:1px solid var(--border);display:flex;z-index:50;padding-bottom:env(safe-area-inset-bottom,0)}
 .nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:9px 4px 7px;border:none;background:none;color:var(--text3);cursor:pointer;min-height:58px;gap:3px}
 .nav-btn.active{color:var(--accent)}
@@ -126,7 +139,7 @@ html,body{font-family:var(--font);font-size:16px;background:var(--bg);color:var(
 }
 @media(max-width:767px){
   .desktop-tabs{display:none}
-  #appShell{padding-bottom:58px}
+  #appShell{padding-bottom:60px}
 }
 .desktop-tab{padding:12px 22px;font-size:14px;font-weight:600;color:var(--text3);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap}
 .desktop-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
@@ -135,108 +148,118 @@ html,body{font-family:var(--font);font-size:16px;background:var(--bg);color:var(
 /* ── VIEWS ── */
 .view{display:none}
 .view.active{display:block}
-.view-content{max-width:900px;margin:0 auto;padding:16px 16px 24px}
-
-/* ── PILL FILTERS ── */
-.pill-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:12px;scrollbar-width:none}
-.pill-row::-webkit-scrollbar{display:none}
-.pill{padding:7px 16px;border-radius:20px;font-size:14px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--bg2);color:var(--text2);white-space:nowrap;flex-shrink:0;min-height:36px;display:flex;align-items:center;transition:all .15s}
-.pill.active{background:var(--accent);border-color:var(--accent);color:white}
-.pill.person-pill{border-width:2px;opacity:.55}
-.pill.person-pill.active{opacity:1}
+.view-content{max-width:900px;margin:0 auto;padding:14px 14px 24px}
 
 /* ── TASK LIST ── */
-.task-list{display:flex;flex-direction:column;gap:10px}
+.task-list{display:flex;flex-direction:column;gap:9px}
+.section-header{display:flex;align-items:center;gap:10px;padding:10px 4px 6px;margin-top:4px}
+.section-name{font-size:14px;font-weight:800;color:var(--text)}
+.section-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.section-count{font-size:12px;font-weight:600;color:var(--text3);background:var(--bg3);border:1px solid var(--border);padding:2px 8px;border-radius:10px}
 
-/* ── TASK ROW (2-line) ── */
-.task-row{padding:12px 14px;border-left:4px solid var(--border);background:var(--card);border-radius:10px;cursor:pointer;transition:background .1s}
-.task-row:hover{background:var(--bg3)}
-.task-row:active{background:var(--bg3)}
+/* ── TASK CARD ── */
+.task-row{padding:11px 13px;border-left:4px solid var(--border);background:var(--card);border-radius:10px;cursor:pointer;transition:background .1s}
+.task-row:hover,.task-row:active{background:var(--bg3)}
 .task-row.done-row{opacity:.4}
-.task-row-line1{display:flex;align-items:baseline;gap:8px;margin-bottom:7px}
-.task-row-overdue{color:var(--danger);font-size:12px;font-weight:800;flex-shrink:0;white-space:nowrap}
+.task-row.overdue-row{border-left-color:var(--danger)}
+.task-row-line1{display:flex;align-items:baseline;gap:8px;margin-bottom:6px}
+.task-row-overdue{color:var(--danger);font-size:11px;font-weight:800;flex-shrink:0;white-space:nowrap}
 .task-row-name{font-size:15px;font-weight:600;color:var(--text);line-height:1.3;flex:1}
 .task-row-name.done-name{text-decoration:line-through;color:var(--text3)}
-.task-row-line2{display:flex;align-items:center;gap:7px}
-.task-row-cat{font-size:11px;font-weight:600;padding:3px 8px;border-radius:10px;background:var(--badge-cat-bg);color:var(--badge-cat-text);white-space:nowrap;flex-shrink:0}
-.task-row-bus{font-size:11px;font-weight:600;padding:3px 8px;border-radius:10px;background:var(--badge-bus-bg);color:var(--badge-bus-text);white-space:nowrap;flex-shrink:0}
-.task-row-assignee{font-size:11px;font-weight:700;white-space:nowrap;flex-shrink:0}
+.task-row-line2{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.task-row-cat{font-size:11px;font-weight:600;padding:2px 7px;border-radius:8px;background:var(--badge-cat-bg);color:var(--badge-cat-text);white-space:nowrap}
+.task-row-bus{font-size:11px;font-weight:600;padding:2px 7px;border-radius:8px;background:var(--badge-bus-bg);color:var(--badge-bus-text);white-space:nowrap}
+.task-row-assignee{font-size:11px;font-weight:700;white-space:nowrap}
+.task-row-parking{font-size:10px;font-weight:600;padding:2px 6px;border-radius:6px;background:var(--bg3);color:var(--text3);border:1px solid var(--border);white-space:nowrap}
 .task-row-spacer{flex:1}
 .task-row-status-sel{padding:4px 22px 4px 10px;border-radius:20px;font-size:12px;font-weight:600;border:1.5px solid var(--border);background:var(--bg3);color:var(--text2);cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 6px center;flex-shrink:0;max-width:130px}
 .task-row-status-sel:focus{outline:none;border-color:var(--accent)}
-.task-row-done-badge{font-size:11px;font-weight:600;padding:3px 8px;border-radius:10px;background:var(--badge-done-bg);color:var(--badge-done-text);white-space:nowrap;flex-shrink:0}
-
-.empty-state{text-align:center;padding:32px 20px;color:var(--text3);font-size:15px}
+.task-row-done-badge{font-size:11px;font-weight:600;padding:2px 7px;border-radius:8px;background:var(--badge-done-bg);color:var(--badge-done-text);white-space:nowrap}
+.empty-state{text-align:center;padding:40px 20px;color:var(--text3);font-size:15px}
 
 /* ── FORM ── */
-.form-section{background:var(--bg2);border-radius:14px;padding:20px;margin-bottom:16px;border:1px solid var(--border)}
-.form-section-title{font-size:12px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:18px}
-.form-group{margin-bottom:18px}
+.form-section{background:var(--bg2);border-radius:14px;padding:18px;margin-bottom:14px;border:1px solid var(--border)}
+.form-section-title{font-size:11px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:16px}
+.form-group{margin-bottom:16px}
 .form-group:last-child{margin-bottom:0}
-.form-label{display:block;font-size:14px;font-weight:600;color:var(--text2);margin-bottom:8px}
+.form-label{display:block;font-size:14px;font-weight:600;color:var(--text2);margin-bottom:7px}
 .form-label .req{color:var(--danger);margin-left:2px}
 .form-label .hint{font-size:12px;font-weight:400;color:var(--text3);margin-left:6px}
-.field{width:100%;padding:12px 14px;background:var(--input);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-size:16px;transition:border-color .15s;font-family:var(--font)}
+.field{width:100%;padding:11px 13px;background:var(--input);border:1.5px solid var(--border);border-radius:11px;color:var(--text);font-size:16px;transition:border-color .15s;font-family:var(--font)}
 .field:focus{outline:none;border-color:var(--accent)}
 .field option{background:var(--input)}
-textarea.field{min-height:90px;resize:vertical}
-.form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+textarea.field{min-height:80px;resize:vertical}
+.form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 @media(max-width:480px){.form-row-2{grid-template-columns:1fr}}
-.bus-warning{background:var(--alert-warn-bg);border:1px solid var(--alert-warn-border);color:var(--alert-warn-text);border-radius:8px;padding:10px 12px;font-size:14px;margin-top:8px;display:none}
-.bus-status-info{font-size:13px;color:var(--text2);margin-top:6px}
-.photo-upload-area{border:2px dashed var(--border);border-radius:12px;padding:20px;text-align:center;cursor:pointer;color:var(--text3);font-size:14px;transition:all .15s}
+.bus-warning{background:var(--alert-warn-bg);border:1px solid var(--alert-warn-border);color:var(--alert-warn-text);border-radius:8px;padding:9px 12px;font-size:14px;margin-top:7px;display:none}
+.bus-status-info{font-size:13px;color:var(--text2);margin-top:5px}
+.photo-upload-area{border:2px dashed var(--border);border-radius:11px;padding:18px;text-align:center;cursor:pointer;color:var(--text3);font-size:14px;transition:all .15s}
 .photo-upload-area:hover{border-color:var(--accent);background:var(--bg3)}
 .photo-upload-area input{display:none}
-.photo-preview-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.photo-preview-row{display:flex;gap:9px;flex-wrap:wrap;margin-top:11px}
 .photo-preview-item{position:relative}
-.photo-preview-item img{width:72px;height:72px;border-radius:8px;object-fit:cover;border:1px solid var(--border)}
+.photo-preview-item img{width:70px;height:70px;border-radius:8px;object-fit:cover;border:1px solid var(--border)}
 .photo-preview-remove{position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;background:var(--danger);color:white;border:none;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.do-today-row{display:flex;align-items:center;gap:10px;padding:12px 0;border-top:1px solid var(--border);margin-top:4px}
+.do-today-cb{width:20px;height:20px;accent-color:var(--accent);cursor:pointer}
+.do-today-label{font-size:15px;font-weight:600;color:var(--text)}
+.do-today-hint{font-size:12px;color:var(--text3)}
 
 /* ── BUTTONS ── */
-.btn{padding:12px 20px;border-radius:10px;font-size:15px;font-weight:700;border:none;cursor:pointer;transition:all .15s;min-height:44px;font-family:var(--font)}
+.btn{padding:11px 18px;border-radius:10px;font-size:15px;font-weight:700;border:none;cursor:pointer;transition:all .15s;min-height:44px;font-family:var(--font)}
 .btn-primary{background:var(--accent);color:white}
 .btn-primary:hover{background:var(--accent-dark)}
 .btn-success{background:var(--success);color:white}
 .btn-danger{background:var(--danger);color:white}
 .btn-secondary{background:var(--bg3);color:var(--text);border:1.5px solid var(--border)}
 .btn-secondary:hover{border-color:var(--accent)}
-.btn-sm{padding:8px 14px;font-size:14px;min-height:38px}
-.btn-full{width:100%;font-size:17px;min-height:54px;border-radius:14px}
-.btn-row{display:flex;gap:12px}
+.btn-sm{padding:7px 13px;font-size:14px;min-height:36px}
+.btn-full{width:100%;font-size:17px;min-height:52px;border-radius:14px}
+.btn-row{display:flex;gap:10px}
 
 /* ── MODAL ── */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;display:none;align-items:flex-end;justify-content:center}
 .modal-overlay.open{display:flex}
 .modal{background:var(--bg2);border-radius:20px 20px 0 0;width:100%;max-width:640px;border:1px solid var(--border);border-bottom:none;max-height:92vh;overflow-y:auto;padding-bottom:env(safe-area-inset-bottom,16px)}
 .modal-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:14px auto 0}
-.modal-header{padding:16px 20px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg2);z-index:2}
-.modal-title{font-size:18px;font-weight:800;color:var(--text);flex:1;padding-right:12px}
-.modal-close{width:34px;height:34px;border-radius:50%;background:var(--bg3);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--text2);flex-shrink:0}
-.modal-body{padding:18px 20px}
-.modal-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;position:sticky;bottom:0;background:var(--bg2);z-index:2}
-.status-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
-.status-btn{padding:8px 16px;border-radius:20px;font-size:14px;font-weight:600;cursor:pointer;border:2px solid var(--border);background:var(--bg3);color:var(--text2);min-height:40px;transition:all .15s}
+.modal-header{padding:15px 18px 13px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg2);z-index:2}
+.modal-title{font-size:17px;font-weight:800;color:var(--text);flex:1;padding-right:12px}
+.modal-close{width:32px;height:32px;border-radius:50%;background:var(--bg3);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px;color:var(--text2);flex-shrink:0}
+.modal-body{padding:16px 18px}
+.modal-footer{padding:13px 18px;border-top:1px solid var(--border);display:flex;gap:9px;justify-content:flex-end;flex-wrap:wrap;position:sticky;bottom:0;background:var(--bg2);z-index:2}
+.status-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px}
+.status-btn{padding:7px 14px;border-radius:20px;font-size:14px;font-weight:600;cursor:pointer;border:2px solid var(--border);background:var(--bg3);color:var(--text2);min-height:38px;transition:all .15s}
 .status-btn.active{background:var(--accent);border-color:var(--accent);color:white}
-.photo-thumb{width:56px;height:56px;border-radius:8px;object-fit:cover;border:1px solid var(--border);cursor:pointer}
-.card-photos{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.photo-thumb{width:54px;height:54px;border-radius:8px;object-fit:cover;border:1px solid var(--border);cursor:pointer}
+.card-photos{display:flex;gap:7px;margin-top:9px;flex-wrap:wrap}
+
+/* ── BUSES TAB ── */
+.bus-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:9px;display:flex;align-items:center;gap:14px}
+.bus-icon{font-size:24px;flex-shrink:0}
+.bus-info{flex:1;min-width:0}
+.bus-name{font-size:15px;font-weight:700;color:var(--text)}
+.bus-status{font-size:13px;color:var(--text2);margin-top:2px}
+.bus-return{font-size:12px;color:var(--text3);margin-top:2px}
+.bus-badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:10px;white-space:nowrap;flex-shrink:0}
+.bus-in-shop{background:var(--alert-ok-bg);color:var(--alert-ok-text);border:1px solid var(--alert-ok-border)}
+.bus-on-tour{background:var(--badge-cat-bg);color:var(--badge-cat-text)}
+.bus-unknown{background:var(--bg3);color:var(--text3);border:1px solid var(--border)}
 
 /* ── ADMIN ── */
-.admin-card{background:var(--bg2);border-radius:14px;padding:20px;margin-bottom:16px;border:1px solid var(--border)}
-.admin-card-title{font-size:16px;font-weight:800;color:var(--text);margin-bottom:14px}
-.alert{padding:12px 16px;border-radius:10px;margin-bottom:12px;font-size:15px;line-height:1.5}
+.admin-card{background:var(--bg2);border-radius:14px;padding:18px;margin-bottom:14px;border:1px solid var(--border)}
+.admin-card-title{font-size:15px;font-weight:800;color:var(--text);margin-bottom:13px}
+.alert{padding:11px 15px;border-radius:10px;margin-bottom:11px;font-size:15px;line-height:1.5}
 .alert-warn{background:var(--alert-warn-bg);border:1px solid var(--alert-warn-border);color:var(--alert-warn-text)}
 .alert-ok{background:var(--alert-ok-bg);border:1px solid var(--alert-ok-border);color:var(--alert-ok-text)}
 .people-table{width:100%;border-collapse:collapse}
-.people-table th{padding:10px;text-align:left;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text3);border-bottom:2px solid var(--border)}
-.people-table td{padding:12px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+.people-table th{padding:9px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text3);border-bottom:2px solid var(--border)}
+.people-table td{padding:11px 9px;border-bottom:1px solid var(--border);vertical-align:middle}
 .people-table tr:last-child td{border-bottom:none}
 .people-table tbody tr{cursor:pointer}
 .people-table tbody tr:hover{background:var(--bg3)}
 .people-table tbody tr.inactive-row{opacity:.45}
-.color-swatch{width:16px;height:16px;border-radius:50%;display:inline-block}
-
-/* ── BADGE COLORS ── */
-.badge{padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;white-space:nowrap}
+.color-swatch{width:15px;height:15px;border-radius:50%;display:inline-block}
+.badge{padding:3px 9px;border-radius:20px;font-size:12px;font-weight:600;white-space:nowrap}
 .badge-High{background:var(--badge-high-bg);color:var(--badge-high-text)}
 .badge-Medium{background:var(--badge-med-bg);color:var(--badge-med-text)}
 .badge-Low{background:var(--badge-low-bg);color:var(--badge-low-text)}
@@ -244,25 +267,22 @@ textarea.field{min-height:90px;resize:vertical}
 .badge-Cancelled{background:var(--badge-cancel-bg);color:var(--badge-cancel-text)}
 
 /* ── TOAST ── */
-.toast{position:fixed;bottom:72px;left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:13px 22px;font-size:15px;color:var(--text);z-index:9999;display:none;white-space:nowrap;box-shadow:0 4px 24px var(--shadow)}
+.toast{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px 20px;font-size:15px;color:var(--text);z-index:9999;display:none;white-space:nowrap;box-shadow:0 4px 24px var(--shadow)}
 .toast.show{display:block;animation:fadeUp .2s ease}
 .toast.ok{background:var(--alert-ok-bg);border-color:var(--alert-ok-border);color:var(--alert-ok-text)}
 .toast.err{background:var(--alert-warn-bg);border-color:var(--alert-warn-border);color:var(--alert-warn-text)}
 @keyframes fadeUp{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
-@media(min-width:768px){.toast{bottom:24px}}
-
-/* ── DESKTOP MODAL ── */
 @media(min-width:768px){
+  .toast{bottom:24px}
   .modal{border-radius:16px;margin:auto 20px;max-height:88vh;align-self:center}
   .modal-overlay{align-items:center}
   .modal-handle{display:none}
-  .view-content{padding:24px 24px 32px}
+  .view-content{padding:20px 24px 32px}
 }
 </style>
 </head>
 <body class="dark">
 
-<!-- BUS SVG SYMBOL -->
 <svg style="display:none">
   <symbol id="bus-svg" viewBox="0 0 100 100">
     <rect width="100" height="100" fill="#0f172a"/>
@@ -279,12 +299,8 @@ textarea.field{min-height:90px;resize:vertical}
     <rect x="79" y="43" width="2" height="5" rx="1" fill="#93c5fd"/>
     <rect x="8" y="64" width="84" height="6" fill="#1e40af"/>
     <rect x="12" y="68" width="76" height="4" rx="2" fill="#1e3a8a"/>
-    <circle cx="24" cy="76" r="9" fill="#0f172a"/>
-    <circle cx="24" cy="76" r="5" fill="#1e293b"/>
-    <circle cx="24" cy="76" r="2.5" fill="#3b82f6"/>
-    <circle cx="76" cy="76" r="9" fill="#0f172a"/>
-    <circle cx="76" cy="76" r="5" fill="#1e293b"/>
-    <circle cx="76" cy="76" r="2.5" fill="#3b82f6"/>
+    <circle cx="24" cy="76" r="9" fill="#0f172a"/><circle cx="24" cy="76" r="5" fill="#1e293b"/><circle cx="24" cy="76" r="2.5" fill="#3b82f6"/>
+    <circle cx="76" cy="76" r="9" fill="#0f172a"/><circle cx="76" cy="76" r="5" fill="#1e293b"/><circle cx="76" cy="76" r="2.5" fill="#3b82f6"/>
     <rect x="8" y="28" width="4" height="8" rx="2" fill="#fbbf24"/>
     <rect x="8" y="28" width="4" height="3" rx="1" fill="#fef3c7"/>
     <rect x="88" y="30" width="3" height="6" rx="1.5" fill="#ef4444"/>
@@ -336,46 +352,43 @@ textarea.field{min-height:90px;resize:vertical}
 
 <!-- APP -->
 <div id="appShell">
+  <!-- HEADER -->
   <div class="header">
     <div class="header-inner">
       <div class="header-brand">
         <div class="header-title" id="appTitle">Midnight Coach Tasks</div>
         <div class="header-sub" id="appSub">Shop Task Manager</div>
       </div>
-      <div class="header-actions">
-        <div class="user-chip" id="userChip" onclick="doSignOut()" title="Sign out">
-          <div class="user-dot" id="userDot"></div><span id="userName">—</span>
-        </div>
-        <div class="btn-icon" onclick="toggleTheme()" id="themeBtn">☀️</div>
-        <button class="btn-add-task" onclick="gotoTab('add')">+ Task</button>
+      <label class="show-done-wrap" title="Show completed tasks">
+        <input type="checkbox" class="show-done-cb" id="showDoneCb" onchange="renderTasks()">
+        <span class="show-done-label">Show Done</span>
+      </label>
+      <div class="user-chip" id="userChip" onclick="doSignOut()" title="Tap to sign out">
+        <div class="user-dot" id="userDot"></div><span id="userName">—</span>
       </div>
+      <div class="btn-icon" onclick="toggleTheme()" id="themeBtn">☀️</div>
+    </div>
+    <!-- PEOPLE FILTER ROW (managers only in future) -->
+    <div class="filter-bar" id="filterBar">
+      <div class="filter-row" id="personPills"></div>
+      <div class="filter-row" id="timePills"></div>
     </div>
     <div class="desktop-tabs">
-      <button class="desktop-tab active" id="dt-tasks" onclick="gotoTab('tasks')">📋 My Tasks</button>
-      <button class="desktop-tab" id="dt-all"   onclick="gotoTab('all')">🗂 All Tasks</button>
+      <button class="desktop-tab active" id="dt-tasks" onclick="gotoTab('tasks')">📋 Tasks</button>
       <button class="desktop-tab" id="dt-add"   onclick="gotoTab('add')">➕ Add Task</button>
+      <button class="desktop-tab" id="dt-buses" onclick="gotoTab('buses')">🚌 Buses</button>
       <button class="desktop-tab" id="dt-admin" style="display:none" onclick="gotoTab('admin')">⚙️ Admin</button>
     </div>
   </div>
 
-  <!-- MY TASKS -->
+  <!-- TASKS VIEW -->
   <div id="view-tasks" class="view active">
     <div class="view-content">
-      <div class="pill-row" id="statusPills"></div>
-      <div class="pill-row" id="personPills"></div>
       <div id="taskList"><div style="text-align:center;padding:40px;color:var(--text3)"><div class="spin" style="margin:0 auto 12px"></div>Loading...</div></div>
     </div>
   </div>
 
-  <!-- ALL TASKS -->
-  <div id="view-all" class="view">
-    <div class="view-content">
-      <div class="pill-row" id="allStatusPills"></div>
-      <div id="allTaskList"><div style="text-align:center;padding:40px;color:var(--text3)"><div class="spin" style="margin:0 auto 12px"></div>Loading...</div></div>
-    </div>
-  </div>
-
-  <!-- ADD TASK -->
+  <!-- ADD TASK VIEW -->
   <div id="view-add" class="view">
     <div class="view-content">
       <div class="form-section">
@@ -383,11 +396,18 @@ textarea.field{min-height:90px;resize:vertical}
         <div class="form-group">
           <label class="form-label">Task Name <span class="req">*</span></label>
           <input id="f_name" class="field" type="text" placeholder="What needs to be done?" maxlength="30" oninput="updateNameCount(this,'addNameCount')">
-          <div style="text-align:right;font-size:12px;color:var(--text3);margin-top:4px"><span id="addNameCount">0</span>/30</div>
+          <div style="text-align:right;font-size:12px;color:var(--text3);margin-top:3px"><span id="addNameCount">0</span>/30</div>
         </div>
         <div class="form-group">
           <label class="form-label">Notes</label>
           <textarea id="f_notes" class="field" placeholder="Additional details..."></textarea>
+        </div>
+        <div class="do-today-row">
+          <input type="checkbox" class="do-today-cb" id="f_do_today">
+          <div>
+            <div class="do-today-label">Add to Today's list</div>
+            <div class="do-today-hint">Show on dashboard immediately</div>
+          </div>
         </div>
       </div>
       <div class="form-section">
@@ -412,7 +432,7 @@ textarea.field{min-height:90px;resize:vertical}
         </div>
       </div>
       <div class="form-section">
-        <div class="form-section-title">Scheduling</div>
+        <div class="form-section-title">Scheduling <span style="font-size:11px;font-weight:400;color:var(--text3);text-transform:none;letter-spacing:0">(leave blank for Parking Lot)</span></div>
         <div class="form-row-2">
           <div class="form-group"><label class="form-label">Due Date</label><input id="f_due" class="field" type="date"></div>
           <div class="form-group"><label class="form-label">Start Date <span class="hint">(hide until)</span></label><input id="f_start" class="field" type="date"></div>
@@ -423,7 +443,7 @@ textarea.field{min-height:90px;resize:vertical}
         </div>
       </div>
       <div class="form-section">
-        <div class="form-section-title">Photos <span style="font-size:12px;font-weight:400;color:var(--text3);text-transform:none;letter-spacing:0">(optional — snap what needs fixing)</span></div>
+        <div class="form-section-title">Photos <span style="font-size:11px;font-weight:400;color:var(--text3);text-transform:none;letter-spacing:0">(optional)</span></div>
         <div class="photo-upload-area" onclick="document.getElementById('photoInput').click()">
           <input type="file" id="photoInput" accept="image/*" multiple onchange="handlePhotoSelect(this)">
           📷 Tap to add photos
@@ -438,7 +458,14 @@ textarea.field{min-height:90px;resize:vertical}
     </div>
   </div>
 
-  <!-- ADMIN -->
+  <!-- BUSES VIEW -->
+  <div id="view-buses" class="view">
+    <div class="view-content">
+      <div id="busesList"><div style="text-align:center;padding:40px;color:var(--text3)"><div class="spin" style="margin:0 auto 12px"></div>Loading buses...</div></div>
+    </div>
+  </div>
+
+  <!-- ADMIN VIEW -->
   <div id="view-admin" class="view">
     <div class="view-content">
       <div class="admin-card">
@@ -458,7 +485,7 @@ textarea.field{min-height:90px;resize:vertical}
       </div>
       <div class="admin-card">
         <div class="admin-card-title">📧 Daily Digest</div>
-        <p style="font-size:15px;color:var(--text2);margin-bottom:16px">Send today's task digest to all team members now.</p>
+        <p style="font-size:15px;color:var(--text2);margin-bottom:14px">Send today's task digest to all team members now.</p>
         <button class="btn btn-secondary" onclick="sendDigest()">Send Digest Now</button>
       </div>
     </div>
@@ -466,14 +493,14 @@ textarea.field{min-height:90px;resize:vertical}
 
   <!-- BOTTOM NAV -->
   <div class="bottom-nav">
-    <button class="nav-btn active" id="nb-tasks" onclick="gotoTab('tasks')"><div class="nav-icon">📋</div><div class="nav-label">My Tasks</div></button>
-    <button class="nav-btn" id="nb-all" onclick="gotoTab('all')"><div class="nav-icon">🗂️</div><div class="nav-label">All Tasks</div></button>
-    <button class="nav-btn" id="nb-add" onclick="gotoTab('add')"><div class="nav-icon">➕</div><div class="nav-label">Add Task</div></button>
+    <button class="nav-btn active" id="nb-tasks" onclick="gotoTab('tasks')"><div class="nav-icon">📋</div><div class="nav-label">Tasks</div></button>
+    <button class="nav-btn" id="nb-add"   onclick="gotoTab('add')"><div class="nav-icon">➕</div><div class="nav-label">Add Task</div></button>
+    <button class="nav-btn" id="nb-buses" onclick="gotoTab('buses')"><div class="nav-icon">🚌</div><div class="nav-label">Buses</div></button>
     <button class="nav-btn" id="nb-admin" style="display:none" onclick="gotoTab('admin')"><div class="nav-icon">⚙️</div><div class="nav-label">Admin</div></button>
   </div>
 </div>
 
-<!-- EDIT TASK MODAL -->
+<!-- EDIT MODAL -->
 <div class="modal-overlay" id="editModal">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -501,10 +528,10 @@ textarea.field{min-height:90px;resize:vertical}
     <div class="modal-body">
       <div class="form-row-2">
         <div class="form-group"><label class="form-label">Name <span class="req">*</span></label><input id="p_name" class="field" type="text" placeholder="Full name"></div>
-        <div class="form-group"><label class="form-label">Color</label><input id="p_color" class="field" type="color" style="height:48px;padding:4px;cursor:pointer" value="#3b82f6"></div>
+        <div class="form-group"><label class="form-label">Color</label><input id="p_color" class="field" type="color" style="height:46px;padding:4px;cursor:pointer" value="#3b82f6"></div>
       </div>
       <div class="form-group"><label class="form-label">Primary Email</label><input id="p_email" class="field" type="email" placeholder="name@example.com"></div>
-      <div class="form-group"><label class="form-label">Alternate Emails <span class="hint">comma-separated</span></label><input id="p_altemails" class="field" type="text" placeholder="other@gmail.com"></div>
+      <div class="form-group"><label class="form-label">Alternate Emails <span class="hint">comma-separated</span></label><input id="p_altemails" class="field" type="text"></div>
       <div class="form-group"><label class="form-label">PIN <span class="hint">4 digits — blank keeps existing</span></label><input id="p_pin" class="field" type="tel" placeholder="e.g. 0712" maxlength="4" pattern="[0-9]{4}"></div>
       <div class="form-row-2">
         <div class="form-group"><label class="form-label">Phone</label><input id="p_phone" class="field" type="tel" placeholder="10-digit"></div>
@@ -530,7 +557,7 @@ textarea.field{min-height:90px;resize:vertical}
     <div class="modal-header"><div class="modal-title">Photo</div><button class="modal-close" onclick="closePhotoModal()">×</button></div>
     <div class="modal-body" style="text-align:center">
       <img id="photoFull" style="max-width:100%;border-radius:10px" src="" alt="Task photo">
-      <div style="margin-top:16px;display:flex;gap:10px;justify-content:center">
+      <div style="margin-top:14px;display:flex;gap:9px;justify-content:center">
         <a id="photoViewLink" href="" target="_blank" class="btn btn-secondary btn-sm">Open in Drive</a>
         <button class="btn btn-danger btn-sm" onclick="deletePhoto()">Delete</button>
       </div>
@@ -541,231 +568,159 @@ textarea.field{min-height:90px;resize:vertical}
 <div class="toast" id="toast"></div>
 
 <script>
-// ── CONFIG ────────────────────────────────────────────────────
 const API = 'https://script.google.com/macros/s/AKfycbzlxKOJrnG7jR627iux0W1X4-lgS2-PNugRs8b9P_4pVhC5ItdyFZM3rvfekFc7jD4S7g/exec';
 
-// ── STATE ─────────────────────────────────────────────────────
+// ── STATE ──
 let formData = {}, allTasks = [], currentTask = null, currentUser = null;
-let personFilter = 'all', statusFilter = 'all', activeTab = 'tasks';
+let personFilter = 'me';   // 'me' | 'all' | '{name}'
+let timeFilter   = 'today'; // 'today' | 'tomorrow' | 'future' | 'all'
+let activeTab    = 'tasks';
 let currentPerson = null, loginPeople = [];
 let pinBuf = '', selName = '', isReturning = false;
 let pendingPhotos = [], editPendingPhotos = [], viewingPhoto = null;
 
-// ── API ───────────────────────────────────────────────────────
-async function apiGet(action) { return apiPost({ action }); }
-
+// ── API ──
 async function apiPost(body) {
-  const resp = await fetch(API, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain' },
-    body: JSON.stringify(body),
-    redirect: 'follow'
-  });
+  const resp = await fetch(API, { method:'POST', headers:{'Content-Type':'text/plain'}, body:JSON.stringify(body), redirect:'follow' });
   const text = await resp.text();
   try { return JSON.parse(text); }
-  catch {
-    const m = text.match(/\{[\s\S]*\}/);
-    if (m) return JSON.parse(m[0]);
-    throw new Error('Invalid response from server');
-  }
+  catch { const m=text.match(/\{[\s\S]*\}/); if(m) return JSON.parse(m[0]); throw new Error('Invalid response'); }
 }
 
-// ── THEME ─────────────────────────────────────────────────────
-function initTheme() { applyTheme(localStorage.getItem('mc_theme') || 'dark'); }
-function applyTheme(t) {
-  document.body.className = t;
-  document.getElementById('themeBtn').textContent = t === 'dark' ? '☀️' : '🌙';
-  localStorage.setItem('mc_theme', t);
-}
-function toggleTheme() { applyTheme(document.body.className === 'dark' ? 'light' : 'dark'); }
+// ── THEME ──
+function initTheme() { applyTheme(localStorage.getItem('mc_theme')||'dark'); }
+function applyTheme(t) { document.body.className=t; document.getElementById('themeBtn').textContent=t==='dark'?'☀️':'🌙'; localStorage.setItem('mc_theme',t); }
+function toggleTheme() { applyTheme(document.body.className==='dark'?'light':'dark'); }
 
-// ── INIT ──────────────────────────────────────────────────────
+// ── INIT ──
 document.addEventListener('DOMContentLoaded', async () => {
   initTheme();
   try {
-    const r = await apiPost({ action: 'getPeopleForLogin' });
+    const r = await apiPost({ action:'getPeopleForLogin' });
     loginPeople = r.data || r;
-
-    // Check for saved session token BEFORE showing login
     const saved = localStorage.getItem('mc_user');
     if (saved) {
       try {
         const u = JSON.parse(saved);
-        const p = loginPeople.find(x => x.name === u.name);
-        if (p && u.token) {
-          // Valid session — skip PIN entirely, launch app directly
-          currentUser = { name: u.name, person: { color: u.color }, isAdmin: false };
-          await launchApp(currentUser);
-          return;
-        }
+        const p = loginPeople.find(x => x.name===u.name);
+        if (p && u.token) { currentUser={name:u.name,person:{color:u.color},isAdmin:false}; await launchApp(currentUser); return; }
       } catch { localStorage.removeItem('mc_user'); }
     }
-
-    // No valid token — show login screen
     document.getElementById('loadingScreen').classList.add('hide');
     initLogin();
-  } catch(e) {
-    document.getElementById('loadingScreen').classList.add('hide');
-    showLogin();
-  }
+  } catch(e) { document.getElementById('loadingScreen').classList.add('hide'); showLogin(); }
 });
 
-// ── LOGIN ─────────────────────────────────────────────────────
+// ── LOGIN ──
 function initLogin() {
   const sel = document.getElementById('nameSelect');
-  loginPeople.forEach(p => {
-    const o = document.createElement('option');
-    o.value = p.name; o.textContent = p.name; sel.appendChild(o);
-  });
-  sel.addEventListener('change', () => { selName = sel.value; clearPin(); document.getElementById('loginBtn').disabled = !selName; });
-
-  // Check for saved name (no token — token check already done in DOMContentLoaded)
+  loginPeople.forEach(p => { const o=document.createElement('option'); o.value=p.name; o.textContent=p.name; sel.appendChild(o); });
+  sel.addEventListener('change', () => { selName=sel.value; clearPin(); document.getElementById('loginBtn').disabled=!selName; });
   const saved = localStorage.getItem('mc_user');
   if (saved) {
     try {
       const u = JSON.parse(saved);
-      const p = loginPeople.find(x => x.name === u.name);
+      const p = loginPeople.find(x=>x.name===u.name);
       if (p) {
-        // Show PIN with name pre-filled
-        selName = u.name; isReturning = true;
-        document.getElementById('rAvatar').textContent = u.name[0].toUpperCase();
-        document.getElementById('rAvatar').style.background = p.color || '#3b82f6';
-        document.getElementById('rName').textContent = u.name;
-        document.getElementById('returningPanel').style.display = 'block';
-        document.getElementById('nameSelectorPanel').style.display = 'none';
-        document.getElementById('notMeBtn').style.display = 'block';
-        document.getElementById('loginBtn').disabled = true;
+        selName=u.name; isReturning=true;
+        document.getElementById('rAvatar').textContent=u.name[0].toUpperCase();
+        document.getElementById('rAvatar').style.background=p.color||'#3b82f6';
+        document.getElementById('rName').textContent=u.name;
+        document.getElementById('returningPanel').style.display='block';
+        document.getElementById('nameSelectorPanel').style.display='none';
+        document.getElementById('notMeBtn').style.display='block';
+        document.getElementById('loginBtn').disabled=true;
         showLogin(); return;
       }
     } catch { localStorage.removeItem('mc_user'); }
   }
   showNameSelector(); showLogin();
 }
-
 function showLogin() { document.getElementById('loginScreen').classList.add('show'); }
 function showNameSelector() {
-  isReturning = false; selName = '';
-  document.getElementById('returningPanel').style.display = 'none';
-  document.getElementById('nameSelectorPanel').style.display = 'block';
-  document.getElementById('notMeBtn').style.display = 'none';
-  document.getElementById('nameSelect').value = '';
-  document.getElementById('loginBtn').disabled = true;
+  isReturning=false; selName='';
+  document.getElementById('returningPanel').style.display='none';
+  document.getElementById('nameSelectorPanel').style.display='block';
+  document.getElementById('notMeBtn').style.display='none';
+  document.getElementById('nameSelect').value='';
+  document.getElementById('loginBtn').disabled=true;
   clearPin();
 }
-
-function pp(d) {
-  if (pinBuf.length >= 4) return;
-  pinBuf += d; updateDots();
-  if (pinBuf.length === 4 && getName()) setTimeout(doLogin, 150);
-}
-function pd() { pinBuf = pinBuf.slice(0,-1); updateDots(); updateLoginBtn(); }
-function clearPin() { pinBuf = ''; updateDots(); document.getElementById('loginBtn').disabled = true; }
-function updateDots() {
-  for (let i = 0; i < 4; i++) document.getElementById('d'+i).classList.toggle('filled', i < pinBuf.length);
-  updateLoginBtn();
-}
-function updateLoginBtn() { document.getElementById('loginBtn').disabled = pinBuf.length < 4 || !getName(); }
-function getName() { return isReturning ? selName : document.getElementById('nameSelect').value; }
+function pp(d) { if(pinBuf.length>=4)return; pinBuf+=d; updateDots(); if(pinBuf.length===4&&getName()) setTimeout(doLogin,150); }
+function pd() { pinBuf=pinBuf.slice(0,-1); updateDots(); updateLoginBtn(); }
+function clearPin() { pinBuf=''; updateDots(); document.getElementById('loginBtn').disabled=true; }
+function updateDots() { for(let i=0;i<4;i++) document.getElementById('d'+i).classList.toggle('filled',i<pinBuf.length); updateLoginBtn(); }
+function updateLoginBtn() { document.getElementById('loginBtn').disabled=pinBuf.length<4||!getName(); }
+function getName() { return isReturning?selName:document.getElementById('nameSelect').value; }
 
 async function doLogin() {
-  const name = getName(), pin = pinBuf;
-  if (!name || pin.length < 4) return;
-  document.getElementById('loginBtn').disabled = true;
-  document.getElementById('loginBtn').textContent = 'Signing in...';
+  const name=getName(), pin=pinBuf;
+  if(!name||pin.length<4) return;
+  document.getElementById('loginBtn').disabled=true;
+  document.getElementById('loginBtn').textContent='Signing in...';
   document.getElementById('loginError').classList.remove('show');
   try {
-    const r = await apiPost({ action: 'verifyPin', name, pin });
-    document.getElementById('loginBtn').textContent = 'Sign In';
-    const result = r.data || r;
+    const r = await apiPost({ action:'verifyPin', name, pin });
+    document.getElementById('loginBtn').textContent='Sign In';
+    const result = r.data||r;
     if (result.success) {
-      const sessionToken = result.name + '_' + Date.now();
-      localStorage.setItem('mc_user', JSON.stringify({ name: result.name, color: result.person.color, token: sessionToken }));
-      currentUser = result;
+      localStorage.setItem('mc_user', JSON.stringify({name:result.name,color:result.person.color,token:result.name+'_'+Date.now()}));
+      currentUser=result;
       document.getElementById('loginScreen').classList.remove('show');
       launchApp(result);
-    } else {
-      showLoginErr(result.error || 'Incorrect PIN.');
-      clearPin();
-    }
-  } catch(e) {
-    document.getElementById('loginBtn').textContent = 'Sign In';
-    showLoginErr('Connection error. Try again.');
-    clearPin();
-  }
+    } else { showLoginErr(result.error||'Incorrect PIN.'); clearPin(); }
+  } catch(e) { document.getElementById('loginBtn').textContent='Sign In'; showLoginErr('Connection error. Try again.'); clearPin(); }
 }
-function showLoginErr(msg) { const el = document.getElementById('loginError'); el.textContent = msg; el.classList.add('show'); }
-
+function showLoginErr(msg) { const el=document.getElementById('loginError'); el.textContent=msg; el.classList.add('show'); }
 function doSignOut() {
-  if (!confirm('Sign out?')) return;
-  localStorage.removeItem('mc_user'); currentUser = null;
+  if(!confirm('Sign out?')) return;
+  localStorage.removeItem('mc_user'); currentUser=null;
   clearPin(); document.getElementById('loginError').classList.remove('show');
   document.getElementById('appShell').classList.remove('show');
   showNameSelector(); showLogin();
 }
 
-// ── LAUNCH APP ────────────────────────────────────────────────
+// ── LAUNCH APP ──
 async function launchApp(user) {
-  // Always fetch formData first — this also works as a server reachability check
-  // and gives us full user details (isAdmin etc) when auto-launching from token
   try {
-    const r = await apiPost({ action: 'getFormData' });
-    formData = r.data || r;
-
-    // If auto-launching from token, enrich user object with server data
-    if (!user.person || !user.person.name) {
-      const personData = (formData.people || []).find(p => p.name === user.name);
-      if (!personData) {
-        // Person no longer in system — clear token and force re-login
-        localStorage.removeItem('mc_user');
-        document.getElementById('loadingScreen').classList.add('hide');
-        showNameSelector(); showLogin(); return;
-      }
-      user.person = personData;
-      const admins = ((formData.config || {}).admin_emails || '').split(',').map(s => s.trim().toLowerCase());
-      user.isAdmin = admins.includes((personData.email||'').toLowerCase()) ||
-        (personData.alt_emails||'').split(',').some(e => admins.includes(e.trim().toLowerCase()));
-      currentUser = user;
+    const r = await apiPost({ action:'getFormData' });
+    formData = r.data||r;
+    if (!user.person||!user.person.name) {
+      const pd = (formData.people||[]).find(p=>p.name===user.name);
+      if (!pd) { localStorage.removeItem('mc_user'); document.getElementById('loadingScreen').classList.add('hide'); showNameSelector(); showLogin(); return; }
+      user.person=pd;
+      const admins=((formData.config||{}).admin_emails||'').split(',').map(s=>s.trim().toLowerCase());
+      user.isAdmin=admins.includes((pd.email||'').toLowerCase())||(pd.alt_emails||'').split(',').some(e=>admins.includes(e.trim().toLowerCase()));
+      currentUser=user;
     }
-
-    const cfg = formData.config || {};
-    document.getElementById('appTitle').textContent = cfg.app_title || 'Midnight Coach Tasks';
-    document.getElementById('appSub').textContent = cfg.app_subtitle || 'Shop Task Manager';
-    document.getElementById('loginTitle').textContent = cfg.app_title || 'Midnight Coach Tasks';
-
+    const cfg=formData.config||{};
+    document.getElementById('appTitle').textContent=cfg.app_title||'Midnight Coach Tasks';
+    document.getElementById('appSub').textContent=cfg.app_subtitle||'Shop Task Manager';
+    document.getElementById('loginTitle').textContent=cfg.app_title||'Midnight Coach Tasks';
     document.getElementById('loadingScreen').classList.add('hide');
     document.getElementById('appShell').classList.add('show');
-    document.getElementById('userName').textContent = user.name;
-    document.getElementById('userDot').style.background = (user.person && user.person.color) || '#64748b';
-
+    document.getElementById('userName').textContent=user.name;
+    document.getElementById('userDot').style.background=(user.person&&user.person.color)||'#64748b';
     if (user.isAdmin) {
-      document.getElementById('dt-admin').style.display = 'block';
-      document.getElementById('nb-admin').style.display = 'flex';
+      document.getElementById('dt-admin').style.display='block';
+      document.getElementById('nb-admin').style.display='flex';
     }
-
     buildDropdowns();
     buildFilters(user);
     await refreshTasks(user);
-  } catch(e) {
-    // Server unreachable — clear token and force re-login for safety
-    localStorage.removeItem('mc_user');
-    document.getElementById('loadingScreen').classList.add('hide');
-    showNameSelector(); showLogin();
-  }
+  } catch(e) { localStorage.removeItem('mc_user'); document.getElementById('loadingScreen').classList.add('hide'); showNameSelector(); showLogin(); }
 }
 
 async function refreshTasks(user) {
   try {
-    const r = await apiPost({ action: 'getTasks' });
-    allTasks = r.data || r;
-    personFilter = user ? user.name : personFilter;
-    updatePersonPillHighlight();
-    const sel = document.getElementById('f_to');
-    if (sel && user) sel.value = user.name;
-    renderTasks(); renderAll();
-  } catch(e) { toast('Error loading tasks', 'err'); }
+    const r = await apiPost({ action:'getTasks' });
+    allTasks = r.data||r;
+    if (user) { const sel=document.getElementById('f_to'); if(sel) sel.value=user.name; }
+    renderTasks();
+  } catch(e) { toast('Error loading tasks','err'); }
 }
 
-// ── DROPDOWNS ─────────────────────────────────────────────────
+// ── DROPDOWNS ──
 function buildDropdowns() {
   fillSelect('f_to',       formData.people.map(p=>({v:p.name,t:p.name})));
   fillSelect('f_priority', formData.priorities.map(p=>({v:p,t:p,sel:p==='Medium'})));
@@ -775,217 +730,280 @@ function buildDropdowns() {
   fillSelect('f_recur',    formData.recurring.map(r=>({v:r,t:r})));
 }
 function fillSelect(id, opts, hasNone) {
-  const el = document.getElementById(id); if (!el) return;
-  if (!hasNone) el.innerHTML = '';
-  opts.forEach(o => {
-    const opt = document.createElement('option');
-    opt.value = o.v; opt.textContent = o.t;
-    if (o.sel) opt.selected = true;
-    el.appendChild(opt);
-  });
+  const el=document.getElementById(id); if(!el)return;
+  if(!hasNone) el.innerHTML='';
+  opts.forEach(o => { const opt=document.createElement('option'); opt.value=o.v; opt.textContent=o.t; if(o.sel)opt.selected=true; el.appendChild(opt); });
 }
 
-// ── FILTERS ───────────────────────────────────────────────────
+// ── FILTERS ──
 function buildFilters(user) {
-  buildStatusPills('statusPills', 'tasks');
-  buildStatusPills('allStatusPills', 'all');
   buildPersonPills(user);
+  buildTimePills();
 }
-function buildStatusPills(cid, view) {
-  const c = document.getElementById(cid); c.innerHTML = '';
-  [{ label:'All', value:'all' }, ...formData.statuses.map(s=>({label:s,value:s}))].forEach(p => {
-    const el = document.createElement('div');
-    el.className = 'pill' + (p.value==='all'?' active':'');
-    el.textContent = p.label;
-    el.onclick = () => {
-      statusFilter = p.value;
-      c.querySelectorAll('.pill').forEach(x=>x.classList.remove('active'));
-      el.classList.add('active');
-      view==='tasks' ? renderTasks() : renderAll();
-    };
-    c.appendChild(el);
-  });
-}
+
 function buildPersonPills(user) {
-  const c = document.getElementById('personPills'); c.innerHTML = '';
-  c.appendChild(makePill('Everyone','all','#64748b', personFilter==='all'));
-  formData.people.forEach(p => c.appendChild(makePill(p.name, p.name, p.color, p.name===user.name)));
-}
-function updatePersonPillHighlight() {
-  document.querySelectorAll('#personPills .person-pill').forEach(el => {
-    const a = el.dataset.name === personFilter;
-    el.classList.toggle('active', a);
-    el.style.background = el.dataset.color + (a?'44':'22');
+  const c = document.getElementById('personPills'); c.innerHTML='';
+  // Everyone pill
+  const ep = makePPill('Everyone','all','#64748b', personFilter==='all');
+  c.appendChild(ep);
+  // Individual people pills
+  formData.people.forEach(p => {
+    const active = personFilter==='me' ? p.name===user.name : personFilter===p.name;
+    c.appendChild(makePPill(p.name, p.name, p.color, active));
   });
+  // Default: highlight current user
+  if (personFilter==='me') {
+    personFilter = user.name;
+    c.querySelectorAll('.ppill').forEach(el => {
+      const a = el.dataset.name===user.name;
+      el.classList.toggle('active',a);
+      el.style.background = el.dataset.color+(a?'44':'18');
+    });
+  }
 }
-function makePill(label, name, color, active) {
-  const el = document.createElement('div');
-  el.className = 'pill person-pill' + (active?' active':'');
-  el.textContent = label; el.dataset.name = name; el.dataset.color = color;
-  el.style.cssText = 'background:'+color+(active?'44':'22')+';color:'+color+';border-color:'+color;
-  el.onclick = () => {
-    personFilter = name;
-    document.querySelectorAll('#personPills .person-pill').forEach(x => {
-      const a = x.dataset.name===name; x.classList.toggle('active',a);
-      x.style.background = x.dataset.color+(a?'44':'22');
+
+function makePPill(label, name, color, active) {
+  const el=document.createElement('div');
+  el.className='ppill'+(active?' active':'');
+  el.textContent=label; el.dataset.name=name; el.dataset.color=color;
+  el.style.cssText='color:'+color+';border-color:'+color+';background:'+color+(active?'44':'18');
+  el.onclick=()=>{
+    personFilter=name;
+    document.querySelectorAll('.ppill').forEach(x=>{
+      const a=x.dataset.name===name; x.classList.toggle('active',a);
+      x.style.background=x.dataset.color+(a?'44':'18');
     });
     renderTasks();
   };
   return el;
 }
 
-// ── RENDER ────────────────────────────────────────────────────
-function today() { const t=new Date(); t.setHours(0,0,0,0); return t; }
-
-function splitTasks(src, pf, sf) {
-  const td=today(), po={'High':0,'Medium':1,'Low':2};
-  const sort = (a,b) => (po[a.priority]||99)-(po[b.priority]||99);
-  let ov=[], ac=[], up=[];
-  src.forEach(t => {
-    if (pf!=='all' && t.assigned_to!==pf) return;
-    if (sf!=='all' && t.status!==sf) return;
-    const sd = t.start_date ? new Date(t.start_date+'T00:00:00') : null;
-    const dd = t.due_date   ? new Date(t.due_date+'T00:00:00')   : null;
-    const done = t.status==='Done'||t.status==='Cancelled';
-    if (!done&&sd&&sd>td) up.push(t);
-    else if (!done&&dd&&dd<td) ov.push(t);
-    else ac.push(t);
+function buildTimePills() {
+  const c=document.getElementById('timePills'); c.innerHTML='';
+  [{label:'Today',value:'today'},{label:'Tomorrow',value:'tomorrow'},{label:'Future',value:'future'},{label:'All',value:'all'}].forEach(p=>{
+    const el=document.createElement('div');
+    el.className='tpill'+(p.value===timeFilter?' active':'');
+    el.textContent=p.label;
+    el.onclick=()=>{ timeFilter=p.value; c.querySelectorAll('.tpill').forEach(x=>x.classList.remove('active')); el.classList.add('active'); renderTasks(); };
+    c.appendChild(el);
   });
-  return [...ov.sort(sort), ...ac.sort(sort), ...up.sort(sort)];
 }
 
+// ── DATE HELPERS ──
+function today()    { const d=new Date(); d.setHours(0,0,0,0); return d; }
+function tomorrow() { const d=today(); d.setDate(d.getDate()+1); return d; }
+function dayAfter() { const d=today(); d.setDate(d.getDate()+2); return d; }
+
+function isShowToday(t) {
+  if (t.status==='Done'||t.status==='Cancelled') return false;
+  const td=today(), tom=tomorrow();
+  if (t.do_today===true||t.do_today==='TRUE'||t.do_today==='true') return true;
+  if (t.due_date) {
+    const dd=new Date(t.due_date+'T00:00:00');
+    if (dd<td) return true; // overdue
+    if (dd<tom) return true; // due today
+  }
+  if (t.start_date && t.due_date) {
+    const sd=new Date(t.start_date+'T00:00:00'), dd=new Date(t.due_date+'T00:00:00');
+    if (td>=sd && td<=dd) return true;
+  }
+  return false;
+}
+
+function isShowTomorrow(t) {
+  if (t.status==='Done'||t.status==='Cancelled') return false;
+  if (isShowToday(t)) return false;
+  if (!t.due_date) return false;
+  const dd=new Date(t.due_date+'T00:00:00'), tom=tomorrow(), da=dayAfter();
+  return dd>=tom && dd<da;
+}
+
+function isShowFuture(t) {
+  if (t.status==='Done'||t.status==='Cancelled') return false;
+  if (isShowToday(t)||isShowTomorrow(t)) return false;
+  return true; // no date = parking lot = future; far future dates = future
+}
+
+function matchesTimeFilter(t) {
+  if (t.status==='Done'||t.status==='Cancelled') return false; // done handled separately
+  switch(timeFilter) {
+    case 'today':    return isShowToday(t);
+    case 'tomorrow': return isShowTomorrow(t);
+    case 'future':   return isShowFuture(t);
+    case 'all':      return true;
+  }
+  return true;
+}
+
+// ── RENDER ──
 function renderTasks() {
-  const list = splitTasks(allTasks, personFilter, statusFilter);
-  const ov = list.filter(t => { const dd=t.due_date?new Date(t.due_date+'T00:00:00'):null; return dd&&dd<today()&&t.status!=='Done'&&t.status!=='Cancelled'; });
-  document.getElementById('taskList').innerHTML = buildList(list, ov);
+  const showDone = document.getElementById('showDoneCb').checked;
+  const td = today();
+  const PO = {'High':0,'Medium':1,'Low':2};
+  const sortFn = (a,b) => {
+    const aOv = a.due_date && new Date(a.due_date+'T00:00:00')<td;
+    const bOv = b.due_date && new Date(b.due_date+'T00:00:00')<td;
+    if (aOv&&!bOv) return -1; if (!aOv&&bOv) return 1;
+    const aD = a.due_date?new Date(a.due_date+'T00:00:00'):new Date('9999-12-31');
+    const bD = b.due_date?new Date(b.due_date+'T00:00:00'):new Date('9999-12-31');
+    if (aD<bD) return -1; if (aD>bD) return 1;
+    return (PO[a.priority]||99)-(PO[b.priority]||99);
+  };
+
+  // Filter by person
+  const isEveryone = personFilter==='all';
+  const byPerson = t => isEveryone || t.assigned_to===personFilter;
+
+  if (isEveryone) {
+    // Group by person
+    let html = '';
+    let anyTasks = false;
+    formData.people.forEach(p => {
+      let tasks = allTasks.filter(t => t.assigned_to===p.name && byPerson(t));
+      const activeTasks = tasks.filter(t => t.status!=='Done' && t.status!=='Cancelled' && matchesTimeFilter(t)).sort(sortFn);
+      const doneTasks   = showDone ? tasks.filter(t => {
+        if(t.status!=='Done') return false;
+        if(!t.completed_at) return false;
+        const cd=new Date(t.completed_at); cd.setHours(0,0,0,0);
+        return cd.getTime()===td.getTime();
+      }) : [];
+      if (!activeTasks.length && !doneTasks.length) return;
+      anyTasks = true;
+      html += '<div class="section-header">';
+      html += '<div class="section-dot" style="background:'+esc(p.color||'#64748b')+'"></div>';
+      html += '<div class="section-name">'+esc(p.name)+'</div>';
+      html += '<div class="section-count">'+activeTasks.length+' task'+(activeTasks.length!==1?'s':'')+'</div>';
+      html += '</div><div class="task-list">';
+      activeTasks.forEach(t => { html += buildCard(t, p.color); });
+      if (doneTasks.length) {
+        html += '</div><div class="task-list" style="opacity:.5;margin-top:4px">';
+        doneTasks.forEach(t => { html += buildCard(t, p.color); });
+      }
+      html += '</div>';
+    });
+    document.getElementById('taskList').innerHTML = anyTasks ? html : '<div class="empty-state">✅ No tasks match this filter</div>';
+  } else {
+    // Single person — flat list
+    const tasks = allTasks.filter(t => t.assigned_to===personFilter);
+    const activeTasks = tasks.filter(t => t.status!=='Done'&&t.status!=='Cancelled'&&matchesTimeFilter(t)).sort(sortFn);
+    const doneTasks   = showDone ? tasks.filter(t => {
+      if(t.status!=='Done') return false;
+      if(!t.completed_at) return false;
+      const cd=new Date(t.completed_at); cd.setHours(0,0,0,0);
+      return cd.getTime()===td.getTime();
+    }) : [];
+    const person = formData.people.find(p=>p.name===personFilter);
+    const color  = person ? person.color : '#64748b';
+    if (!activeTasks.length && !doneTasks.length) {
+      document.getElementById('taskList').innerHTML = '<div class="empty-state">✅ No tasks for this filter</div>';
+      return;
+    }
+    let html = '<div class="task-list">';
+    activeTasks.forEach(t => { html += buildCard(t, color); });
+    if (doneTasks.length) {
+      html += '</div><div class="task-list" style="opacity:.5;margin-top:8px">';
+      doneTasks.forEach(t => { html += buildCard(t, color); });
+    }
+    html += '</div>';
+    document.getElementById('taskList').innerHTML = html;
+  }
 }
-function renderAll() {
-  const list = splitTasks(allTasks, 'all', statusFilter);
-  const ov = list.filter(t => { const dd=t.due_date?new Date(t.due_date+'T00:00:00'):null; return dd&&dd<today()&&t.status!=='Done'&&t.status!=='Cancelled'; });
-  document.getElementById('allTaskList').innerHTML = buildList(list, ov);
-}
 
-function buildList(list, overdueSet) {
-  if (!list.length) return '<div class="empty-state">✅ No tasks found</div>';
-  return '<div class="task-list">'+list.map(t=>buildCard(t, overdueSet.includes(t))).join('')+'</div>';
-}
+function buildCard(task, color) {
+  const done = task.status==='Done'||task.status==='Cancelled';
+  const td   = today();
+  const isOverdue = !done && task.due_date && new Date(task.due_date+'T00:00:00')<td;
+  const isParkingLot = !done && !task.do_today && !task.due_date && !task.start_date;
+  const cl = color||'#64748b';
 
-function buildCard(task, isOverdue) {
-  const person = formData.people.find(p=>p.name===task.assigned_to);
-  const color  = person ? person.color : '#64748b';
-  const done   = task.status==='Done'||task.status==='Cancelled';
-
-  let h = '<div class="task-row'+(done?' done-row':'')+'" style="border-left-color:'+color+'">';
-
-  // Line 1: overdue flag + task name
+  let h = '<div class="task-row'+(done?' done-row':'')+(isOverdue?' overdue-row':'')+'" style="border-left-color:'+cl+'">';
   h += '<div class="task-row-line1">';
   if (isOverdue) h += '<span class="task-row-overdue">! OVERDUE</span>';
   h += '<div class="task-row-name'+(done?' done-name':'')+'" data-row="'+task._rowIndex+'" onclick="openEditByRow(this.dataset.row)">'+esc(task.task_name)+'</div>';
   h += '</div>';
-
-  // Line 2: badges + status control
   h += '<div class="task-row-line2">';
   if (task.category) h += '<span class="task-row-cat">'+esc(task.category)+'</span>';
   if (task.bus)      h += '<span class="task-row-bus">🚌 '+esc(task.bus)+'</span>';
-  if (task.assigned_to && personFilter==='all') {
-    h += '<span class="task-row-assignee" style="color:'+color+'">👤 '+esc(task.assigned_to.split(' ')[0])+'</span>';
+  if (personFilter==='all' && task.assigned_to) {
+    const p=formData.people.find(x=>x.name===task.assigned_to);
+    h += '<span class="task-row-assignee" style="color:'+(p?p.color:'#64748b')+'">'+esc(task.assigned_to.split(' ')[0])+'</span>';
   }
+  if (isParkingLot) h += '<span class="task-row-parking">🅿 Parking Lot</span>';
   h += '<div class="task-row-spacer"></div>';
   if (done) {
     h += '<span class="task-row-done-badge">'+esc(task.status)+'</span>';
   } else {
     h += '<select class="task-row-status-sel" data-row="'+task._rowIndex+'" onclick="event.stopPropagation()" onchange="cardStatusChange(this)">';
-    formData.statuses.forEach(s => {
-      h += '<option value="'+esc(s)+'"'+(task.status===s?' selected':'')+'>'+esc(s)+'</option>';
-    });
+    (formData.statuses||[]).forEach(s => { h += '<option value="'+esc(s)+'"'+(task.status===s?' selected':'')+'>'+esc(s)+'</option>'; });
     h += '</select>';
   }
-  h += '</div>';
-  h += '</div>';
+  h += '</div></div>';
   return h;
 }
 
-// ── CARD ACTIONS ──────────────────────────────────────────────
-function openEditByRow(rowIndex) {
-  const task = allTasks.find(t => t._rowIndex === parseInt(rowIndex));
-  if (task) openEditModal(task);
-}
-function cardStatusChange(select) {
-  const rowIndex = parseInt(select.dataset.row);
-  const newStatus = select.value;
-  quickCardStatus(rowIndex, newStatus);
-}
+// ── CARD ACTIONS ──
+function openEditByRow(rowIndex) { const t=allTasks.find(t=>t._rowIndex===parseInt(rowIndex)); if(t)openEditModal(t); }
+function cardStatusChange(sel) { quickCardStatus(parseInt(sel.dataset.row), sel.value); }
 async function quickCardStatus(rowIndex, newStatus) {
   try {
-    const r = await apiPost({ action:'updateTask', rowIndex, data:{ status:newStatus }, userName:currentUser.name });
-    const result = r.data || r;
-    if (result.success) {
-      toast(newStatus==='Done' ? '✓ Task completed!' : 'Status → '+newStatus, 'ok');
-      await refreshTasks(currentUser);
-    } else toast('Error: '+result.error, 'err');
-  } catch(e) { toast('Error updating status', 'err'); }
+    const r=await apiPost({action:'updateTask',rowIndex,data:{status:newStatus},userName:currentUser.name});
+    const res=r.data||r;
+    if(res.success){ toast(newStatus==='Done'?'✓ Task completed!':'Status → '+newStatus,'ok'); await refreshTasks(currentUser); }
+    else toast('Error: '+res.error,'err');
+  } catch { toast('Error updating status','err'); }
 }
 
-// ── ADD TASK ──────────────────────────────────────────────────
-function toggleCustomInterval() {
-  document.getElementById('customIntervalGroup').style.display =
-    document.getElementById('f_recur').value==='Custom' ? 'block' : 'none';
-}
+// ── ADD TASK ──
+function toggleCustomInterval() { document.getElementById('customIntervalGroup').style.display=document.getElementById('f_recur').value==='Custom'?'block':'none'; }
+
 async function checkBus() {
-  const bn = document.getElementById('f_bus').value;
+  const bn=document.getElementById('f_bus').value;
   const warn=document.getElementById('busWarn'), info=document.getElementById('busInfo');
-  if (!bn) { warn.style.display='none'; info.textContent=''; return; }
+  if(!bn){warn.style.display='none';info.textContent='';return;}
   try {
-    const r = await apiPost({ action:'getBuses' });
-    const buses = r.data || r;
-    const bus = buses.find(b=>b.bus_name===bn);
-    if (!bus||!bus.shop_status||bus.shop_status==='Unknown') { warn.style.display='block'; info.textContent=''; }
-    else { warn.style.display='none'; info.textContent='📍 '+bus.shop_status+(bus.expected_return&&bus.expected_return!=='At Shop'?' · Returns: '+bus.expected_return:''); }
-  } catch { warn.style.display='block'; }
+    const r=await apiPost({action:'getBuses'});
+    const buses=r.data||r;
+    const bus=buses.find(b=>b.bus_name===bn);
+    if(!bus||!bus.shop_status||bus.shop_status==='Unknown'){warn.style.display='block';info.textContent='';}
+    else{warn.style.display='none';info.textContent='📍 '+bus.shop_status+(bus.expected_return&&bus.expected_return!=='At Shop'?' · Returns: '+bus.expected_return:'');}
+  } catch{warn.style.display='block';}
 }
+
 function handlePhotoSelect(input) {
   Array.from(input.files).forEach(file => {
-    const r = new FileReader();
-    r.onload = e => {
-      // Compress image to max 1200px wide, 0.75 quality JPEG before storing
-      // This keeps payload well under Apps Script limits (~1MB vs 5MB+)
-      const img = new Image();
-      img.onload = () => {
-        const MAX = 1200;
-        let w = img.width, h = img.height;
-        if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
-        const canvas = document.createElement('canvas');
-        canvas.width = w; canvas.height = h;
-        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-        const compressed = canvas.toDataURL('image/jpeg', 0.75);
-        pendingPhotos.push({ file, previewUrl: compressed, mimeType: 'image/jpeg' });
+    const r=new FileReader();
+    r.onload=e=>{
+      const img=new Image();
+      img.onload=()=>{
+        const MAX=1200; let w=img.width,h=img.height;
+        if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}
+        const canvas=document.createElement('canvas'); canvas.width=w; canvas.height=h;
+        canvas.getContext('2d').drawImage(img,0,0,w,h);
+        const compressed=canvas.toDataURL('image/jpeg',0.75);
+        pendingPhotos.push({file,previewUrl:compressed,mimeType:'image/jpeg'});
         renderPhotoPreview();
       };
-      img.src = e.target.result;
+      img.src=e.target.result;
     };
     r.readAsDataURL(file);
   });
-  input.value = '';
+  input.value='';
 }
 function renderPhotoPreview() {
-  const c = document.getElementById('photoPreview'); c.innerHTML = '';
-  pendingPhotos.forEach((p,i) => {
-    const item = document.createElement('div'); item.className='photo-preview-item';
-    item.innerHTML = '<img src="'+p.previewUrl+'" alt="preview"><button class="photo-preview-remove" onclick="removePhoto('+i+')">×</button>';
-    c.appendChild(item);
-  });
+  const c=document.getElementById('photoPreview'); c.innerHTML='';
+  pendingPhotos.forEach((p,i)=>{ const item=document.createElement('div'); item.className='photo-preview-item'; item.innerHTML='<img src="'+p.previewUrl+'"><button class="photo-preview-remove" onclick="removePhoto('+i+')">×</button>'; c.appendChild(item); });
 }
-function removePhoto(i) { pendingPhotos.splice(i,1); renderPhotoPreview(); }
+function removePhoto(i){pendingPhotos.splice(i,1);renderPhotoPreview();}
 
 async function saveNewTask() {
-  const btn = document.getElementById('saveTaskBtn');
-  if (btn.disabled) return; // prevent double-submit
-  const name = document.getElementById('f_name').value.trim();
-  const to   = document.getElementById('f_to').value;
-  if (!name) { toast('Task name is required','err'); return; }
-  if (!to)   { toast('Please assign this task','err'); return; }
+  const btn=document.getElementById('saveTaskBtn');
+  if(btn.disabled)return;
+  const name=document.getElementById('f_name').value.trim();
+  const to=document.getElementById('f_to').value;
+  if(!name){toast('Task name is required','err');return;}
+  if(!to){toast('Please assign this task','err');return;}
   btn.textContent='Saving...'; btn.disabled=true;
-  const taskData = {
+  const taskData={
     task_name:name, assigned_to:to,
     priority:document.getElementById('f_priority').value,
     status:document.getElementById('f_status').value,
@@ -996,230 +1014,195 @@ async function saveNewTask() {
     recurring:document.getElementById('f_recur').value,
     recurrence_interval:document.getElementById('f_interval').value,
     notes:document.getElementById('f_notes').value,
+    do_today:document.getElementById('f_do_today').checked ? 'TRUE' : 'FALSE',
     created_by:currentUser.name
   };
   try {
-    const r = await apiPost({ action:'saveTask', data:taskData, userName:currentUser.name });
-    const result = r.data || r;
-    if (result.success) {
-      if (pendingPhotos.length) {
+    const r=await apiPost({action:'saveTask',data:taskData,userName:currentUser.name});
+    const result=r.data||r;
+    if(result.success){
+      if(pendingPhotos.length){
         btn.textContent='Uploading photos...';
-        let photosFailed = 0;
-        for (const p of pendingPhotos) {
-          try {
-            // Use compressed mimeType if set, otherwise fall back to file type
-            const mt = p.mimeType || p.file.type || 'image/jpeg';
-            const fn = p.file.name.replace(/\.[^.]+$/, '') + '.jpg'; // always .jpg after compression
-            const photoResult = await apiPost({
-              action: 'uploadPhoto',
-              taskId: result.task_id,
-              fileName: fn,
-              base64Data: p.previewUrl.split(',')[1],
-              mimeType: mt,
-              userName: currentUser.name
-            });
-            if (!photoResult.success) {
-              console.error('Photo upload failed:', photoResult.error);
-              photosFailed++;
-            }
-          } catch(photoErr) {
-            console.error('Photo upload error:', photoErr);
-            photosFailed++;
-          }
+        let failed=0;
+        for(const p of pendingPhotos){
+          try{
+            const mt=p.mimeType||p.file.type||'image/jpeg';
+            const fn=p.file.name.replace(/\.[^.]+$/,'')+'.jpg';
+            const pr=await apiPost({action:'uploadPhoto',taskId:result.task_id,fileName:fn,base64Data:p.previewUrl.split(',')[1],mimeType:mt,userName:currentUser.name});
+            if(!pr.success)failed++;
+          }catch{failed++;}
         }
-        if (photosFailed > 0) {
-          toast(photosFailed + ' photo(s) failed to upload — task was saved', 'err');
-        }
+        if(failed>0)toast(failed+' photo(s) failed to upload','err');
       }
-      toast('Task saved! ✓','ok');
-      clearAddForm();
-      btn.textContent='Save Task'; btn.disabled=false;
-      gotoTab('tasks');
-      await refreshTasks(currentUser);
-    } else {
-      toast('Error: '+result.error,'err');
-      btn.textContent='Save Task'; btn.disabled=false;
-    }
-  } catch(e) {
-    toast('Error saving task','err');
-    btn.textContent='Save Task'; btn.disabled=false;
-  }
+      toast('Task saved! ✓','ok'); clearAddForm(); btn.textContent='Save Task'; btn.disabled=false;
+      gotoTab('tasks'); await refreshTasks(currentUser);
+    } else { toast('Error: '+result.error,'err'); btn.textContent='Save Task'; btn.disabled=false; }
+  } catch { toast('Error saving task','err'); btn.textContent='Save Task'; btn.disabled=false; }
 }
+
 function clearAddForm() {
-  ['f_name','f_notes','f_due','f_start','f_interval'].forEach(id => { const el=document.getElementById(id); if(el)el.value=''; });
+  ['f_name','f_notes','f_due','f_start','f_interval'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('f_bus').value=''; document.getElementById('f_category').value='';
   document.getElementById('f_recur').value='None'; document.getElementById('f_priority').value='Medium';
   document.getElementById('f_status').value=formData.statuses?.[0]||'To Do';
   document.getElementById('busWarn').style.display='none'; document.getElementById('busInfo').textContent='';
   document.getElementById('addNameCount').textContent='0';
+  document.getElementById('f_do_today').checked=false;
   pendingPhotos=[]; renderPhotoPreview();
-  if (currentUser) document.getElementById('f_to').value=currentUser.name;
+  if(currentUser) document.getElementById('f_to').value=currentUser.name;
 }
-function updateNameCount(input, countId) {
-  const el=document.getElementById(countId); if(!el) return;
-  el.textContent=input.value.length;
-  el.style.color=input.value.length>=28?'var(--danger)':'var(--text3)';
+function updateNameCount(input,countId) {
+  const el=document.getElementById(countId);if(!el)return;
+  el.textContent=input.value.length; el.style.color=input.value.length>=28?'var(--danger)':'var(--text3)';
 }
 
-// ── EDIT MODAL ────────────────────────────────────────────────
+// ── BUSES TAB ──
+async function loadBuses() {
+  const c=document.getElementById('busesList');
+  c.innerHTML='<div style="text-align:center;padding:30px;color:var(--text3)"><div class="spin" style="margin:0 auto 10px"></div>Loading...</div>';
+  try {
+    const r=await apiPost({action:'getBuses'});
+    const buses=(r.data||r).sort((a,b)=>a.bus_name.localeCompare(b.bus_name));
+    if(!buses.length){c.innerHTML='<div class="empty-state">No buses found.</div>';return;}
+    c.innerHTML=buses.map(b=>{
+      const st=(b.shop_status||'').toString();
+      const inShop=st.toLowerCase().includes('woodstock');
+      const onTour=st.toLowerCase().includes('on tour')||st.toLowerCase().includes('tour:');
+      const badge=inShop?'<span class="bus-badge bus-in-shop">In Shop</span>':onTour?'<span class="bus-badge bus-on-tour">On Tour</span>':'<span class="bus-badge bus-unknown">Unknown</span>';
+      const ret=b.expected_return&&b.expected_return!=='Unknown'&&b.expected_return!=='At Shop'?'<div class="bus-return">Returns: '+esc(b.expected_return)+'</div>':'';
+      return '<div class="bus-card">'+
+        '<div class="bus-icon">🚌</div>'+
+        '<div class="bus-info"><div class="bus-name">'+esc(b.bus_name)+'</div><div class="bus-status">'+esc(st||'Unknown')+'</div>'+ret+'</div>'+
+        badge+'</div>';
+    }).join('');
+  } catch { c.innerHTML='<div class="empty-state">Error loading buses.</div>'; }
+}
+
+// ── EDIT MODAL ──
 function fmg(label, inner) { return '<div class="form-group"><label class="form-label">'+label+'</label>'+inner+'</div>'; }
-
 function openEditModal(task) {
-  currentTask = task; editPendingPhotos = [];
-  document.getElementById('editTitle').textContent = task.task_name;
-  let h = '<div class="status-row">';
-  formData.statuses.forEach(s => {
-    h += '<button class="status-btn'+(task.status===s?' active':'')+'" onclick="setStatus(\''+s+'\')">'+s+'</button>';
-  });
-  h += '</div>';
-  h += fmg('Task Name', '<input id="e_name" class="field" maxlength="30" oninput="updateNameCount(this,\'editNameCount\')" value="'+escAttr(task.task_name)+'"><div style="text-align:right;font-size:12px;color:var(--text3);margin-top:4px"><span id="editNameCount">'+Math.min(task.task_name.length,30)+'</span>/30</div>');
-  h += fmg('Assigned To', '<select id="e_to" class="field">'+formData.people.map(p=>'<option value="'+escAttr(p.name)+'"'+(task.assigned_to===p.name?' selected':'')+'>'+esc(p.name)+'</option>').join('')+'</select>');
-  h += '<div class="form-row-2">';
-  h += fmg('Priority','<select id="e_pri" class="field">'+formData.priorities.map(p=>'<option value="'+p+'"'+(task.priority===p?' selected':'')+'>'+p+'</option>').join('')+'</select>');
-  h += fmg('Category','<select id="e_cat" class="field"><option value="">None</option>'+formData.categories.map(c=>'<option value="'+escAttr(c)+'"'+(task.category===c?' selected':'')+'>'+esc(c)+'</option>').join('')+'</select>');
-  h += '</div>';
-  h += fmg('Bus','<select id="e_bus" class="field"><option value="">None</option>'+formData.buses.map(b=>'<option value="'+escAttr(b)+'"'+(task.bus===b?' selected':'')+'>'+esc(b)+'</option>').join('')+'</select>');
-  h += '<div class="form-row-2">';
-  h += fmg('Due Date','<input id="e_due" class="field" type="date" value="'+(task.due_date||'')+'">');
-  h += fmg('Start Date','<input id="e_start" class="field" type="date" value="'+(task.start_date||'')+'">');
-  h += '</div>';
-  h += fmg('Notes','<textarea id="e_notes" class="field">'+esc(task.notes||'')+'</textarea>');
-  if (task.created_by) {
-    h += '<div style="font-size:13px;color:var(--text3);margin-bottom:8px">Created by <strong style="color:var(--text2)">'+esc(task.created_by)+'</strong></div>';
+  currentTask=task; editPendingPhotos=[];
+  document.getElementById('editTitle').textContent=task.task_name;
+  let h='<div class="status-row">';
+  (formData.statuses||[]).forEach(s=>{ h+='<button class="status-btn'+(task.status===s?' active':'')+'" onclick="setStatus(\''+s+'\')">'+s+'</button>'; });
+  h+='</div>';
+  h+=fmg('Task Name','<input id="e_name" class="field" maxlength="30" oninput="updateNameCount(this,\'editNameCount\')" value="'+escAttr(task.task_name)+'"><div style="text-align:right;font-size:12px;color:var(--text3);margin-top:3px"><span id="editNameCount">'+Math.min(task.task_name.length,30)+'</span>/30</div>');
+  h+=fmg('Assigned To','<select id="e_to" class="field">'+formData.people.map(p=>'<option value="'+escAttr(p.name)+'"'+(task.assigned_to===p.name?' selected':'')+'>'+esc(p.name)+'</option>').join('')+'</select>');
+  h+='<div class="form-row-2">';
+  h+=fmg('Priority','<select id="e_pri" class="field">'+formData.priorities.map(p=>'<option value="'+p+'"'+(task.priority===p?' selected':'')+'>'+p+'</option>').join('')+'</select>');
+  h+=fmg('Category','<select id="e_cat" class="field"><option value="">None</option>'+formData.categories.map(c=>'<option value="'+escAttr(c)+'"'+(task.category===c?' selected':'')+'>'+esc(c)+'</option>').join('')+'</select>');
+  h+='</div>';
+  h+=fmg('Bus','<select id="e_bus" class="field"><option value="">None</option>'+formData.buses.map(b=>'<option value="'+escAttr(b)+'"'+(task.bus===b?' selected':'')+'>'+esc(b)+'</option>').join('')+'</select>');
+  h+='<div class="form-row-2">';
+  h+=fmg('Due Date','<input id="e_due" class="field" type="date" value="'+(task.due_date||'')+'">');
+  h+=fmg('Start Date','<input id="e_start" class="field" type="date" value="'+(task.start_date||'')+'">');
+  h+='</div>';
+  h+=fmg('Notes','<textarea id="e_notes" class="field">'+esc(task.notes||'')+'</textarea>');
+  // Do Today toggle in edit
+  const dt=task.do_today===true||task.do_today==='TRUE'||task.do_today==='true';
+  h+='<div class="do-today-row"><input type="checkbox" class="do-today-cb" id="e_do_today"'+(dt?' checked':'')+'><div><div class="do-today-label">Add to Today\'s list</div><div class="do-today-hint">Show on dashboard immediately</div></div></div>';
+  if(task.created_by) h+='<div style="font-size:12px;color:var(--text3);margin:8px 0">Created by <strong style="color:var(--text2)">'+esc(task.created_by)+'</strong></div>';
+  if(task.photos&&task.photos.length){
+    h+='<div class="form-group"><label class="form-label">Photos</label><div class="card-photos">';
+    task.photos.forEach(ph=>{ h+='<img class="photo-thumb" src="'+ph.thumbnail_url+'" data-view="'+ph.view_url+'" data-id="'+ph.file_id+'" onclick="openPhotoFromImg(this)" alt="photo">'; });
+    h+='</div></div>';
   }
-  if (task.photos && task.photos.length) {
-    h += '<div class="form-group"><label class="form-label">Photos</label><div class="card-photos">';
-    task.photos.forEach(ph => {
-      h += '<img class="photo-thumb" src="'+ph.thumbnail_url+'" data-view="'+ph.view_url+'" data-id="'+ph.file_id+'" onclick="openPhotoFromImg(this)" alt="photo">';
-    });
-    h += '</div></div>';
-  }
-  h += fmg('Add Photo','<div class="photo-upload-area" onclick="document.getElementById(\'editPhotoInput\').click()"><input type="file" id="editPhotoInput" accept="image/*" onchange="handleEditPhoto(this)">📷 Add a photo</div><div class="photo-preview-row" id="editPhotoPreview"></div>');
-  document.getElementById('editBody').innerHTML = h;
+  h+=fmg('Add Photo','<div class="photo-upload-area" onclick="document.getElementById(\'editPhotoInput\').click()"><input type="file" id="editPhotoInput" accept="image/*" onchange="handleEditPhoto(this)">📷 Add a photo</div><div class="photo-preview-row" id="editPhotoPreview"></div>');
+  document.getElementById('editBody').innerHTML=h;
   document.getElementById('editModal').classList.add('open');
 }
-
-function openPhotoFromImg(img) {
-  viewingPhoto = { thumbnail_url: img.src, view_url: img.dataset.view, file_id: img.dataset.id };
-  document.getElementById('photoFull').src = img.src;
-  document.getElementById('photoViewLink').href = img.dataset.view;
-  document.getElementById('photoModal').classList.add('open');
+function openPhotoFromImg(img){viewingPhoto={thumbnail_url:img.src,view_url:img.dataset.view,file_id:img.dataset.id};document.getElementById('photoFull').src=img.src;document.getElementById('photoViewLink').href=img.dataset.view;document.getElementById('photoModal').classList.add('open');}
+function closePhotoModal(){document.getElementById('photoModal').classList.remove('open');viewingPhoto=null;}
+async function deletePhoto(){
+  if(!viewingPhoto||!confirm('Delete this photo?'))return;
+  try{const r=await apiPost({action:'deletePhoto',fileId:viewingPhoto.file_id,userName:currentUser.name});const res=r.data||r;if(res.success){toast('Photo deleted','ok');closePhotoModal();await refreshTasks(currentUser);}else toast('Error: '+res.error,'err');}catch{toast('Error deleting photo','err');}
 }
-function closePhotoModal() { document.getElementById('photoModal').classList.remove('open'); viewingPhoto=null; }
-async function deletePhoto() {
-  if (!viewingPhoto||!confirm('Delete this photo?')) return;
-  try {
-    const r = await apiPost({ action:'deletePhoto', fileId:viewingPhoto.file_id, userName:currentUser.name });
-    const result = r.data||r;
-    if (result.success) { toast('Photo deleted','ok'); closePhotoModal(); await refreshTasks(currentUser); }
-    else toast('Error: '+result.error,'err');
-  } catch { toast('Error deleting photo','err'); }
-}
-
 function handleEditPhoto(input) {
-  Array.from(input.files).forEach(file => {
+  Array.from(input.files).forEach(file=>{
     const r=new FileReader();
-    r.onload=e=>{ editPendingPhotos.push({file,previewUrl:e.target.result}); renderEditPhotoPreview(); };
+    r.onload=e=>{
+      const img=new Image();
+      img.onload=()=>{
+        const MAX=1200;let w=img.width,h=img.height;
+        if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}
+        const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;
+        canvas.getContext('2d').drawImage(img,0,0,w,h);
+        const compressed=canvas.toDataURL('image/jpeg',0.75);
+        editPendingPhotos.push({file,previewUrl:compressed,mimeType:'image/jpeg'});
+        renderEditPhotoPreview();
+      };
+      img.src=e.target.result;
+    };
     r.readAsDataURL(file);
   });
   input.value='';
 }
-function renderEditPhotoPreview() {
-  const c=document.getElementById('editPhotoPreview'); if(!c)return; c.innerHTML='';
-  editPendingPhotos.forEach((p,i)=>{
-    const item=document.createElement('div'); item.className='photo-preview-item';
-    item.innerHTML='<img src="'+p.previewUrl+'"><button class="photo-preview-remove" onclick="removeEditPhoto('+i+')">×</button>';
-    c.appendChild(item);
-  });
-}
-function removeEditPhoto(i) { editPendingPhotos.splice(i,1); renderEditPhotoPreview(); }
-
-function setStatus(s) {
-  currentTask.status=s;
-  document.querySelectorAll('.status-btn').forEach(b=>b.classList.toggle('active',b.textContent===s));
-}
-function closeEdit() { document.getElementById('editModal').classList.remove('open'); currentTask=null; editPendingPhotos=[]; }
+function renderEditPhotoPreview(){const c=document.getElementById('editPhotoPreview');if(!c)return;c.innerHTML='';editPendingPhotos.forEach((p,i)=>{const item=document.createElement('div');item.className='photo-preview-item';item.innerHTML='<img src="'+p.previewUrl+'"><button class="photo-preview-remove" onclick="removeEditPhoto('+i+')">×</button>';c.appendChild(item);});}
+function removeEditPhoto(i){editPendingPhotos.splice(i,1);renderEditPhotoPreview();}
+function setStatus(s){currentTask.status=s;document.querySelectorAll('.status-btn').forEach(b=>b.classList.toggle('active',b.textContent===s));}
+function closeEdit(){document.getElementById('editModal').classList.remove('open');currentTask=null;editPendingPhotos=[];}
 
 async function saveEdit() {
-  if (!currentTask) return;
+  if(!currentTask)return;
+  const dt=document.getElementById('e_do_today');
   try {
-    const r = await apiPost({
-      action:'updateTask', rowIndex:currentTask._rowIndex,
-      data:{
-        task_name:document.getElementById('e_name').value.trim(),
-        assigned_to:document.getElementById('e_to').value,
-        priority:document.getElementById('e_pri').value,
-        category:document.getElementById('e_cat').value,
-        bus:document.getElementById('e_bus').value,
-        due_date:document.getElementById('e_due').value,
-        start_date:document.getElementById('e_start').value,
-        notes:document.getElementById('e_notes').value,
-        status:currentTask.status
-      }, userName:currentUser.name
-    });
-    const result = r.data||r;
-    if (result.success) {
-      for (const p of editPendingPhotos) {
-        try {
-          const mt = p.mimeType || p.file.type || 'image/jpeg';
-          const fn = p.file.name.replace(/\.[^.]+$/, '') + '.jpg';
-          const photoResult = await apiPost({
-            action: 'uploadPhoto',
-            taskId: currentTask.task_id,
-            fileName: fn,
-            base64Data: p.previewUrl.split(',')[1],
-            mimeType: mt,
-            userName: currentUser.name
-          });
-          if (!photoResult.success) console.error('Edit photo failed:', photoResult.error);
-        } catch(photoErr) { console.error('Edit photo upload error:', photoErr); }
+    const r=await apiPost({action:'updateTask',rowIndex:currentTask._rowIndex,data:{
+      task_name:document.getElementById('e_name').value.trim(),
+      assigned_to:document.getElementById('e_to').value,
+      priority:document.getElementById('e_pri').value,
+      category:document.getElementById('e_cat').value,
+      bus:document.getElementById('e_bus').value,
+      due_date:document.getElementById('e_due').value,
+      start_date:document.getElementById('e_start').value,
+      notes:document.getElementById('e_notes').value,
+      status:currentTask.status,
+      do_today:dt&&dt.checked?'TRUE':'FALSE'
+    },userName:currentUser.name});
+    const res=r.data||r;
+    if(res.success){
+      for(const p of editPendingPhotos){
+        try{
+          const mt=p.mimeType||p.file.type||'image/jpeg';
+          const fn=p.file.name.replace(/\.[^.]+$/,'')+'.jpg';
+          await apiPost({action:'uploadPhoto',taskId:currentTask.task_id,fileName:fn,base64Data:p.previewUrl.split(',')[1],mimeType:mt,userName:currentUser.name});
+        }catch(err){console.error('Edit photo error:',err);}
       }
       toast('Updated! ✓','ok'); closeEdit(); await refreshTasks(currentUser);
-    } else toast('Error: '+result.error,'err');
-  } catch(e) { toast('Error updating','err'); }
-}
-async function deleteTask() {
-  if (!currentTask||!confirm('Delete "'+currentTask.task_name+'"?')) return;
-  try {
-    const r = await apiPost({ action:'deleteTask', rowIndex:currentTask._rowIndex, userName:currentUser.name });
-    const result=r.data||r;
-    if (result.success) { toast('Deleted','ok'); closeEdit(); await refreshTasks(currentUser); }
-    else toast('Error: '+result.error,'err');
-  } catch { toast('Error deleting','err'); }
+    } else toast('Error: '+res.error,'err');
+  } catch { toast('Error updating','err'); }
 }
 
-// ── ADMIN ─────────────────────────────────────────────────────
+async function deleteTask(){
+  if(!currentTask||!confirm('Delete "'+currentTask.task_name+'"?'))return;
+  try{const r=await apiPost({action:'deleteTask',rowIndex:currentTask._rowIndex,userName:currentUser.name});const res=r.data||r;if(res.success){toast('Deleted','ok');closeEdit();await refreshTasks(currentUser);}else toast('Error: '+res.error,'err');}catch{toast('Error deleting','err');}
+}
+
+// ── ADMIN ──
 async function loadAdmin() {
-  try {
-    const r=await apiPost({action:'getPeopleAdmin'});
-    renderPeopleTable(r.data||r);
-  } catch { document.getElementById('peopleTable').innerHTML='<div class="alert alert-warn">Could not load people.</div>'; }
-  try {
-    const r=await apiPost({action:'getFlaggedTasks'});
-    const flagged=r.data||r; const c=document.getElementById('flaggedContainer');
-    if (!flagged.length) { c.innerHTML='<div class="alert alert-ok">✓ All tasks assigned to active members.</div>'; return; }
+  try{const r=await apiPost({action:'getPeopleAdmin'});renderPeopleTable(r.data||r);}catch{document.getElementById('peopleTable').innerHTML='<div class="alert alert-warn">Could not load people.</div>';}
+  try{
+    const r=await apiPost({action:'getFlaggedTasks'});const flagged=r.data||r;const c=document.getElementById('flaggedContainer');
+    if(!flagged.length){c.innerHTML='<div class="alert alert-ok">✓ All tasks assigned to active members.</div>';return;}
     let h='<div class="alert alert-warn">⚠️ '+flagged.length+' task(s) assigned to removed people.</div>';
     h+='<div class="form-group"><label class="form-label">Reassign all to:</label><select id="reassignTo" class="field"><option value="">Select...</option>';
     formData.people.forEach(p=>{h+='<option value="'+escAttr(p.name)+'">'+esc(p.name)+'</option>';});
     h+='</select></div><button class="btn btn-primary btn-sm" onclick="doReassign('+JSON.stringify(flagged.map(t=>t._rowIndex))+')">Reassign</button>';
     c.innerHTML=h;
-  } catch { document.getElementById('flaggedContainer').innerHTML='<div class="alert alert-warn">Could not check.</div>'; }
-  try {
-    const r=await apiPost({action:'getTasksWithMissingCategory'});
-    const orphaned=r.data||r; const c=document.getElementById('orphanContainer');
-    if (!orphaned.length) { c.innerHTML='<div class="alert alert-ok">✓ All categories valid.</div>'; return; }
+  }catch{document.getElementById('flaggedContainer').innerHTML='<div class="alert alert-warn">Could not check.</div>';}
+  try{
+    const r=await apiPost({action:'getTasksWithMissingCategory'});const orphaned=r.data||r;const c=document.getElementById('orphanContainer');
+    if(!orphaned.length){c.innerHTML='<div class="alert alert-ok">✓ All categories valid.</div>';return;}
     let h='<div class="alert alert-warn">⚠️ '+orphaned.length+' task(s) with missing categories.</div>';
     h+='<div class="form-group"><label class="form-label">Recategorize to:</label><select id="recatTo" class="field"><option value="">Select...</option>';
     formData.categories.forEach(cat=>{h+='<option value="'+escAttr(cat)+'">'+esc(cat)+'</option>';});
     h+='</select></div><button class="btn btn-primary btn-sm" onclick="doRecategorize('+JSON.stringify(orphaned.map(t=>t._rowIndex))+')">Recategorize</button>';
     c.innerHTML=h;
-  } catch { document.getElementById('orphanContainer').innerHTML='<div class="alert alert-warn">Could not check.</div>'; }
+  }catch{document.getElementById('orphanContainer').innerHTML='<div class="alert alert-warn">Could not check.</div>';}
 }
-
 function renderPeopleTable(people) {
-  if (!people.length) { document.getElementById('peopleTable').innerHTML='<div class="empty-state">No people found.</div>'; return; }
+  if(!people.length){document.getElementById('peopleTable').innerHTML='<div class="empty-state">No people found.</div>';return;}
   let h='<div style="overflow-x:auto"><table class="people-table"><thead><tr><th></th><th>Name</th><th>PIN</th><th>Status</th></tr></thead><tbody>';
-  people.forEach(p => {
+  people.forEach(p=>{
     const active=p.active!=='No'&&p.active!==false&&p.active!=='FALSE'&&p.active!=='no';
     const ts=JSON.stringify(p).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
     h+='<tr class="'+(active?'':'inactive-row')+'" onclick=\'openPersonModal('+ts+')\'>';
@@ -1231,9 +1214,8 @@ function renderPeopleTable(people) {
   h+='</tbody></table></div>';
   document.getElementById('peopleTable').innerHTML=h;
 }
-
-function openPersonModal(person) {
-  currentPerson=person||null; const isEdit=!!person;
+function openPersonModal(person){
+  currentPerson=person||null;const isEdit=!!person;
   document.getElementById('personModalTitle').textContent=isEdit?'Edit Person':'Add Person';
   document.getElementById('deletePersonBtn').style.display=isEdit?'inline-block':'none';
   document.getElementById('p_name').value=isEdit?(person.name||''):'';
@@ -1248,84 +1230,56 @@ function openPersonModal(person) {
   document.getElementById('p_active').value=(a==='No'||a===false||a==='FALSE'||a==='no')?'No':'Yes';
   document.getElementById('personModal').classList.add('open');
 }
-function closePersonModal() { document.getElementById('personModal').classList.remove('open'); currentPerson=null; }
-async function savePerson() {
-  const btn = document.querySelector('#personModal .btn-primary');
-  if (btn && btn.disabled) return; // prevent double-submit
-  if (btn) { btn.disabled = true; btn.textContent = 'Saving...'; }
+function closePersonModal(){document.getElementById('personModal').classList.remove('open');currentPerson=null;}
+async function savePerson(){
+  const btn=document.querySelector('#personModal .btn-primary');
+  if(btn&&btn.disabled)return;
+  if(btn){btn.disabled=true;btn.textContent='Saving...';}
   const name=document.getElementById('p_name').value.trim();
-  if (!name) {
-    if (btn) { btn.disabled=false; btn.textContent='Save'; }
-    toast('Name is required','err'); return;
-  }
+  if(!name){if(btn){btn.disabled=false;btn.textContent='Save';}toast('Name is required','err');return;}
   const pinVal=document.getElementById('p_pin').value.trim();
-  if (pinVal&&!/^\d{4}$/.test(pinVal)) { toast('PIN must be exactly 4 digits','err'); return; }
+  if(pinVal&&!/^\d{4}$/.test(pinVal)){toast('PIN must be exactly 4 digits','err');return;}
   const data={name,email:document.getElementById('p_email').value.trim(),alt_emails:document.getElementById('p_altemails').value.trim(),phone:document.getElementById('p_phone').value.replace(/\D/g,''),carrier:document.getElementById('p_carrier').value,sms_opt_in:document.getElementById('p_sms').value,active:document.getElementById('p_active').value,color:document.getElementById('p_color').value};
-  if (pinVal) data.pin=pinVal;
-  if (currentPerson&&currentPerson._rowIndex) data._rowIndex=currentPerson._rowIndex;
-  try {
-    const r=await apiPost({action:'savePerson',data,userName:currentUser.name});
-    const result=r.data||r;
-    if (result.success) {
-      toast(result.action==='added'?'Person added! ✓':'Updated! ✓','ok');
-      closePersonModal(); loadAdmin();
-      const fd=await apiPost({action:'getFormData'});
-      formData=fd.data||fd;
-      buildDropdowns(); buildFilters(currentUser);
-    } else {
-      toast('Error: '+result.error,'err');
-      if (btn) { btn.disabled=false; btn.textContent='Save'; }
-    }
-  } catch {
-    toast('Error saving','err');
-    if (btn) { btn.disabled=false; btn.textContent='Save'; }
-  }
+  if(pinVal)data.pin=pinVal;
+  if(currentPerson&&currentPerson._rowIndex)data._rowIndex=currentPerson._rowIndex;
+  try{
+    const r=await apiPost({action:'savePerson',data,userName:currentUser.name});const res=r.data||r;
+    if(res.success){toast(res.action==='added'?'Person added! ✓':'Updated! ✓','ok');closePersonModal();loadAdmin();const fd=await apiPost({action:'getFormData'});formData=fd.data||fd;buildDropdowns();buildFilters(currentUser);}
+    else{toast('Error: '+res.error,'err');if(btn){btn.disabled=false;btn.textContent='Save';}}
+  }catch{toast('Error saving','err');if(btn){btn.disabled=false;btn.textContent='Save';}}
 }
-async function deletePerson() {
-  if (!currentPerson||!confirm('Delete '+currentPerson.name+'?\n\nTasks will not be deleted.')) return;
-  try {
-    const r=await apiPost({action:'deletePerson',rowIndex:currentPerson._rowIndex,userName:currentUser.name});
-    const result=r.data||r;
-    if (result.success) { toast('Deleted','ok'); closePersonModal(); loadAdmin(); }
-    else toast('Error: '+result.error,'err');
-  } catch { toast('Error deleting','err'); }
+async function deletePerson(){
+  if(!currentPerson||!confirm('Delete '+currentPerson.name+'?\n\nTasks will not be deleted.'))return;
+  try{const r=await apiPost({action:'deletePerson',rowIndex:currentPerson._rowIndex,userName:currentUser.name});const res=r.data||r;if(res.success){toast('Deleted','ok');closePersonModal();loadAdmin();}else toast('Error: '+res.error,'err');}catch{toast('Error deleting','err');}
 }
-async function doReassign(rows) {
-  const n=document.getElementById('reassignTo').value;
-  if (!n) { toast('Select a person','err'); return; }
-  try { const r=await apiPost({action:'reassignTasks',rows,newAssignee:n,userName:currentUser.name}); const res=r.data||r; if(res.success){toast('Reassigned '+res.count+' tasks','ok');loadAdmin();await refreshTasks(currentUser);}else toast('Error','err'); } catch{toast('Error','err');}
+async function doReassign(rows){
+  const n=document.getElementById('reassignTo').value;if(!n){toast('Select a person','err');return;}
+  try{const r=await apiPost({action:'reassignTasks',rows,newAssignee:n,userName:currentUser.name});const res=r.data||r;if(res.success){toast('Reassigned '+res.count+' tasks','ok');loadAdmin();await refreshTasks(currentUser);}else toast('Error','err');}catch{toast('Error','err');}
 }
-async function doRecategorize(rows) {
-  const c=document.getElementById('recatTo').value;
-  if (!c) { toast('Select a category','err'); return; }
-  try { const r=await apiPost({action:'recategorizeTasks',rows,newCat:c,userName:currentUser.name}); const res=r.data||r; if(res.success){toast('Recategorized!','ok');loadAdmin();await refreshTasks(currentUser);}else toast('Error','err'); } catch{toast('Error','err');}
+async function doRecategorize(rows){
+  const cat=document.getElementById('recatTo').value;if(!cat){toast('Select a category','err');return;}
+  try{const r=await apiPost({action:'recategorizeTasks',rows,newCat:cat,userName:currentUser.name});const res=r.data||r;if(res.success){toast('Recategorized!','ok');loadAdmin();await refreshTasks(currentUser);}else toast('Error','err');}catch{toast('Error','err');}
 }
-async function sendDigest() {
-  toast('Sending...','');
-  try { await apiPost({action:'sendDailyDigest',userName:currentUser.name}); toast('Digest sent! ✓','ok'); } catch{toast('Error sending','err');}
-}
+async function sendDigest(){toast('Sending...','');try{await apiPost({action:'sendDailyDigest',userName:currentUser.name});toast('Digest sent! ✓','ok');}catch{toast('Error sending','err');}}
 
-// ── TABS ──────────────────────────────────────────────────────
+// ── TABS ──
 function gotoTab(tab) {
   activeTab=tab;
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.getElementById('view-'+tab).classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-  const nb=document.getElementById('nb-'+tab); if(nb) nb.classList.add('active');
+  const nb=document.getElementById('nb-'+tab);if(nb)nb.classList.add('active');
   document.querySelectorAll('.desktop-tab').forEach(b=>b.classList.remove('active'));
-  const dt=document.getElementById('dt-'+tab); if(dt) dt.classList.add('active');
-  if (tab==='admin') loadAdmin();
+  const dt=document.getElementById('dt-'+tab);if(dt)dt.classList.add('active');
+  if(tab==='admin') loadAdmin();
+  if(tab==='buses') loadBuses();
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
-// ── UTILS ─────────────────────────────────────────────────────
-function esc(s) { if(!s)return''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function escAttr(s) { if(!s)return''; return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
-function toast(msg, type) {
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.className='toast show'+(type?' '+type:'');
-  clearTimeout(t._to); t._to=setTimeout(()=>t.classList.remove('show'),3200);
-}
+// ── UTILS ──
+function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function escAttr(s){if(!s)return'';return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function toast(msg,type){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show'+(type?' '+type:'');clearTimeout(t._to);t._to=setTimeout(()=>t.classList.remove('show'),3200);}
 </script>
 </body>
 </html>
