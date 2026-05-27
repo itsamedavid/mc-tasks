@@ -966,7 +966,14 @@ function cardStatusChange(sel) { quickCardStatus(parseInt(sel.dataset.row), sel.
 async function quickCardStatus(rowIndex, newStatus, selectEl) {
   if(selectEl) { selectEl.disabled=true; }
   try {
-    const r=await apiPost({action:'updateTask',rowIndex,data:{status:newStatus},userName:currentUser.name});
+    // Include completed_at when marking Done, clear it when un-doing
+    const now = new Date();
+    const pad = n => String(n).padStart(2,'0');
+    const ts  = now.getFullYear()+'-'+pad(now.getMonth()+1)+'-'+pad(now.getDate())+' '+pad(now.getHours())+':'+pad(now.getMinutes())+':'+pad(now.getSeconds());
+    const data = { status: newStatus };
+    if (newStatus === 'Done') data.completed_at = ts;
+    else data.completed_at = '';
+    const r=await apiPost({action:'updateTask',rowIndex,data,userName:currentUser.name});
     const res=r.data||r;
     if(res.success){ toast(newStatus==='Done'?'✓ Task completed!':'Status → '+newStatus,'ok'); await refreshTasks(currentUser); }
     else toast('Error: '+res.error,'err');
@@ -1176,7 +1183,10 @@ async function saveEdit() {
   if(saveBtn) { saveBtn.textContent='Saving...'; saveBtn.disabled=true; }
   const dt=document.getElementById('e_do_today');
   try {
-    const r=await apiPost({action:'updateTask',rowIndex:currentTask._rowIndex,data:{
+    const now2 = new Date();
+    const pad2 = n => String(n).padStart(2,'0');
+    const ts2  = now2.getFullYear()+'-'+pad2(now2.getMonth()+1)+'-'+pad2(now2.getDate())+' '+pad2(now2.getHours())+':'+pad2(now2.getMinutes())+':'+pad2(now2.getSeconds());
+    const editData = {
       task_name:document.getElementById('e_name').value.trim(),
       assigned_to:document.getElementById('e_to').value,
       priority:document.getElementById('e_pri').value,
@@ -1187,7 +1197,10 @@ async function saveEdit() {
       notes:document.getElementById('e_notes').value,
       status:currentTask.status,
       do_today:dt&&dt.checked?'TRUE':'FALSE'
-    },userName:currentUser.name});
+    };
+    if (currentTask.status === 'Done' && !currentTask.completed_at) editData.completed_at = ts2;
+    else if (currentTask.status !== 'Done') editData.completed_at = '';
+    const r=await apiPost({action:'updateTask',rowIndex:currentTask._rowIndex,data:editData,userName:currentUser.name});
     const res=r.data||r;
     if(res.success){
       if(saveBtn){ saveBtn.textContent='Save & Close'; saveBtn.disabled=false; }
