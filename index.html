@@ -943,7 +943,21 @@ function buildCard(task, color) {
 }
 
 // ── CARD ACTIONS ──
-function openEditByRow(rowIndex) { const t=allTasks.find(t=>t._rowIndex===parseInt(rowIndex)); if(t)openEditModal(t); }
+async function openEditByRow(rowIndex) {
+  const t = allTasks.find(t => t._rowIndex === parseInt(rowIndex));
+  if (!t) return;
+  // Fetch photos for this task before opening modal
+  try {
+    const r = await apiPost({ action: 'getTaskHistory', taskId: t.task_id });
+    // Also fetch photos
+    const pr = await apiPost({ action: 'getPhotosForTask', taskId: t.task_id });
+    const photos = (pr.data || pr);
+    t.photos = Array.isArray(photos) ? photos : [];
+  } catch(e) {
+    t.photos = [];
+  }
+  openEditModal(t);
+}
 function cardStatusChange(sel) { quickCardStatus(parseInt(sel.dataset.row), sel.value); }
 async function quickCardStatus(rowIndex, newStatus) {
   try {
@@ -1105,7 +1119,14 @@ function openEditModal(task) {
   if(task.created_by) h+='<div style="font-size:12px;color:var(--text3);margin:8px 0">Created by <strong style="color:var(--text2)">'+esc(task.created_by)+'</strong></div>';
   if(task.photos&&task.photos.length){
     h+='<div class="form-group"><label class="form-label">Photos</label><div class="card-photos">';
-    task.photos.forEach(ph=>{ h+='<img class="photo-thumb" src="'+ph.thumbnail_url+'" data-view="'+ph.view_url+'" data-id="'+ph.file_id+'" onclick="openPhotoFromImg(this)" alt="photo">'; });
+    task.photos.forEach(ph=>{
+      h+='<div class="photo-thumb-wrap" style="position:relative;display:inline-block">';
+      h+='<img class="photo-thumb" src="'+ph.thumbnail_url+'" data-view="'+ph.view_url+'" data-id="'+ph.file_id+'" onclick="openPhotoFromImg(this)" alt="photo" '+
+         'onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">';
+      h+='<a href="'+ph.view_url+'" target="_blank" style="display:none;width:70px;height:70px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:11px;font-weight:600;text-align:center;align-items:center;justify-content:center;text-decoration:none;padding:4px;flex-direction:column;gap:3px">'+
+         '<span style="font-size:20px">📎</span>View Photo</a>';
+      h+='</div>';
+    });
     h+='</div></div>';
   }
   h+=fmg('Add Photo','<div class="photo-upload-area" onclick="document.getElementById(\'editPhotoInput\').click()"><input type="file" id="editPhotoInput" accept="image/*" onchange="handleEditPhoto(this)">📷 Add a photo</div><div class="photo-preview-row" id="editPhotoPreview"></div>');
