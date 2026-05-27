@@ -371,25 +371,31 @@ function render(raw) {
   const tomorrow = new Date(today); tomorrow.setDate(tomorrow.getDate() + 1);
   const dayAfter  = new Date(today); dayAfter.setDate(dayAfter.getDate() + 2);
 
-  // Helper: is this task a "show today" task?
+  // Dashboard: show task if overdue, due today, do_today set, or in active date range
   function isShowToday(t) {
     if (t.status === 'Done' || t.status === 'Cancelled') return false;
-    // Overdue
-    if (t.due_date && new Date(t.due_date+'T00:00:00') < today) return true;
-    // do_today flag set
     if (t.do_today === true || t.do_today === 'TRUE' || t.do_today === 'true') return true;
-    // Today falls between start_date and due_date (inclusive)
+    if (t.due_date) {
+      const dd = new Date(t.due_date+'T00:00:00');
+      if (dd <= today) return true; // overdue or due today
+    }
     const start = t.start_date ? new Date(t.start_date+'T00:00:00') : null;
     const due   = t.due_date   ? new Date(t.due_date+'T00:00:00')   : null;
     if (start && due && today >= start && today <= due) return true;
-    if (!start && due && today <= due && due < tomorrow) return true;
     return false;
   }
 
-  // Only show people who have at least one "today" task on the dashboard
+  // Show people who have active today tasks OR tasks completed today
   const active = (peopleOrder||[]).filter(name => {
     const e = personMap[name];
-    return e && e.tasks && e.tasks.some(t => isShowToday(t));
+    if (!e || !e.tasks) return false;
+    if (e.tasks.some(t => isShowToday(t))) return true;
+    // Also include if they completed something today
+    return e.tasks.some(t => {
+      if (t.status !== 'Done' || !t.completed_at) return false;
+      const comp = new Date(t.completed_at); comp.setHours(0,0,0,0);
+      return comp.getTime() === today.getTime();
+    });
   });
 
   if (!active.length) {
@@ -467,7 +473,7 @@ function render(raw) {
     // Per-card font sizing:
     // Total items = active tasks + (done divider + 2 done rows if any) + (more row if needed)
     // Estimate rows needed, then shrink font to fit card height
-    const doneRows   = doneTasks.length > 0 ? Math.min(doneTasks.length, 2) + 1 : 0; // divider + up to 2 done
+    const doneRows   = doneTasks.length > 0 ? doneTasks.length + 1 : 0; // divider + all done today
     const totalItems = activeTasks.length + doneRows;
     const cardH        = layout.cardH;
     const HEADER_EM    = 2.5;  // card header height in em
@@ -491,7 +497,7 @@ function render(raw) {
 
     const shownActive  = activeTasks.slice(0, maxActive);
     const hiddenActive = activeTasks.length - shownActive.length;
-    const shownDone    = doneTasks.slice(0, 2);
+    const shownDone    = doneTasks; // show all done tasks from today
 
     const card = document.createElement('div');
     card.className = 'person-card';
