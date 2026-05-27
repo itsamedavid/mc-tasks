@@ -946,10 +946,14 @@ function buildCard(task, color) {
 async function openEditByRow(rowIndex) {
   const t = allTasks.find(t => t._rowIndex === parseInt(rowIndex));
   if (!t) return;
-  // Fetch photos for this task before opening modal
+
+  // Show modal immediately with loading state
+  document.getElementById('editTitle').textContent = t.task_name;
+  document.getElementById('editBody').innerHTML = '<div style="text-align:center;padding:40px;color:var(--text3)"><div class="spin" style="margin:0 auto 12px"></div>Loading task...</div>';
+  document.getElementById('editModal').classList.add('open');
+
+  // Fetch photos in background
   try {
-    const r = await apiPost({ action: 'getTaskHistory', taskId: t.task_id });
-    // Also fetch photos
     const pr = await apiPost({ action: 'getPhotosForTask', taskId: t.task_id });
     const photos = (pr.data || pr);
     t.photos = Array.isArray(photos) ? photos : [];
@@ -958,8 +962,9 @@ async function openEditByRow(rowIndex) {
   }
   openEditModal(t);
 }
-function cardStatusChange(sel) { quickCardStatus(parseInt(sel.dataset.row), sel.value); }
-async function quickCardStatus(rowIndex, newStatus) {
+function cardStatusChange(sel) { quickCardStatus(parseInt(sel.dataset.row), sel.value, sel); }
+async function quickCardStatus(rowIndex, newStatus, selectEl) {
+  if(selectEl) { selectEl.disabled=true; }
   try {
     const r=await apiPost({action:'updateTask',rowIndex,data:{status:newStatus},userName:currentUser.name});
     const res=r.data||r;
@@ -1166,6 +1171,9 @@ function closeEdit(){document.getElementById('editModal').classList.remove('open
 
 async function saveEdit() {
   if(!currentTask)return;
+  // Immediate visual feedback
+  const saveBtn = document.querySelector('#editModal .btn-primary');
+  if(saveBtn) { saveBtn.textContent='Saving...'; saveBtn.disabled=true; }
   const dt=document.getElementById('e_do_today');
   try {
     const r=await apiPost({action:'updateTask',rowIndex:currentTask._rowIndex,data:{
@@ -1182,6 +1190,7 @@ async function saveEdit() {
     },userName:currentUser.name});
     const res=r.data||r;
     if(res.success){
+      if(saveBtn){ saveBtn.textContent='Save & Close'; saveBtn.disabled=false; }
       for(const p of editPendingPhotos){
         try{
           const mt=p.mimeType||p.file.type||'image/jpeg';
@@ -1192,8 +1201,8 @@ async function saveEdit() {
         }catch(err){ toast('Photo upload error','err'); console.error('Edit photo error:',err); }
       }
       toast('Updated! ✓','ok'); closeEdit(); await refreshTasks(currentUser);
-    } else toast('Error: '+res.error,'err');
-  } catch { toast('Error updating','err'); }
+    } else { if(saveBtn){saveBtn.textContent='Save & Close';saveBtn.disabled=false;} toast('Error: '+res.error,'err'); }
+  } catch { if(saveBtn){saveBtn.textContent='Save & Close';saveBtn.disabled=false;} toast('Error updating','err'); }
 }
 
 async function deleteTask(){
