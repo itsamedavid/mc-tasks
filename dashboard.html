@@ -231,6 +231,7 @@ html, body {
 .err-msg  { font-size: 1.1em; font-weight: 600; color: var(--text2); text-align: center; max-width: 400px; }
 .err-retry{ font-size: 0.75em; color: var(--text3); }
 </style>
+<script src="config.js"></script>
 </head>
 <body>
 
@@ -302,7 +303,7 @@ html, body {
 </div>
 
 <script>
-const API     = 'https://script.google.com/macros/s/AKfycbzG2besqY2cZMjhVUDJEMKO4qa8-8FqwbBmZPGaSt3qMt_37N0hDdig0_ClsJFZQyYpDw/exec';
+const API = MC_CONFIG.API;
 const REFRESH = 90000;
 const PRI     = { 'High':0, 'Medium':1, 'Low':2 };
 let refreshTimer = null, retryTimer = null;

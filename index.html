@@ -280,6 +280,7 @@ textarea.field{min-height:80px;resize:vertical}
   .view-content{padding:20px 24px 32px}
 }
 </style>
+<script src="config.js"></script>
 </head>
 <body class="dark">
 
@@ -568,7 +569,7 @@ textarea.field{min-height:80px;resize:vertical}
 <div class="toast" id="toast"></div>
 
 <script>
-const API = 'https://script.google.com/macros/s/AKfycbzG2besqY2cZMjhVUDJEMKO4qa8-8FqwbBmZPGaSt3qMt_37N0hDdig0_ClsJFZQyYpDw/exec';
+const API = MC_CONFIG.API;
 
 // ── STATE ──
 let formData = {}, allTasks = [], currentTask = null, currentUser = null;
