@@ -340,6 +340,19 @@ textarea.field { min-height:65px; resize:vertical; }
 <script>
 const API = MC_CONFIG.API;
 
+// ── GET LOGGED-IN USER ──
+// Reads from the same localStorage key the main app sets on login
+function getPlannerUser() {
+  try {
+    const saved = localStorage.getItem('mc_user');
+    if (saved) {
+      const u = JSON.parse(saved);
+      if (u && u.name) return u.name;
+    }
+  } catch(e) {}
+  return null;
+}
+
 // ── STATE ──
 let allTasks = [], formData = {}, currentWeekStart = null;
 let dragTask = null, dragDayIndex = null, dragPlaceholder = null, currentEditTask = null;
@@ -685,7 +698,7 @@ async function onDrop(task, colId, dayNum, totalDays) {
 
   setSaveState('saving');
   try {
-    const r = await apiPost({ action:'updateTask', rowIndex:task._rowIndex, data:newData, userName:'Planner' });
+    const r = await apiPost({ action:'updateTask', rowIndex:task._rowIndex, data:newData, userName:(getPlannerUser()||'Planner') });
     const res = r.data||r;
     if(res.success) { setSaveState('saved'); setTimeout(()=>setSaveState('ready'),2000); }
     else { setSaveState('error'); toast('Save failed: '+(res.error||'unknown'),'err'); await loadData(); }
@@ -736,7 +749,7 @@ async function saveTaskFromPlanner() {
     notes:       document.getElementById('em_notes').value,
   };
   try {
-    const r = await apiPost({action:'updateTask',rowIndex:currentEditTask._rowIndex,data,userName:'Planner'});
+    const r = await apiPost({action:'updateTask',rowIndex:currentEditTask._rowIndex,data,userName:(getPlannerUser()||'Planner')});
     const res=r.data||r;
     if(res.success) { Object.assign(currentEditTask,data); toast('Saved ✓','ok'); closeEditModal(); render(); }
     else toast('Error: '+(res.error||'unknown'),'err');
@@ -747,7 +760,7 @@ async function saveTaskFromPlanner() {
 async function deleteTaskFromPlanner() {
   if(!currentEditTask||!confirm('Delete "'+currentEditTask.task_name+'"?')) return;
   try {
-    const r=await apiPost({action:'deleteTask',rowIndex:currentEditTask._rowIndex,userName:'Planner'});
+    const r=await apiPost({action:'deleteTask',rowIndex:currentEditTask._rowIndex,userName:(getPlannerUser()||'Planner')});
     const res=r.data||r;
     if(res.success) { allTasks=allTasks.filter(t=>t._rowIndex!==currentEditTask._rowIndex); toast('Deleted','ok'); closeEditModal(); render(); }
     else toast('Error: '+(res.error||'unknown'),'err');
