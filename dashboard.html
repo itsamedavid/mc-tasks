@@ -393,7 +393,8 @@ function render(raw) {
     // Also include if they completed something today
     return e.tasks.some(t => {
       if (t.status !== 'Done' || !t.completed_at) return false;
-      const comp = new Date(t.completed_at); comp.setHours(0,0,0,0);
+      const compStr = t.completed_at.toString().replace(' ', 'T');
+      const comp = new Date(compStr); comp.setHours(0,0,0,0);
       return comp.getTime() === today.getTime();
     });
   });
@@ -431,9 +432,10 @@ function render(raw) {
     const activeTasks    = allActiveTasks.filter(t => isShowToday(t));
     const doneTasks      = tasks.filter(t => {
       if (t.status !== 'Done') return false;
-      // Only show done tasks completed today
       if (!t.completed_at) return false;
-      const comp = new Date(t.completed_at); comp.setHours(0,0,0,0);
+      // Normalize date string — replace space with T for cross-browser ISO parsing
+      const compStr = t.completed_at.toString().replace(' ', 'T');
+      const comp = new Date(compStr); comp.setHours(0,0,0,0);
       return comp.getTime() === today.getTime();
     });
 
@@ -443,7 +445,7 @@ function render(raw) {
       if (aOv && !bOv) return -1; if (!aOv && bOv) return 1;
       return (PRI[a.priority]||99) - (PRI[b.priority]||99);
     });
-    doneTasks.sort((a,b) => new Date(b.completed_at||0) - new Date(a.completed_at||0));
+    doneTasks.sort((a,b) => new Date((b.completed_at||'').toString().replace(' ','T')||0) - new Date((a.completed_at||'').toString().replace(' ','T')||0));
 
     // Badge counts use ALL active tasks (not just today's shown tasks)
     // Each task counted in exactly one bucket
