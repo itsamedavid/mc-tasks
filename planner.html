@@ -310,6 +310,7 @@ textarea.field { min-height:65px; resize:vertical; }
     <div class="task-count" id="taskCount">—</div>
     <div class="save-indicator" id="saveIndicator">Ready</div>
     <button class="tbtn" onclick="loadData()">↻ Refresh</button>
+    <button class="tbtn" onclick="openNewTaskModal()" style="background:var(--accent);color:white;border-color:var(--accent)">+ Add Task</button>
     <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" title="Toggle theme">☀️</button>
   </div>
 </div>
@@ -734,25 +735,82 @@ function openEditModal(task) {
   document.getElementById('editModal').classList.add('open');
 }
 
-function closeEditModal() { document.getElementById('editModal').classList.remove('open'); currentEditTask=null; }
+function openNewTaskModal() {
+  // Open edit modal as a blank new task
+  currentEditTask = { _isNew:true, task_name:'', assigned_to:'', start_date:'', due_date:'', priority:'Medium', notes:'' };
+  document.getElementById('editModalTitle').textContent = 'New Task';
+  const people = formData.people || [];
+  const plannerUser = getPlannerUser();
+  let h = '';
+  h += `<div class="form-group"><label class="form-label">Task Name <span style="color:var(--danger)">*</span></label>
+    <input id="em_name" class="field" type="text" maxlength="30" placeholder="What needs to be done?" value=""></div>`;
+  h += `<div class="form-group"><label class="form-label">Assigned To</label>
+    <select id="em_to" class="field">
+    ${people.map(p=>`<option value="${escAttr(p.name)}"${p.name===plannerUser?' selected':''}>${esc(p.name)}</option>`).join('')}
+    </select></div>`;
+  h += `<div class="form-row-2">
+    <div class="form-group"><label class="form-label">Start Date</label>
+      <input id="em_start" class="field" type="date" value=""></div>
+    <div class="form-group"><label class="form-label">Due Date</label>
+      <input id="em_due" class="field" type="date" value=""></div></div>`;
+  h += `<div class="form-group"><label class="form-label">Priority</label>
+    <select id="em_pri" class="field">
+    ${(formData.priorities||['High','Medium','Low']).map(p=>`<option value="${p}"${p==='Medium'?' selected':''}>${p}</option>`).join('')}
+    </select></div>`;
+  h += `<div class="form-group"><label class="form-label">Category</label>
+    <select id="em_cat" class="field"><option value="">None</option>
+    ${(formData.categories||[]).map(cat=>`<option value="${escAttr(cat)}">${esc(cat)}</option>`).join('')}
+    </select></div>`;
+  h += `<div class="form-group"><label class="form-label">Bus</label>
+    <select id="em_bus" class="field"><option value="">No specific bus</option>
+    ${(formData.buses||[]).map(b=>`<option value="${escAttr(b)}">${esc(b)}</option>`).join('')}
+    </select></div>`;
+  h += `<div class="form-group"><label class="form-label">Notes</label>
+    <textarea id="em_notes" class="field" placeholder="Additional details..."></textarea></div>`;
+  document.getElementById('editModalBody').innerHTML = h;
+  // Hide delete button for new tasks
+  document.querySelector('#editModal .btn-danger').style.display = 'none';
+  document.getElementById('editModal').classList.add('open');
+}
+
+function closeEditModal() {
+  document.getElementById('editModal').classList.remove('open');
+  currentEditTask = null;
+  // Restore delete button for next open
+  const delBtn = document.querySelector('#editModal .btn-danger');
+  if(delBtn) delBtn.style.display = '';
+}
 
 async function saveTaskFromPlanner() {
   if(!currentEditTask) return;
   const btn = document.getElementById('editSaveBtn');
   btn.textContent='Saving...'; btn.disabled=true;
+  const name = document.getElementById('em_name').value.trim();
+  if(!name) { toast('Task name is required','err'); btn.textContent='Save'; btn.disabled=false; return; }
+  const isNew = currentEditTask._isNew;
   const data = {
-    task_name:   document.getElementById('em_name').value.trim(),
+    task_name:   name,
     assigned_to: document.getElementById('em_to').value,
     start_date:  document.getElementById('em_start').value,
     due_date:    document.getElementById('em_due').value,
     priority:    document.getElementById('em_pri').value,
+    category:    document.getElementById('em_cat') ? document.getElementById('em_cat').value : '',
+    bus:         document.getElementById('em_bus') ? document.getElementById('em_bus').value : '',
     notes:       document.getElementById('em_notes').value,
+    status:      'To Do',
   };
   try {
-    const r = await apiPost({action:'updateTask',rowIndex:currentEditTask._rowIndex,data,userName:(getPlannerUser()||'Planner')});
-    const res=r.data||r;
-    if(res.success) { Object.assign(currentEditTask,data); toast('Saved ✓','ok'); closeEditModal(); render(); }
-    else toast('Error: '+(res.error||'unknown'),'err');
+    if(isNew) {
+      const r = await apiPost({action:'saveTask',data,userName:(getPlannerUser()||'Planner')});
+      const res=r.data||r;
+      if(res.success) { await loadData(); toast('Task created ✓','ok'); closeEditModal(); return; }
+      else toast('Error: '+(res.error||'unknown'),'err');
+    } else {
+      const r = await apiPost({action:'updateTask',rowIndex:currentEditTask._rowIndex,data,userName:(getPlannerUser()||'Planner')});
+      const res=r.data||r;
+      if(res.success) { Object.assign(currentEditTask,data); toast('Saved ✓','ok'); closeEditModal(); render(); }
+      else toast('Error: '+(res.error||'unknown'),'err');
+    }
   } catch { toast('Connection error','err'); }
   btn.textContent='Save'; btn.disabled=false;
 }
