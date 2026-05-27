@@ -274,6 +274,35 @@ textarea.field { min-height:65px; resize:vertical; }
 </head>
 <body>
 
+<!-- SIMPLE LOGIN OVERLAY -->
+<div id="plannerLogin" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:9998;align-items:center;justify-content:center">
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:32px 28px;width:320px;text-align:center">
+    <svg width="52" height="52" viewBox="0 0 100 100" style="border-radius:11px;overflow:hidden;margin:0 auto 16px;display:block">
+      <rect width="100" height="100" fill="#0f172a"/>
+      <rect x="8" y="22" width="84" height="46" rx="7" fill="#3b82f6"/>
+      <rect x="14" y="30" width="20" height="16" rx="3" fill="#dbeafe"/>
+      <rect x="40" y="30" width="20" height="16" rx="3" fill="#dbeafe"/>
+      <rect x="66" y="30" width="16" height="16" rx="3" fill="#dbeafe"/>
+      <rect x="14" y="50" width="58" height="10" rx="2" fill="#bfdbfe"/>
+      <rect x="8" y="64" width="84" height="6" fill="#1e40af"/>
+      <circle cx="24" cy="76" r="5" fill="#1e293b"/><circle cx="24" cy="76" r="2.5" fill="#3b82f6"/>
+      <circle cx="76" cy="76" r="5" fill="#1e293b"/><circle cx="76" cy="76" r="2.5" fill="#3b82f6"/>
+    </svg>
+    <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px">Weekly Planner</div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:24px">Sign in to continue</div>
+    <div style="text-align:left;margin-bottom:14px">
+      <label style="display:block;font-size:11px;font-weight:600;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">Who are you?</label>
+      <select id="loginSelect" class="field" style="width:100%"><option value="">Select your name...</option></select>
+    </div>
+    <div style="text-align:left;margin-bottom:20px">
+      <label style="display:block;font-size:11px;font-weight:600;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">PIN</label>
+      <input id="loginPin" class="field" type="password" maxlength="4" placeholder="4-digit PIN" style="width:100%;letter-spacing:.2em;font-size:20px;text-align:center">
+    </div>
+    <div id="loginErr" style="display:none;background:rgba(248,81,73,.12);border:1px solid rgba(248,81,73,.3);color:var(--danger);border-radius:7px;padding:8px 12px;font-size:13px;margin-bottom:14px"></div>
+    <button id="loginSubmitBtn" class="btn btn-primary" style="width:100%;font-size:14px;padding:10px" onclick="submitPlannerLogin()">Sign In</button>
+  </div>
+</div>
+
 <div id="loadingScreen">
   <div class="spin"></div>
   <div style="font-size:12px;color:var(--text3);font-family:var(--mono);margin-top:4px">Loading planner...</div>
@@ -342,7 +371,6 @@ textarea.field { min-height:65px; resize:vertical; }
 const API = MC_CONFIG.API;
 
 // ── GET LOGGED-IN USER ──
-// Reads from the same localStorage key the main app sets on login
 function getPlannerUser() {
   try {
     const saved = localStorage.getItem('mc_user');
@@ -352,6 +380,64 @@ function getPlannerUser() {
     }
   } catch(e) {}
   return null;
+}
+
+// ── PLANNER LOGIN ──
+async function checkPlannerAuth() {
+  if (getPlannerUser()) return true; // already logged in
+  // Need to log in — show the login overlay
+  await showPlannerLogin();
+  return false;
+}
+
+async function showPlannerLogin() {
+  // Fetch people list for the dropdown
+  try {
+    const r = await apiPost({ action:'getPeopleForLogin' });
+    const people = r.data || r;
+    const sel = document.getElementById('loginSelect');
+    people.forEach(p => {
+      const opt = document.createElement('option');
+      opt.value = p.name; opt.textContent = p.name;
+      sel.appendChild(opt);
+    });
+  } catch(e) {}
+  document.getElementById('loadingScreen').classList.add('hide');
+  document.getElementById('plannerLogin').style.display = 'flex';
+  document.getElementById('loginPin').addEventListener('keydown', e => {
+    if (e.key === 'Enter') submitPlannerLogin();
+  });
+}
+
+async function submitPlannerLogin() {
+  const name = document.getElementById('loginSelect').value;
+  const pin  = document.getElementById('loginPin').value;
+  const err  = document.getElementById('loginErr');
+  const btn  = document.getElementById('loginSubmitBtn');
+
+  err.style.display = 'none';
+  if (!name) { err.textContent = 'Please select your name.'; err.style.display = 'block'; return; }
+  if (pin.length < 4) { err.textContent = 'Enter your 4-digit PIN.'; err.style.display = 'block'; return; }
+
+  btn.textContent = 'Signing in...'; btn.disabled = true;
+  try {
+    const r = await apiPost({ action:'verifyPin', name, pin });
+    const res = r.data || r;
+    if (res.success) {
+      localStorage.setItem('mc_user', JSON.stringify({ name:res.name, color:res.person.color, token:res.name+'_'+Date.now() }));
+      document.getElementById('plannerLogin').style.display = 'none';
+      document.getElementById('loadingScreen').classList.remove('hide');
+      loadData();
+    } else {
+      err.textContent = res.error || 'Incorrect PIN.';
+      err.style.display = 'block';
+      document.getElementById('loginPin').value = '';
+    }
+  } catch(e) {
+    err.textContent = 'Connection error. Try again.';
+    err.style.display = 'block';
+  }
+  btn.textContent = 'Sign In'; btn.disabled = false;
 }
 
 // ── STATE ──
@@ -844,6 +930,8 @@ async function apiPost(body) {
 }
 
 async function loadData() {
+  // Check if user is logged in — show login if not
+  if (!getPlannerUser()) { await showPlannerLogin(); return; }
   setSaveState('saving');
   try {
     const [tasksRes,formRes] = await Promise.all([
