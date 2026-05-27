@@ -329,9 +329,11 @@ textarea.field { min-height:65px; resize:vertical; }
     </div>
     <div class="divider"></div>
     <div class="week-nav">
-      <button class="week-btn" onclick="shiftWeek(-1)">‹</button>
+      <button class="week-btn" title="Back 5 days" onclick="shiftDays(-5)">«</button>
+      <button class="week-btn" title="Back 1 day"  onclick="shiftDays(-1)">‹</button>
       <div class="week-label" id="weekLabel">—</div>
-      <button class="week-btn" onclick="shiftWeek(1)">›</button>
+      <button class="week-btn" title="Forward 1 day"  onclick="shiftDays(1)">›</button>
+      <button class="week-btn" title="Forward 5 days" onclick="shiftDays(5)">»</button>
     </div>
     <button class="tbtn" onclick="goToToday()">Today</button>
   </div>
@@ -441,7 +443,7 @@ async function submitPlannerLogin() {
 }
 
 // ── STATE ──
-let allTasks = [], formData = {}, currentWeekStart = null;
+let allTasks = [], formData = {}, currentStartDate = null;
 let dragTask = null, dragDayIndex = null, dragPlaceholder = null, currentEditTask = null;
 let personFilter = 'all'; // 'all' | person name
 
@@ -480,14 +482,13 @@ function isoWeek(d) {
   return mon.toLocaleDateString('en-US',opts)+' – '+fri.toLocaleDateString('en-US',{...opts,year:'numeric'});
 }
 
-// ── COLUMN DEFINITIONS ──
+// ── COLUMN DEFINITIONS — rolling 5 days from currentStartDate ──
+const DAYS_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 function getColumns() {
-  const mon = new Date(currentWeekStart);
-  const days = ['Mon','Tue','Wed','Thu','Fri'];
   const cols = [{ id:'parking', label:'Parking Lot', date:null, isParking:true, dayIndex:-1 }];
   for(let i=0;i<5;i++) {
-    const d = addDays(mon,i);
-    cols.push({ id:fmtDate(d), label:days[i], date:d, isToday:sameDay(d,new Date()), dayIndex:i });
+    const d = addDays(currentStartDate, i);
+    cols.push({ id:fmtDate(d), label:DAYS_SHORT[d.getDay()], date:d, isToday:sameDay(d,new Date()), dayIndex:i });
   }
   return cols;
 }
@@ -571,7 +572,11 @@ function makePill(label, value, color, active) {
 function render() {
   const board = document.getElementById('board');
   const cols  = getColumns();
-  document.getElementById('weekLabel').textContent = isoWeek(currentWeekStart);
+  const endDate = addDays(currentStartDate, 4);
+  const opts = {month:'short', day:'numeric'};
+  document.getElementById('weekLabel').textContent =
+    currentStartDate.toLocaleDateString('en-US', opts) + ' – ' +
+    endDate.toLocaleDateString('en-US', {...opts, year:'numeric'});
 
   // Filter tasks by person
   const visibleTasks = allTasks.filter(t => {
@@ -912,8 +917,8 @@ async function deleteTaskFromPlanner() {
 }
 
 // ── WEEK NAV ──
-function shiftWeek(n) { currentWeekStart=addDays(currentWeekStart,n*7); render(); }
-function goToToday()  { currentWeekStart=monday(new Date()); render(); }
+function shiftDays(n) { currentStartDate=addDays(currentStartDate,n); render(); }
+function goToToday()  { currentStartDate=new Date(); currentStartDate.setHours(0,0,0,0); render(); }
 
 // ── SAVE STATE ──
 function setSaveState(s) {
@@ -957,7 +962,7 @@ function toast(msg,type){const t=document.getElementById('toast');t.textContent=
 
 // ── INIT ──
 initTheme();
-currentWeekStart = monday(new Date());
+currentStartDate = new Date(); currentStartDate.setHours(0,0,0,0);
 loadData();
 </script>
 </body>
