@@ -799,9 +799,11 @@ function isShowToday(t) {
   if (t.status==='Done'||t.status==='Cancelled') return false;
   const td=today(), tom=tomorrow();
   if (t.do_today===true||t.do_today==='TRUE'||t.do_today==='true') return true;
-  if (t.due_date) {
-    const dd=new Date(t.due_date+'T00:00:00');
-    if (dd<td) return true; // overdue
+  // Fall back to start_date if no due_date
+  const effectiveDue = t.due_date || t.start_date;
+  if (effectiveDue) {
+    const dd=new Date(effectiveDue+'T00:00:00');
+    if (dd<td) return true;  // overdue
     if (dd<tom) return true; // due today
   }
   if (t.start_date && t.due_date) {
@@ -814,8 +816,9 @@ function isShowToday(t) {
 function isShowTomorrow(t) {
   if (t.status==='Done'||t.status==='Cancelled') return false;
   if (isShowToday(t)) return false;
-  if (!t.due_date) return false;
-  const dd=new Date(t.due_date+'T00:00:00'), tom=tomorrow(), da=dayAfter();
+  const effectiveDue = t.due_date || t.start_date;
+  if (!effectiveDue) return false;
+  const dd=new Date(effectiveDue+'T00:00:00'), tom=tomorrow(), da=dayAfter();
   return dd>=tom && dd<da;
 }
 
