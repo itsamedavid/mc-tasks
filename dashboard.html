@@ -375,15 +375,17 @@ function render(raw) {
   function isShowToday(t) {
     if (t.status === 'Done' || t.status === 'Cancelled') return false;
     if (t.do_today === true || t.do_today === 'TRUE' || t.do_today === 'true') return true;
-    // Use due_date, falling back to start_date if no due_date set
-    const effectiveDue = t.due_date || t.start_date;
-    if (effectiveDue) {
-      const dd = new Date(effectiveDue+'T00:00:00');
-      if (dd <= today) return true; // overdue or due today
-    }
+
     const start = t.start_date ? new Date(t.start_date+'T00:00:00') : null;
     const due   = t.due_date   ? new Date(t.due_date+'T00:00:00')   : null;
-    if (start && due && today >= start && today <= due) return true;
+    const tom   = new Date(today); tom.setDate(tom.getDate()+1);
+
+    // Both dates — show if today is within range
+    if (start && due) return today >= start && today <= due;
+    // Due only — show if due today or overdue
+    if (due)   return due < tom;
+    // Start only — treat start as effective date
+    if (start) return start < tom;
     return false;
   }
 

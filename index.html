@@ -797,29 +797,30 @@ function dayAfter() { const d=today(); d.setDate(d.getDate()+2); return d; }
 
 function isShowToday(t) {
   if (t.status==='Done'||t.status==='Cancelled') return false;
-  const td=today(), tom=tomorrow();
   if (t.do_today===true||t.do_today==='TRUE'||t.do_today==='true') return true;
-  // Fall back to start_date if no due_date
-  const effectiveDue = t.due_date || t.start_date;
-  if (effectiveDue) {
-    const dd=new Date(effectiveDue+'T00:00:00');
-    if (dd<td) return true;  // overdue
-    if (dd<tom) return true; // due today
-  }
-  if (t.start_date && t.due_date) {
-    const sd=new Date(t.start_date+'T00:00:00'), dd=new Date(t.due_date+'T00:00:00');
-    if (td>=sd && td<=dd) return true;
-  }
+  const td  = today();
+  const tom = tomorrow();
+  const start = t.start_date ? new Date(t.start_date+'T00:00:00') : null;
+  const due   = t.due_date   ? new Date(t.due_date+'T00:00:00')   : null;
+  // Both dates — show if today falls within range (started but not yet past due)
+  if (start && due) return td >= start && td <= due;
+  // Due only — show if due today or overdue
+  if (due)   return due < tom;
+  // Start only — treat start_date as effective date
+  if (start) return start < tom;
   return false;
 }
 
 function isShowTomorrow(t) {
   if (t.status==='Done'||t.status==='Cancelled') return false;
   if (isShowToday(t)) return false;
-  const effectiveDue = t.due_date || t.start_date;
-  if (!effectiveDue) return false;
-  const dd=new Date(effectiveDue+'T00:00:00'), tom=tomorrow(), da=dayAfter();
-  return dd>=tom && dd<da;
+  const tom = tomorrow();
+  const da  = dayAfter();
+  // Check due_date first, then start_date as fallback
+  const effective = t.due_date || t.start_date;
+  if (!effective) return false;
+  const dd = new Date(effective+'T00:00:00');
+  return dd >= tom && dd < da;
 }
 
 function isShowFuture(t) {
