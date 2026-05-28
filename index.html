@@ -501,6 +501,28 @@ textarea.field{min-height:80px;resize:vertical}
   </div>
 </div>
 
+<!-- APPROVAL MODAL -->
+<div class="modal-overlay" id="approvalModal">
+  <div class="modal" style="max-width:380px">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">Who needs to approve?</div>
+      <button class="modal-close" onclick="cancelApproval()">×</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:14px;color:var(--text2);margin-bottom:16px" id="approvalTaskName"></p>
+      <div class="form-group">
+        <label class="form-label">Select Approver</label>
+        <select id="approvalSelect" class="field"></select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary btn-sm" onclick="cancelApproval()">Cancel</button>
+      <button class="btn btn-primary btn-sm" id="approvalConfirmBtn" onclick="confirmApproval()">Create Approval Task</button>
+    </div>
+  </div>
+</div>
+
 <!-- EDIT MODAL -->
 <div class="modal-overlay" id="editModal">
   <div class="modal">
@@ -968,7 +990,16 @@ async function openEditByRow(rowIndex) {
   }
   openEditModal(t);
 }
-function cardStatusChange(sel) { quickCardStatus(parseInt(sel.dataset.row), sel.value, sel); }
+function cardStatusChange(sel) {
+  const newStatus = sel.value;
+  const rowIndex  = parseInt(sel.dataset.row);
+  if (newStatus === 'Awaiting Approval') {
+    // Find the task and show approval modal instead of saving immediately
+    const task = allTasks.find(t => t._rowIndex === rowIndex);
+    if (task) { showApprovalModal(task, sel); return; }
+  }
+  quickCardStatus(rowIndex, newStatus, sel);
+}
 async function quickCardStatus(rowIndex, newStatus, selectEl) {
   if(selectEl) { selectEl.disabled=true; }
   try {
@@ -1089,6 +1120,93 @@ function updateNameCount(input,countId) {
   el.textContent=input.value.length; el.style.color=input.value.length>=28?'var(--danger)':'var(--text3)';
 }
 
+// ── APPROVAL WORKFLOW ──
+let pendingApprovalTask = null, pendingApprovalSel = null;
+
+function showApprovalModal(task, sel) {
+  pendingApprovalTask = task;
+  pendingApprovalSel  = sel;
+
+  // Populate approver dropdown — exclude the task owner
+  const approvalSel = document.getElementById('approvalSelect');
+  approvalSel.innerHTML = '<option value="">Select approver...</option>';
+  (formData.people || []).forEach(p => {
+    if (p.name === task.assigned_to) return; // can't approve own task
+    const opt = document.createElement('option');
+    opt.value = p.name; opt.textContent = p.name;
+    approvalSel.appendChild(opt);
+  });
+
+  document.getElementById('approvalTaskName').textContent =
+    'Task: "' + task.task_name + '" assigned to ' + (task.assigned_to || 'Unassigned');
+
+  document.getElementById('approvalModal').classList.add('open');
+}
+
+function cancelApproval() {
+  // Revert the dropdown back to original status
+  if (pendingApprovalSel) {
+    pendingApprovalSel.value = pendingApprovalTask ? pendingApprovalTask.status : 'To Do';
+    pendingApprovalSel.disabled = false;
+  }
+  document.getElementById('approvalModal').classList.remove('open');
+  pendingApprovalTask = null; pendingApprovalSel = null;
+}
+
+async function confirmApproval() {
+  const approver = document.getElementById('approvalSelect').value;
+  if (!approver) { toast('Please select an approver', 'err'); return; }
+
+  const btn = document.getElementById('approvalConfirmBtn');
+  btn.textContent = 'Creating...'; btn.disabled = true;
+
+  const task = pendingApprovalTask;
+
+  try {
+    // Step 1: Update original task status to Awaiting Approval
+    const r1 = await apiPost({
+      action: 'updateTask',
+      rowIndex: task._rowIndex,
+      data: { status: 'Awaiting Approval' },
+      userName: currentUser.name
+    });
+    const res1 = r1.data || r1;
+    if (!res1.success) { toast('Error: ' + res1.error, 'err'); btn.textContent = 'Create Approval Task'; btn.disabled = false; return; }
+
+    // Step 2: Create approval task for the approver
+    const approvalTaskName = ('APPROVE: ' + task.task_name).substring(0, 30);
+    const r2 = await apiPost({
+      action: 'saveTask',
+      data: {
+        task_name:   approvalTaskName,
+        assigned_to: approver,
+        status:      'To Do',
+        priority:    task.priority    || 'Medium',
+        category:    task.category    || '',
+        bus:         task.bus         || '',
+        due_date:    task.due_date    || '',
+        start_date:  task.start_date  || '',
+        notes:       'Approval required for: ' + task.task_name + (task.notes ? ' | Original notes: ' + task.notes : ''),
+        do_today:    'TRUE', // approval tasks should be visible immediately
+        source:      'approval:' + task.task_id,
+        created_by:  currentUser.name
+      },
+      userName: currentUser.name
+    });
+    const res2 = r2.data || r2;
+    if (!res2.success) { toast('Error creating approval task: ' + res2.error, 'err'); btn.textContent = 'Create Approval Task'; btn.disabled = false; return; }
+
+    toast('Approval task created for ' + approver + ' ✓', 'ok');
+    document.getElementById('approvalModal').classList.remove('open');
+    pendingApprovalTask = null; pendingApprovalSel = null;
+    await refreshTasks(currentUser);
+
+  } catch(e) {
+    toast('Connection error', 'err');
+  }
+  btn.textContent = 'Create Approval Task'; btn.disabled = false;
+}
+
 // ── BUSES TAB ──
 async function loadBuses() {
   const c=document.getElementById('busesList');
@@ -1192,6 +1310,15 @@ async function saveEdit() {
     const now2 = new Date();
     const pad2 = n => String(n).padStart(2,'0');
     const ts2  = now2.getFullYear()+'-'+pad2(now2.getMonth()+1)+'-'+pad2(now2.getDate())+' '+pad2(now2.getHours())+':'+pad2(now2.getMinutes())+':'+pad2(now2.getSeconds());
+    // Check if status is being set to Awaiting Approval via modal
+    if (currentTask.status === 'Awaiting Approval') {
+      // Close edit modal and show approval modal
+      closeEdit();
+      const freshTask = allTasks.find(t => t._rowIndex === currentTask._rowIndex) || currentTask;
+      freshTask.status = 'Awaiting Approval'; // pre-set for the modal
+      showApprovalModal(freshTask, null);
+      return;
+    }
     const editData = {
       task_name:document.getElementById('e_name').value.trim(),
       assigned_to:document.getElementById('e_to').value,
