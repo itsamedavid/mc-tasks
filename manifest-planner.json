@@ -1,0 +1,26 @@
+{
+  "name": "Midnight Coach — Weekly Planner",
+  "short_name": "MC Planner",
+  "description": "Weekly Planner for Midnight Coach LLC",
+  "start_url": "/mc-tasks/planner.html",
+  "scope": "/mc-tasks/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "planner-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "planner-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "business"]
+}
