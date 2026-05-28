@@ -495,29 +495,40 @@ function getColumns() {
 
 // ── TASK → COLUMNS MAPPING (multi-day returns multiple column IDs) ──
 function getTaskColumns(task) {
-  const today = new Date(); today.setHours(0,0,0,0);
-  const cols = getColumns().filter(c=>!c.isParking);
-  const colIds = cols.map(c=>c.id);
+  const todayDate = new Date(); todayDate.setHours(0,0,0,0);
+  const todayStr  = fmtDate(todayDate);
+  const cols      = getColumns().filter(c=>!c.isParking);
+  const colIds    = cols.map(c=>c.id);
 
   // do_today with no due date → today only
-  if((task.do_today===true||task.do_today==='TRUE'||task.do_today==='true') && !task.due_date) {
-    const todayStr = fmtDate(today);
+  if((task.do_today===true||task.do_today==='TRUE'||task.do_today==='true') && !task.due_date && !task.start_date) {
     return colIds.includes(todayStr) ? [{colId:todayStr, dayNum:1, totalDays:1}] : [];
   }
 
   const start = task.start_date ? parseDate(task.start_date) : null;
   const due   = task.due_date   ? parseDate(task.due_date)   : null;
 
+  // No dates at all → parking lot
   if(!start && !due) return [{colId:'parking', dayNum:1, totalDays:1}];
 
-  // Anchor date — use start if available, else due
-  const anchor = start || due;
-  const end    = due || start;
+  // OVERDUE: due date (or start date if no due) is before today
+  // → show on today's column instead of the past date
+  const effectiveDate = due || start;
+  if(effectiveDate < todayDate) {
+    // Overdue — show on today's column if visible
+    if(colIds.includes(todayStr)) {
+      return [{colId:todayStr, dayNum:1, totalDays:1, isOverdue:true}];
+    }
+    // Today not in view — still show on today's column
+    // (user can scroll to today or use Today button)
+    return [{colId:todayStr, dayNum:1, totalDays:1, isOverdue:true}];
+  }
 
-  // Calculate span in days
+  // Anchor date — use start if available, else due
+  const anchor   = start || due;
   const spanDays = start && due ? Math.round((due-start)/(1000*60*60*24))+1 : 1;
 
-  // Find which week columns this task spans
+  // Find which visible columns this task spans
   const result = [];
   for(let d=0; d<spanDays; d++) {
     const dayDate = addDays(anchor, d);
@@ -527,11 +538,7 @@ function getTaskColumns(task) {
     }
   }
 
-  // If no columns matched — check if it's a parking lot task
-  if(!result.length) {
-    if(!start && !due) return [{colId:'parking', dayNum:1, totalDays:1}];
-    return []; // outside this week
-  }
+  if(!result.length) return []; // outside this view window
   return result;
 }
 
