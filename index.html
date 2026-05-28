@@ -802,11 +802,13 @@ function isShowToday(t) {
   const tom = tomorrow();
   const start = t.start_date ? new Date(t.start_date+'T00:00:00') : null;
   const due   = t.due_date   ? new Date(t.due_date+'T00:00:00')   : null;
-  // Both dates — show if today falls within range (started but not yet past due)
+  // Overdue: due date is in the past → always show on today
+  if (due && due < td) return true;
+  // Both dates — show if today is within range
   if (start && due) return td >= start && td <= due;
-  // Due only — show if due today or overdue
+  // Due only — due today
   if (due)   return due < tom;
-  // Start only — treat start_date as effective date
+  // Start only — started today or in the past
   if (start) return start < tom;
   return false;
 }

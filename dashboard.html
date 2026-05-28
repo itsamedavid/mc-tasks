@@ -380,11 +380,13 @@ function render(raw) {
     const due   = t.due_date   ? new Date(t.due_date+'T00:00:00')   : null;
     const tom   = new Date(today); tom.setDate(tom.getDate()+1);
 
-    // Both dates — show if today is within range
+    // Overdue: due date is in the past → always show
+    if (due && due < today) return true;
+    // Both dates — show if today is within range (and not yet past due)
     if (start && due) return today >= start && today <= due;
-    // Due only — show if due today or overdue
+    // Due only — due today
     if (due)   return due < tom;
-    // Start only — treat start as effective date
+    // Start only — started today or in the past
     if (start) return start < tom;
     return false;
   }
